@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>logic simulator</title>
+	<link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+<body>
+	
+	<div id="simViewport">
+		<canvas id="simCanvas"></canvas>
+		<div id="simClickbox" onclick="window.circuit.click()"></div>
+	</div>
+
+	<script type="text/javascript" src="./code/helpers/paper.js"></script>
+	<script type="text/javascript" src="./code/helpers/init.js"></script>
+	<script type="text/javascript" src="./code/helpers/indexedgroup.js"></script>
+	<script type="text/javascript" src="./code/helpers/visualschemes.js"></script>
+
+	<script type="text/javascript" src="./code/elements/junction.js"></script>
+	<script type="text/javascript" src="./code/elements/wire.js"></script>
+	<script type="text/javascript" src="./code/elements/net.js"></script>
+	<script type="text/javascript" src="./code/elements/pin.js"></script>
+	<script type="text/javascript" src="./code/elements/device.js"></script>
+	<script type="text/javascript" src="./code/elements/circuit.js"></script>
+
+	<script type="text/javascript" src="./code/devices/gates.js"></script>
+	<script type="text/javascript" src="./code/devices/interfaces.js"></script>
+	<script type="text/javascript" src="./code/devices/timing.js"></script>
+
+	<script type="text/javascript" src="./code/helpers/hook.js"></script>
+
+</body>
+</html>
