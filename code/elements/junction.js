@@ -5,28 +5,44 @@ class Junction extends Path {
 		super();
 		net.children["junctions"].addChild(this);
 		
-		this.net = net;
+		//this.net = net;
 		this.data.type = "junction";
+		this.netElement = true;
 		this.closed = true;
 		this.fillColor = net.color; // this.layer.data.style.color.undefined;
 		this.add(point); // dummy segment at center until it gets circle'd
 		this.radiusUpdate(point);
+	}
 
+	getNet() {
+		return this.parent.parent;
+	}
 
+	renet(newNet) {
+		newNet.children["junctions"].addChild(this);
 	}
 
 	remove() {
+		console.log("junc", this.index, "removed from", this.getNet().name);
+		console.trace();
 		return super.remove();
 	}
 
-	renet(net) {
-		net.children["junctions"].addChild(this);
-	}
+	radiusUpdate(notCount=null, point = this.position) {
 
-	radiusUpdate(point = this.position) {
 		var radius = project.layers.editables.data.style.size.junction.normal;
-		var wiresAtJunction = point.findEditable({type:"wire", all:true});
-		if (wiresAtJunction && wiresAtJunction.length >= 3)
+
+		var wiresAtJunction = point.findEditable({type:"wire", all:true, exclude:notCount});
+		if (!wiresAtJunction)
+			this.remove(); // if ran out of wires at this junction - remove self
+
+		var count = 0;
+		if (wiresAtJunction)
+			count = wiresAtJunction.length;
+		if (point.findEditable({type:"pin", all:true}))
+			count += 1;
+
+		if (count >= 3)
 			var radius = project.layers.editables.data.style.size.junction.big;
 
 		function __segmentsGenerate(p,r) {
@@ -37,23 +53,6 @@ class Junction extends Path {
 		}
 		
 		this.segments = __segmentsGenerate(point, radius);
-
-	}
-	
-	getWiresAt(options={exclude:null, sameNet:true}) {
-		return this.position.findEditable({type:"wire", exclude:options.exclude, all:true, net:this.parent.parent});
 	}
 
-	removeWithWire(wire) {
-		this.radiusUpdate();
-		var wires = this.position.findEditable({type:"wire", all:true, exclude:wire, net:this.net});
-		if (!wires)
-			return this.remove();	
-		if (wires.length != 2)
-			return false;
-		if (!wires[0].isParallel(wires[1]))
-			return false;
-		wires[0].mergeWith(wires[1]);
-		return this.remove();		
-	}
 }

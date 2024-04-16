@@ -1,9 +1,22 @@
 
- sizing = 25;
+sizing = 25;
+defaultSize = 
+{
+	"grid": sizing,
+	"junction": {
+		"normal": 1.5,
+		"big": 4
+	},
+	"wire": 3,
+	"device": 3,
+	"cursor": {
+		"radius": 3,
+		"width": 1.5
+	}
+}
 
- var VisualSchemes = {
 
- 	
+var VisualSchemes = {	
 
 	default: {
 		"color": {
@@ -15,19 +28,7 @@
 			"highlighted": "#F0B",
 			"devices": "#000"
 		},
-		"size": {
-			"grid": sizing,
-			"junction": {
-				"normal": 1.5,
-				"big": 4
-			},
-			"wire": 3,
-			"device": 3,
-			"cursor": {
-				"radius": 3,
-				"width": 1.5
-			}
-		}
+		"size": defaultSize
 	},
 
 	dark: {
@@ -40,21 +41,10 @@
 			"highlighted": "#F0B",
 			"devices": "white"
 		},
-		"size": {
-			"grid": sizing,
-			"junction": {
-				"normal": 1.5,
-				"big": 4
-			},
-			"wire": 3,
-			"device": 3,
-			"cursor": {
-				"radius": 3,
-				"width": 1.5
-			}
-		}
+		"size": defaultSize
 	}
 
 }
 
 delete sizing;
+delete defaultSize;

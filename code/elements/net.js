@@ -1,15 +1,15 @@
 class Net extends Group {
 
-	constructor(parentGroup) {
+	constructor(circuit) {
 		
 		super();
 	
-		this.name = "net"+parentGroup._getIndex();
+		this.name = "net"+circuit.children.nets._getIndex();
+		circuit.children.nets.addChild(this);
 		this.data.type = "net";
-		parentGroup.addChild(this);
 
-		this.color = this.layer.data.style.color.undefined;
-		this.width = this.layer.data.style.size.wire;	
+		this.color = circuit.appearance.color.undefined;
+		this.width = circuit.appearance.size.wire;	
 
 		this.state = undefined;
 
@@ -33,10 +33,17 @@ class Net extends Group {
 	}
 
 	update() {
-
+		var stateUpdated = false;
 		for (const pin of this.connections) { // first find out this net's state
 			if (pin.mode == "out")
-			{
+			{		
+				if (stateUpdated)
+				{
+					debugCircle(pin.lastSegment.point);
+					this.recolor(this.parent.parent.appearance.color.highlighted);
+					return this.parent.parent.throwError("short circuit!");
+				}
+				stateUpdated = true;
 				if (this.state == pin.state)
 					continue;
 				this.state = pin.state;
@@ -45,17 +52,16 @@ class Net extends Group {
 		}
 		for (const pin of this.connections) { // then distribute it to all input pins
 			if (pin.mode == "in")
-				pin.set(this.state);
+				pin.set(this.state, this.strokeColor);
 		}
 		return true;
 	}
 
 	mergeWith(otherNet) {
-		if (this.name == otherNet.name)
-			return false;
-		this.children["wires"].children = this.children["wires"].children.concat(otherNet.children["wires"].children);
-		this.children["junctions"].children = this.children["junctions"].children.concat(otherNet.children["junctions"].children);
-		return otherNet.remove();
+		this.children["junctions"].children = this.children["junctions"].children.concat(otherNet.children["junctions"].children); 
+		this.children["wires"].children = this.children["wires"].children.concat(otherNet.children["wires"].children); 
+		this.connections = this.connections.concat(otherNet.connections);
+		otherNet.remove();
 	}
 
 	recolor(color) {
@@ -64,8 +70,41 @@ class Net extends Group {
 		this.fillColor = color;
 	}
 
-	addConnection(pin) {
-		this.connections.push(pin);
+	wireRemovalScan(wire) {
+		var pointA = wire.firstSegment.point;
+		var pointB = wire.lastSegment.point;
+		wire.segments = [];
+
+		var splitNet = new Net(this.parent.parent); //net>nets>circuit
+		if (this.hasRouteTo(pointA, pointB, splitNet))
+			this.mergeWith(splitNet)
+	}
+
+	hasRouteTo(goal, location, newNet)
+	{
+		if (location.x == goal.x && location.y == goal.y)
+			return true; // if goal met - return with true
+ 
+		var junc = location.findEditable({type:"junction", net:this});
+		junc.renet(newNet); // renet this junction to exclude it from further search
+
+		var wires = location.findEditable({type:"wire", net:this, all:true});
+		if (!wires) // if this is a stub junction - cut this branch
+			return false;
+
+		for (var wire of wires)
+		{
+			wire.renet(newNet);
+		 	if (this.hasRouteTo(goal, wire.getOtherSide(location), newNet))
+			  return true;
+			
+		}
+		return false;
+	}
+
+	connectionAdd(pin) {
+		if (this.connections.indexOf(pin) == -1)
+			this.connections.push(pin);
 	} 
 
 	colorByState(state) {

@@ -1,25 +1,40 @@
-class Circuit {
+class Circuit extends Group {
 
 	constructor() {
+
+		super();
+		this.name = "circuit";
+
+
 		// paper.js stuff init
 		this.editables = project.addLayer(new Layer({ name:"editables" }));
-		project.addLayer(new Layer({ name:"above" }));
+		var above = project.addLayer(new Layer({ name:"above" }));
 		project.layers.editables.activate();
-		this.nets = new IndexedGroup();
-		this.devices = new IndexedGroup();
-		view.draw();
+		view.draw()
 
+		this.editables.addChild(this);
+		// main subgroups
+
+		var nets = new IndexedGroup();
+		nets.name = "nets";
+		this.addChild(nets);
+
+		var devices = new IndexedGroup();
+		devices.name = "devices";
+		this.addChild(devices);
+		
 		// style definitions
 		project.layers.editables.data.style = VisualSchemes.default;
+
+		this.appearance = VisualSchemes.default;
 
 		// logic 
 		this.status = "idle";
 		this.tool = "pointer";
-
 		this.selection = null;
-		this.netDragged = null;
+		this.wireDragged = null;
 		this.netHighlighted = null;
-		this.pickedDevice = null;
+		this.devicePicked = null;
 
 		// other stuff
 		this.gridCursor = this._setupCursor();
@@ -38,58 +53,41 @@ class Circuit {
 		clearTimeout(this.updateTimer);
 	}
 
-	_getIndex(group, stack) {
-		if (stack.length == 0)
-			return group.children.length;
-		return stack.pop();
-	}
-
-	_freeIndex(id, stack) {
-		stack.push(parseInt(id.substr(3)));
-	}
-
 	_setupCursor() {
 		project.layers.above.activate();
 		var gc = new Path.Circle(new Point(GLOBAL_sizing/2, GLOBAL_sizing/2), project.layers.editables.data.style.size.cursor.radius);
 		gc.strokeColor = project.layers.editables.data.style.color.selected;
 		gc.strokeWidth = project.layers.editables.data.style.size.cursor.width;
 		gc.name = 'gridCursor';		
-		project.layers.editables.activate();;
+		project.layers.editables.activate();
 		return gc;
 	}
 
 	netStart(startPoint) {
-		const netElement = startPoint.findEditable();
-		if (netElement != null && (netElement.data.type == "junction" || netElement.data.type == "wire"))
-			this.netDragged = netElement.parent.parent; // junction->junctions->net			
-		else
-			this.netDragged = new Net(this.nets);
-		var wire = new Wire(startPoint, this.netDragged);
-		this.netDragged.data.wireDraggedIndex = wire.index;	
+		this.wireDragged = new Wire(startPoint, this);
 	}
 
-	netPoint(draggedWirePoint, netFinish=false) {
-		
-		var wire = this.netDragged.children["wires"].children[this.netDragged.data.wireDraggedIndex];
-		wire.lastSegment.remove(); // temporarily shrink wire to starting point
-		const otherNetElement = draggedWirePoint.findEditable({exclude: wire});
-		if (otherNetElement && (otherNetElement.data.type == "wire" || otherNetElement.data.type == "junction"))
-			this.netDragged.mergeWith(otherNetElement.parent.parent);
-		wire.finish(draggedWirePoint); // finalise wire to how it must be
-
-		if (!netFinish)
-		{
-			var newWire = new Wire(draggedWirePoint, this.netDragged);
-			return this.netDragged.data.wireDraggedIndex = newWire.index;
-		}
-
-		this.netDragged.data.wireDraggedIndex = null;
-		this.netDragged = null;
+	netPoint(clickPoint, keepWiring=true) {
+		this.wireDragged.finish(clickPoint); // finalise wire to how it must be
+		if (keepWiring)
+			return this.wireDragged = new Wire(clickPoint, this);
+		this.wireDragged
 		this.status = "idle";
 	}
 
 	netFinish(finishPoint) {
-		return this.netPoint(finishPoint, true);
+		return this.netPoint(finishPoint, false);
+	}
+
+	_devicePick(point) {
+		this.devicePicked = new Devices[this.tool](this, point);
+	}
+
+
+	_devicePlace(point) {
+		this.devicePicked.place();
+		this.devicePicked = null;
+		this.status = "idle";
 	}
 
 	_makeSelected(item) {
@@ -117,12 +115,12 @@ class Circuit {
 		switch (this.selection.data.type)
 		{
 			case "junction":
-				item.fillColor = item.net.color;
+				item.fillColor = item.getNet().color;
 			case "wire":
-				item.strokeColor = item.net.color;
+				item.strokeColor = item.getNet().color;
 				return;
 			case "pin":
-				return item.strokeColor = project.layers.editables.data.style.color.devices;
+				return item.autoColor();
 			case "body":
 				return item.setStrokeColor(item.layer.data.style.color.devices);
 		}
@@ -132,7 +130,8 @@ class Circuit {
 		this._selectionNetUnhighlight();
 		if (this.selection == null)
 			return;
-		this.netHighlighted = this.selection.parent.parent
+		this.netHighlighted = this.selection.getNet();
+		console.log("highlit", this.selection.getNet().name);
 		return this.selection.parent.parent.highlight();
 	}
 
@@ -180,17 +179,40 @@ class Circuit {
 	}
 
 	_actionStopAny() {
-		if (this.status == "net") {
-
-			this.netDragged.children["wires"].lastChild.remove();
-			this.netDragged = null;
+		if (this.status == "net") { // drawing a net
+			if (this.tool == "wire") {
+				this.wireDragged.remove();
+			}
 		}
 		else if (this.status == "device") {
-			this.circuit.deviceRemove(this._nameToId(this.pickedDevice.name));
-			this.pickedDevice.remove();
+			this.devicePicked.remove();
 		}
 		this.status = "idle";
 	}
+
+	_pointerClick(point) {
+		var actuator = point.findEditable({type:"actuator"});
+		if (actuator) // if we clicked a button of some kind on some device
+			actuator.data.device.act(actuator);
+	}
+
+	
+
+
+
+
+
+
+
+
+
+
+
+	throwError(text) {
+		this.stop();
+		alert(text);
+	}
+
 
 	point(pointRaw, pointQuantized) { // called when a drawn cursor entered a new xcell, ycell position
 
@@ -208,10 +230,10 @@ class Circuit {
 		}
 
 		// prevent highlighting the wire we're currently drawing
-		if (this.status == "net" && hit.item == this.netDragged.children["wires"].children[this.netDragged.data.wireDraggedIndex])
+		if (this.status == "net" && hit.item == this.wireDragged)
 			return;
 		// prevent highlighting the device we picked
-		else if (this.status == "device" && hit.item == this.pickedDevice.children.body)
+		else if (this.status == "device" && hit.item == this.devicePicked.children.body)
 			return;
 
 		if (hit.item != this.selection)
@@ -222,26 +244,14 @@ class Circuit {
 
 	}
 
-	_pointerClick(point) {
-		var actuator = point.findEditable({type:"actuator"});
-		if (actuator) // if we clicked a button of some kind on some device
-			actuator.data.device.act(actuator);
-	}
-
-	_devicePick(point) {
-		this.pickedDevice = new Devices[this.tool](this.devices, point);
-	}
-
-
-	_devicePlace(point) {
-		this.status = "idle";
-	}
+	
 
 	click() { // called from gui clickbox onclick event
+
 		const clickPoint = new Point(event.offsetX, event.offsetY);
 		clickPoint.quantize(project.layers.editables.data.style.size.grid);
-		if (this.status == "idle") {
 
+		if (this.status == "idle") {
 			switch (this.tool)
 			{
 				case "wire":
@@ -296,10 +306,10 @@ class Circuit {
 
 
 	update() {
-		for (var net of this.nets.children) {
+		for (var net of this.children["nets"].children) {
 			net.update();
 		}
-		for (var dev of this.devices.children) {
+		for (var dev of this.children["devices"].children) {
 			dev.update();
 		}
 	}

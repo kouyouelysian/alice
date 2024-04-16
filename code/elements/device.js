@@ -23,60 +23,72 @@ var Devices = {
 
 Devices.Device = class Device extends Group {
 
-	constructor(parentGroup, point, packageData=Devices.defaultPackageData) {
+	constructor(circuit, point, packageData=Devices.defaultPackageData) {
 
 		super();
 
 		this.position = point;
 
-		this.name = "dev"+parentGroup._getIndex();
-		parentGroup.addChild(this);
+		this.name = "dev"+circuit.children.devices._getIndex();
+		circuit.children.devices.addChild(this);
 		this.data.type = "device"; 
 
 		this.pivot = this.bounds.topLeft;
-		this.createPackage(point, packageData);
+		this.createPackage(point, packageData, circuit);
 	}	
+
+	place() {
+		for (var ch of this.children) 
+		{
+			if (ch.data.type != "pin")
+				continue;
+			ch.place();
+
+		}
+	}
 
 	remove() {
 		this.parent._freeIndex(this.name);
 		super.remove();
 	}
 	
-	createPackage(point, packageData) {
+	createPackage(point, packageData, circuit) {
 
-		var sizing = this.layer.data.style.size.grid;
+		var gridSize = this.layer.data.style.size.grid;
 		var origin = new Point(
-			point.x - packageData.body.origin.x*sizing, 
-			point.y - packageData.body.origin.x*sizing
+			point.x - packageData.body.origin.x*gridSize, 
+			point.y - packageData.body.origin.x*gridSize
 		);
 
+		const bodyDimensions = packageData.body.dimensions;
 		for (const pinData of packageData.pins)
 		{
-			this.addChild(new Pin(pinData, packageData.body.dimensions, origin, sizing));
+			this.addChild(new Pin(circuit, pinData, bodyDimensions, origin, gridSize));
+			this.lastChild
 			if (pinData.bulb)
 				this.addChild(this.lastChild.getInversionBulb());
 		}
 
 		if (!packageData.body.symbol) // if package has no symbol information - draw a rectangle
-			this.insertChild(packageData.pins.length, this.createBodyDefault(packageData, origin, sizing));
+			this.insertChild(packageData.pins.length, this.createBodyDefault(packageData, origin, gridSize));
 		else // else we have custom package information, then process it
-			this.insertChild(packageData.pins.length, this.createBodyCustom(packageData, origin, sizing));
-		
+			this.insertChild(packageData.pins.length, this.createBodyCustom(packageData, origin, gridSize));
 		this.lastChild.name = "body";
 		this.lastChild.type = "body";
 
-		this.setStrokeColor(project.layers.editables.data.style.color.devices);
-		this.setStrokeWidth(project.layers.editables.data.style.size.device);
-		this.setFillColor(project.layers.editables.data.style.color.fill);
+		this.setStrokeColor(circuit.appearance.color.devices);
+		this.setStrokeWidth(circuit.appearance.size.device);
+		this.setFillColor(circuit.appearance.color.fill);
+
 	}
 
-	createBodyDefault(packageData, origin, sizing) {
-		var body = new Path.Rectangle(origin.x, origin.y, packageData.body.dimensions.width*sizing, packageData.body.dimensions.height*sizing)
+	createBodyDefault(packageData, origin, gridSize) {
+		var body = new Path.Rectangle(origin.x, origin.y, packageData.body.dimensions.width*gridSize, packageData.body.dimensions.height*gridSize)
 		body.strokeColor = body.parent.strokeColor;
 		return body;
 	}
 
-	createBodyCustom(packageData, origin, sizing) {
+	createBodyCustom(packageData, origin, gridSize) {
 		//body = new Path.Circle(origin, 10);
 
 			var body = new CompoundPath();
@@ -87,12 +99,12 @@ Devices.Device = class Device extends Group {
 				var piece = new Path();
 				for (var segment of pieceData.segmentData)
 				{
-					var point = origin.add(this.pointFromPackageNotation(segment.point, sizing));
+					var point = origin.add(this.pointFromPackageNotation(segment.point, gridSize));
 					piece.add(point);
 					if (segment.handles)
 					{
-						piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in, sizing);
-						piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out, sizing);
+						piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in, gridSize);
+						piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out, gridSize);
 					}
 				}
 				if (pieceData.closed)
@@ -107,8 +119,12 @@ Devices.Device = class Device extends Group {
 			return body;
 	}
 
-	pointFromPackageNotation(pdn, sizing) {
-		return new Point(pdn[0], pdn[1]).multiply(sizing);
+	pointFromPackageNotation(pdn, gridSize) {
+		return new Point(pdn[0], pdn[1]).multiply(gridSize);
+	}
+
+	setState(pinName, state) {
+		return this.children[pinName].state = state;
 	}
 
 	read(pinName) {

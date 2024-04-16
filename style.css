@@ -13,8 +13,8 @@ body, html {
 
 body {
 	--sizing: 25px;
-	line-height: 0;
-	font-size: 0;
+	font-family: 'Courier New';
+	font-size: 14px;
 	overflow: hidden;
 }
 
@@ -53,16 +53,27 @@ body {
 
 }
 
-.cell {
-	width: var(--sizing);
-	height: var(--sizing);
-	display: inline-block; 
-	padding: 0;
-	position: relative;
+
+
+#menu {
+	background-color: #EEE;
+	width: calc(20% - 2px - 32px);
+	border-right: 2px solid #444;
+	height: calc(100% - 32px);
+	position: absolute;
+	padding: 16px;
+	top: 0;
+	left: 0;
 }
 
-
-.cell:hover {
-	--cell-color: #aaa;
+#menu p {
+	color: white;
+	background-color: #97F;
+	padding: 8px;
+	width: fit-content;
+	cursor: pointer;
 }
 
+#menu p:hover {
+	background-color: #64D;
+}

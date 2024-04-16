@@ -1,5 +1,10 @@
-
 const GLOBAL_sizing = 25;
+
+function debugCircle(point, color=Color.random(), radius=10)
+{
+	var c = new Path.Circle(point, radius);
+	c.strokeColor = color;
+}
 
 function initField(x, y) {
 
@@ -17,18 +22,18 @@ function patchPaperPoint() {
 	Point.prototype.findEditable = function(options={/* type, all, exclude */}) {
 
 		var hitTestOptions = { fill: true, stroke: true, segments: true, tolerance: settings.hitTolerance };
-		if (options.type) 
-			hitTestOptions.match = function(hit) {
-				if (!hit.item)
-					return false;
-				if (options.type && hit.item.data.type != options.type)
-					return false;
-				if (options.net && hit.item.parent.parent != options.net)
-					return false;
-				if (options.exclude && hit.item == options.exclude)
-					return false;				
-				return true;
-			};
+
+		hitTestOptions.match = function(hit) {
+			if (!hit.item)
+				return false;
+			if (options.type && hit.item.data.type != options.type)
+				return false;
+			if (options.net && hit.item.getNet() != options.net)
+				return false;
+			if (options.exclude && hit.item == options.exclude)
+				return false;				
+			return true;
+		};
 
 		var test = project.layers.editables.hitTestAll(this, hitTestOptions);
 		if (test == null || test.length == 0)

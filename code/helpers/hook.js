@@ -20,12 +20,11 @@ function setupTool() {
 		}
 		
 		if (window.circuit.status == "net") {
-			var wire = window.circuit.netDragged.children["wires"].lastChild;
-			wire.removeSegments(wire.segments.length - 1);
-			wire.add(event.point);
+			var wire = window.circuit.wireDragged;
+			wire.lastSegment.point = event.point;
 		}	
-		else if (window.circuit.status == "device" && window.circuit.pickedDevice != null) {
-			window.circuit.pickedDevice.position = quantizedPoint;
+		else if (window.circuit.status == "device" && window.circuit.devicePicked != null) {
+			window.circuit.devicePicked.position = quantizedPoint;
 		}
 		
 	}

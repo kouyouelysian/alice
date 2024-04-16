@@ -1,6 +1,6 @@
 class Pin extends Path {
 
-	constructor(pinData /*name, mode, side, offset, bulb*/, packageDimensions, origin, sizing) {
+	constructor(circuit, pinData /*name, mode, side, offset, bulb*/, packageDimensions, origin, sizing) {
 
 		// mathematical shenanigans to find the position of the pin
 		const hor = ((pinData.side+1)%2) * ((pinData.side>0)*-2+1);
@@ -13,48 +13,90 @@ class Pin extends Path {
 		pinData.side%2==0? piny += pinData.offset : pinx += pinData.offset;
 			 
 		var start = new Point(origin.x+pinx*sizing, origin.y+piny*sizing);
-		var offset = new Point(hor*sizing, vert*sizing);
-
+		var end = start.add(new Point(hor*sizing, vert*sizing));
 		super();
 		this.add(start);
-		this.add(start.add(offset));
+		this.add(end);
+		this.strokeColor = circuit.appearance.color.undefined;
+		this.circuit = circuit;
+		this.net = null;
 		this.data.type = "pin";
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
-		this.net = null;
-		this.fillColor = "white";//this.layer.data.style.color.fill;
 		this.state = undefined;
+	}
+
+	getNet() {
+		return this.net;
+	}
+
+	set(state, color=null) {
+		if (state == this.state)
+			return;
+		this.state = state;
+		if (color) // for fast recoloring on update
+			return this.strokeColor = color; 
+		this.autoColor();
+	}
+
+	autoColor() {
+		this.strokeColor = this.colorByState(this.state);
 	}
 
 	get() {
 		return this.state;
 	}
 
-	set(state) {
-		if (state == this.state)
-			return;
-		this.state = state;
-		this.colorByState(this.state);
-	}
-
 	colorByState(state) {
 		if (state === true)
-			this.strokeColor = (this.layer.data.style.color.true);
+			return circuit.appearance.color.true;
 		else if (state === false)
-			this.strokeColor = (this.layer.data.style.color.false);
+			return circuit.appearance.color.false;
 		else
-			this.strokeColor = (this.layer.data.style.color.undefined);
+			return circuit.appearance.color.undefined;
 	}
 
 	connect(net) {
+		net.connectionAdd(this);
 		this.net = net;
-	} 
+	}
+
+	renet(net) { // alias
+		connect(net);
+	}
+
+	place() {
+		this.autoColor();
+		var end = this.lastSegment.point;
+		var junc = end.findEditable({type:"junction"});
+		var wire = end.findEditable({type:"wire"});
+		if (!(wire || junc)) // if neither found - no net to connect to
+			return;
+
+		if (junc)
+		{
+			console.log("pin created on junction");
+			this.connect(junc.getNet());
+			junc.radiusUpdate();
+		}
+		else if (wire)
+		{
+			console.log("pin created on wire");
+			this.connect(wire.getNet());
+			wire.splitAt(end);
+		}
+	}
 
 	disconnect() {
+		var index = this.net.connections.indexOf(this);
+		if (index == -1)
+			return console.log("pin does not belong to its own net?!");
+		console.log("disconnecting", this, "from", this.net);
+		this.net.connections.splice(index, 1);
 		this.net = null;
 	}
 
-	getInversionBulb(ratio=0.25) {
+	getInversionBulb(ratio=0.25) { // returns a circle path to be used by device body constructor
 		var pinLength = this.firstSegment.point.getDistance(this.lastSegment.point);
 		var radius = pinLength * ratio;
 		var center = this.firstSegment.point;
