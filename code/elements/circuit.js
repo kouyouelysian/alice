@@ -5,27 +5,21 @@ class Circuit extends Group {
 		super();
 		this.name = "circuit";
 
-
 		// paper.js stuff init
 		this.editables = project.addLayer(new Layer({ name:"editables" }));
 		var above = project.addLayer(new Layer({ name:"above" }));
 		project.layers.editables.activate();
-		view.draw()
-
 		this.editables.addChild(this);
+
 		// main subgroups
-
 		var nets = new IndexedGroup();
-		nets.name = "nets";
-		this.addChild(nets);
-
 		var devices = new IndexedGroup();
+		nets.name = "nets";
 		devices.name = "devices";
+		this.addChild(nets);	
 		this.addChild(devices);
 		
 		// style definitions
-		project.layers.editables.data.style = VisualSchemes.default;
-
 		this.appearance = VisualSchemes.default;
 
 		// logic 
@@ -36,70 +30,86 @@ class Circuit extends Group {
 		this.netHighlighted = null;
 		this.devicePicked = null;
 
+		// update & timing stuff
+		view.draw();
+		view.autoUpdate = true;
+		this.updateTimer = null;
+		this.tickPeriod = 5; // ms
+		this.ticks = 0;
+		this.ticksPerFrame = 10; // ticks
+
 		// other stuff
 		this.gridCursor = this._setupCursor();
-
-		// running
-		this.updateTimer = null;
-		this.updatePeriod = 25; // ms
-
 	}
 
 	run() {
-		this.updateTimer = window.setInterval(function(){window.circuit.update()}, window.circuit.updatePeriod)
+		view.autoUpdate = false;
+		if (!this.updateTimer)
+			this.updateTimer = window.setInterval(function(){window.circuit.update()}, window.circuit.tickPeriod)
 	}
 
 	stop() {
 		clearTimeout(this.updateTimer);
+		this.updateTimer = null;
+		view.autoUpdate = true;
+		this.ticks = 0;
 	}
+
+	update() {
+		for (var net of this.children["nets"].children) {
+			net.update();
+		}
+		for (var dev of this.children["devices"].children) {
+			dev.update();
+		}
+
+		this.ticks++;
+		if (this.ticks == this.ticksPerFrame) {
+			this.ticks = 0;
+			view.update();
+		}
+	}
+
+	benchmark(laps=1000*this.ticksPerFrame)
+	{
+		var timeStack = 0;
+		for (var x = 0; x < laps; x++)
+		{
+			var startTime = performance.now()
+			this.update()   // <---- measured code goes between startTime and endTime
+			var endTime = performance.now()
+			timeStack += endTime - startTime;
+		}
+		console.log("average of", laps, "circuit update times:", timeStack/laps, "milliseconds.")
+	}
+
+	throwError(text) {
+		this.stop();
+		alert(text);
+	}
+
 
 	_setupCursor() {
 		project.layers.above.activate();
-		var gc = new Path.Circle(new Point(GLOBAL_sizing/2, GLOBAL_sizing/2), project.layers.editables.data.style.size.cursor.radius);
-		gc.strokeColor = project.layers.editables.data.style.color.selected;
-		gc.strokeWidth = project.layers.editables.data.style.size.cursor.width;
+		var gc = new Path.Circle(new Point(GLOBAL_sizing/2, GLOBAL_sizing/2), this.appearance.size.cursor.radius);
+		gc.strokeColor = this.appearance.color.selected;
+		gc.strokeWidth = this.appearance.size.cursor.width;
 		gc.name = 'gridCursor';		
 		project.layers.editables.activate();
 		return gc;
 	}
 
-	netStart(startPoint) {
-		this.wireDragged = new Wire(startPoint, this);
-	}
-
-	netPoint(clickPoint, keepWiring=true) {
-		this.wireDragged.finish(clickPoint); // finalise wire to how it must be
-		if (keepWiring)
-			return this.wireDragged = new Wire(clickPoint, this);
-		this.wireDragged
-		this.status = "idle";
-	}
-
-	netFinish(finishPoint) {
-		return this.netPoint(finishPoint, false);
-	}
-
-	_devicePick(point) {
-		this.devicePicked = new Devices[this.tool](this, point);
-	}
-
-
-	_devicePlace(point) {
-		this.devicePicked.place();
-		this.devicePicked = null;
-		this.status = "idle";
-	}
-
-	_makeSelected(item) {
+	_selectionMake(item) {
 		switch (item.data.type)
 		{
 			case "junction":
 			case "wire":
 			case "pin":
-				item.strokeColor = item.layer.data.style.color.selected;
+				item.strokeColor = this.appearance.color.selected;
 				break;
-			case "body":
-				item.setStrokeColor(item.layer.data.style.color.selected);
+			case "device":
+				console.log("buttsex");
+				item.setStrokeColor(this.appearance.color.selected);
 				break;
 		}
 			
@@ -107,7 +117,7 @@ class Circuit extends Group {
 		
 	}
 
-	_makeNotSelected(item) {
+	_selectionClear(item) {
 		
 		if (item == null || item.parent == null)
 			return false;
@@ -126,20 +136,12 @@ class Circuit extends Group {
 		}
 	}
 
-	_selectionNetHighlight() {
-		this._selectionNetUnhighlight();
-		if (this.selection == null)
+	_removeEditable() {
+		if (!this.selection)
 			return;
-		this.netHighlighted = this.selection.getNet();
-		console.log("highlit", this.selection.getNet().name);
-		return this.selection.parent.parent.highlight();
-	}
-
-	_selectionNetUnhighlight() {
-		if (!this.netHighlighted)
-			return;
-		this.netHighlighted.unhighlight();
-		this.netHighlighted = null;
+		this.selection.remove();
+		this.selection = null;
+		
 	}
 	
 	_hitTestDouble(item, p1, p2) {
@@ -170,13 +172,7 @@ class Circuit extends Group {
 			}
 	}
 
-	_removeEditable() {
-		if (!this.selection)
-			return;
-		this.selection.remove();
-		this.selection = null;
-		
-	}
+	
 
 	_actionStopAny() {
 		if (this.status == "net") { // drawing a net
@@ -190,43 +186,22 @@ class Circuit extends Group {
 		this.status = "idle";
 	}
 
-	_pointerClick(point) {
+	_pointerClicked(point) {
 		var actuator = point.findEditable({type:"actuator"});
 		if (actuator) // if we clicked a button of some kind on some device
 			actuator.data.device.act(actuator);
 	}
 
 	
-
-
-
-
-
-
-
-
-
-
-
-	throwError(text) {
-		this.stop();
-		alert(text);
-	}
-
-
 	point(pointRaw, pointQuantized) { // called when a drawn cursor entered a new xcell, ycell position
 
 		var hit = null;
-
-		if (this.status == "idle")
-			hit = this._hitTestDouble(this.editables, pointQuantized, pointRaw);
-		else
-			hit = this.editables.hitTest(pointQuantized);
+		this.status == "idle"? hit = this._hitTestDouble(this.editables, pointQuantized, pointRaw)
+			: hit = this.editables.hitTest(pointQuantized);	
 
 		if (hit == null) {
-			this._makeNotSelected(this.selection);
-			this.selection = null;
-			return;
+			this._selectionClear(this.selection);
+			return this.selection = null;
 		}
 
 		// prevent highlighting the wire we're currently drawing
@@ -238,18 +213,31 @@ class Circuit extends Group {
 
 		if (hit.item != this.selection)
 		{
-			this._makeNotSelected(this.selection);
-			this.selection = this._makeSelected(hit.item);
+			this._selectionClear(this.selection);
+			this.selection = this._selectionMake(hit.item);
 		}
-
+	}
+	
+	_selectionNetHighlight() {
+		this._selectionNetUnhighlight();
+		if (this.selection == null)
+			return;
+		this.netHighlighted = this.selection.getNet();
+		return this.selection.parent.parent.highlight();
 	}
 
+	_selectionNetUnhighlight() {
+		if (!this.netHighlighted)
+			return;
+		this.netHighlighted.unhighlight();
+		this.netHighlighted = null;
+	}
 	
 
 	click() { // called from gui clickbox onclick event
 
 		const clickPoint = new Point(event.offsetX, event.offsetY);
-		clickPoint.quantize(project.layers.editables.data.style.size.grid);
+		clickPoint.quantize(this.appearance.size.grid);
 
 		if (this.status == "idle") {
 			switch (this.tool)
@@ -257,28 +245,32 @@ class Circuit extends Group {
 				case "wire":
 					this.status = "net";
 					this._selectionNetUnhighlight();
-					return this.netStart(clickPoint);
+					return this.wireDragged = new Wire(clickPoint, this);
 				case "highlight":
 					return this._selectionNetHighlight();
-
 				case "pointer":
-					return this._pointerClick(clickPoint);
+					return this._pointerClicked(clickPoint);
 
 				default: // if that's not a tool, that's probably a device being placed
 					this.status = "device";
-					return this._devicePick(clickPoint);
+					return this.devicePicked = new Devices[this.tool](this, clickPoint);
 				
 			}
 		}
 		else if (this.status == "net") 
-		{
+		{	
+			this.wireDragged.finish(clickPoint); // finalise wire to how it must be
 			if (Key.isDown('shift'))
-				this.netPoint(clickPoint);
-			else
-				this.netFinish(clickPoint);
+				return this.wireDragged = new Wire(clickPoint, this);
+			this.wireDragged
+			this.status = "idle";
 		}
 		else if (this.status == "device")
-			this._devicePlace(clickPoint);
+		{
+			this.devicePicked.place();
+			this.devicePicked = null;
+			this.status = "idle";
+		}
 	}
 
 	keyboard(input) {
@@ -300,18 +292,11 @@ class Circuit extends Group {
 	}	
 
 	visualSchemeSet(scheme) {
-		project.layers.editables.data.style = scheme;
+		this.appearance = scheme;
 		document.getElementById("simViewport").style.backgroundColor = scheme.color.fill;
 	}
 
 
-	update() {
-		for (var net of this.children["nets"].children) {
-			net.update();
-		}
-		for (var dev of this.children["devices"].children) {
-			dev.update();
-		}
-	}
+	
 
 }

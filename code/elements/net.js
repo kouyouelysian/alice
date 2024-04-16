@@ -70,6 +70,10 @@ class Net extends Group {
 		this.fillColor = color;
 	}
 
+	getCircuit() {
+		return this.parent.parent;
+	}
+
 	wireRemovalScan(wire) {
 		var pointA = wire.firstSegment.point;
 		var pointB = wire.lastSegment.point;
@@ -109,18 +113,18 @@ class Net extends Group {
 
 	colorByState(state) {
 		if (state === true)
-			this.recolor(this.layer.data.style.color.true);
+			this.recolor(this.getCircuit().appearance.color.true);
 		else if (state === false)
-			this.recolor(this.layer.data.style.color.false);
+			this.recolor(this.getCircuit().appearance.color.false);
 		else
-			this.recolor(this.layer.data.style.color.undefined);
+			this.recolor(this.getCircuit().appearance.color.undefined);
 	}
 
 	highlight() {
-		this.recolor(this.layer.data.style.color.highlighted);
+		this.recolor(this.getCircuit().appearance.color.highlighted);
 	}
 
 	unhighlight() {
-		this.recolor(this.layer.data.style.color.undefined);
+		this.recolor(this.getCircuit().appearance.color.undefined);
 	}
 }

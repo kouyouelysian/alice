@@ -6,13 +6,14 @@
 
 		this.write('o', false);
 		this.counter = 0;
-		this.ticks = 200;
+
+		this.period = 10 * this.getCircuit().ticksPerFrame;
 
 	}
 
 	update() {
 		this.counter += 1;
-		if (this.counter == this.ticks)
+		if (this.counter == this.period)
 		{
 			this.counter = 0;
 			this.toggle("o");

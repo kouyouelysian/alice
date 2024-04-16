@@ -4,7 +4,7 @@ defaultSize =
 {
 	"grid": sizing,
 	"junction": {
-		"normal": 1.5,
+		"normal": 1,
 		"big": 4
 	},
 	"wire": 3,

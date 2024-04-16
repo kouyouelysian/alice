@@ -13,20 +13,20 @@ Devices.Source = class Source extends Devices.Device {
 		var control = new Group();
 		control.name = "control";
 
-		var button = new Path.Circle(point, project.layers.editables.data.style.size.grid * 0.5);
-		button.fillColor = project.layers.editables.data.style.color.false;
+		var button = new Path.Circle(point, this.getCircuit().appearance.size.grid * 0.5);
+		button.fillColor = this.getCircuit().appearance.color.false;
 		button.data.type = "actuator";
 		button.data.device = this;
 		button.name = "button";
 		control.addChild(button);
 
-		var digit = new PointText(new Point(point.x, point.y + project.layers.editables.data.style.size.grid * 0.15));
-		digit.fontWeight = project.layers.editables.data.style.size.grid * 0.4;
+		var digit = new PointText(new Point(point.x, point.y + this.getCircuit().appearance.size.grid * 0.15));
+		digit.fontWeight = this.getCircuit().appearance.size.grid * 0.4;
 		digit.justification = 'center';
 		digit.content = '0';
 		digit.leading = 0;
 		digit.name = "digit";
-		digit.fillColor = button.strokeColor = project.layers.editables.data.style.color.fill;
+		digit.fillColor = button.strokeColor = this.getCircuit().appearance.color.fill;
 		control.addChild(digit);
 
 		this.addChild(control);
@@ -39,12 +39,12 @@ Devices.Source = class Source extends Devices.Device {
 		this.write("o", state);
 		if (state)
 		{
-			this.children["control"].children["button"].fillColor = project.layers.editables.data.style.color.true;
+			this.children["control"].children["button"].fillColor = this.getCircuit().appearance.color.true;
 			this.children["control"].children["digit"].content = "1";
 		}
 		else
 		{
-			this.children["control"].children["button"].fillColor = project.layers.editables.data.style.color.false;
+			this.children["control"].children["button"].fillColor = this.getCircuit().appearance.color.false;
 			this.children["control"].children["digit"].content = "0";
 		}
 		
@@ -99,18 +99,18 @@ Devices.Light = class Light extends Devices.Device {
 
 	createLight(point) {
 
-		var light = new Path.Circle(point, project.layers.editables.data.style.size.grid * 0.45);
-		light.fillColor = project.layers.editables.data.style.color.undefined;
+		var light = new Path.Circle(point, this.getCircuit().appearance.size.grid * 0.45);
+		light.fillColor = this.getCircuit().appearance.color.undefined;
 		light.name = "light";
 		this.addChild(light);
 	}
 
 	light() {
 		if (this.state === true)
-			return this.children["light"].fillColor = project.layers.editables.data.style.color.true;
+			return this.children["light"].fillColor = this.getCircuit().appearance.color.true;
 		else if (this.state === false)
-			return this.children["light"].fillColor = project.layers.editables.data.style.color.false;
-		return this.children["light"].fillColor = project.layers.editables.data.style.color.undefined;
+			return this.children["light"].fillColor = this.getCircuit().appearance.color.false;
+		return this.children["light"].fillColor = this.getCircuit().appearance.color.undefined;
 	}
 
 	update() {

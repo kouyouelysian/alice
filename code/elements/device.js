@@ -47,6 +47,10 @@ Devices.Device = class Device extends Group {
 		}
 	}
 
+	getCircuit() {
+		return this.parent.parent;
+	}
+
 	remove() {
 		this.parent._freeIndex(this.name);
 		super.remove();
@@ -54,7 +58,7 @@ Devices.Device = class Device extends Group {
 	
 	createPackage(point, packageData, circuit) {
 
-		var gridSize = this.layer.data.style.size.grid;
+		var gridSize = circuit.appearance.size.grid;
 		var origin = new Point(
 			point.x - packageData.body.origin.x*gridSize, 
 			point.y - packageData.body.origin.x*gridSize

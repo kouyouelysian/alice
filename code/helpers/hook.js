@@ -12,7 +12,7 @@ function setupTool() {
 			event.point.y
 			);
 
-		quantizedPoint.quantize(project.layers.editables.data.style.size.grid);
+		quantizedPoint.quantize(window.circuit.appearance.size.grid);
 		
 		if (!window.circuit.gridCursor.position.isClose(quantizedPoint, 1)) {
 			window.circuit.gridCursor.position = quantizedPoint;

@@ -23,14 +23,16 @@ class Junction extends Path {
 	}
 
 	remove() {
-		console.log("junc", this.index, "removed from", this.getNet().name);
-		console.trace();
+		var wires = this.position.findEditable({type:"wire", net:this.net, all:true});
+		console.log(wires);
+		for (var w of wires)
+			w.remove();
 		return super.remove();
 	}
 
 	radiusUpdate(notCount=null, point = this.position) {
 
-		var radius = project.layers.editables.data.style.size.junction.normal;
+		var radius = this.getNet().getCircuit().appearance.size.junction.normal;
 
 		var wiresAtJunction = point.findEditable({type:"wire", all:true, exclude:notCount});
 		if (!wiresAtJunction)
@@ -43,7 +45,7 @@ class Junction extends Path {
 			count += 1;
 
 		if (count >= 3)
-			var radius = project.layers.editables.data.style.size.junction.big;
+			var radius = this.getNet().getCircuit().appearance.size.junction.big;
 
 		function __segmentsGenerate(p,r) {
 			var helperCircle = Path.Circle(p, r);
