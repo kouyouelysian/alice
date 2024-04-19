@@ -34,9 +34,8 @@ class Circuit extends Group {
 		view.draw();
 		view.autoUpdate = true;
 		this.updateTimer = null;
-		this.tickPeriod = 5; // ms
-		this.ticks = 0;
-		this.ticksPerFrame = 10; // ticks
+		this.frameRate = 20; // ms
+		this.ticksPerFrame = 1; // ticks
 
 		// other stuff
 		this.gridCursor = this._setupCursor();
@@ -45,7 +44,7 @@ class Circuit extends Group {
 	run() {
 		view.autoUpdate = false;
 		if (!this.updateTimer)
-			this.updateTimer = window.setInterval(function(){window.circuit.update()}, window.circuit.tickPeriod)
+			this.updateTimer = window.setInterval(function(){window.circuit.frame()}, window.circuit.frameRate)
 	}
 
 	stop() {
@@ -55,19 +54,15 @@ class Circuit extends Group {
 		this.ticks = 0;
 	}
 
-	update() {
-		for (var net of this.children["nets"].children) {
-			net.update();
+	frame() {
+		for (var x = 0; x < this.ticksPerFrame; x++)
+		{
+			for (var net of this.children["nets"].children) 
+				net.update();
+			for (var dev of this.children["devices"].children) 
+				dev.update();
 		}
-		for (var dev of this.children["devices"].children) {
-			dev.update();
-		}
-
-		this.ticks++;
-		if (this.ticks == this.ticksPerFrame) {
-			this.ticks = 0;
-			view.update();
-		}
+		view.update();
 	}
 
 	benchmark(laps=1000*this.ticksPerFrame)
@@ -107,9 +102,8 @@ class Circuit extends Group {
 			case "pin":
 				item.strokeColor = this.appearance.color.selected;
 				break;
-			case "device":
-				console.log("buttsex");
-				item.setStrokeColor(this.appearance.color.selected);
+			case "body":
+				item.parent.setStrokeColor(this.appearance.color.selected);
 				break;
 		}
 			
@@ -132,13 +126,15 @@ class Circuit extends Group {
 			case "pin":
 				return item.autoColor();
 			case "body":
-				return item.setStrokeColor(item.layer.data.style.color.devices);
+				return item.parent.setStrokeColor(this.appearance.color.devices);
 		}
 	}
 
 	_removeEditable() {
 		if (!this.selection)
 			return;
+		if (this.selection.data.type == "body")
+			return this.selection.parent.remove();
 		this.selection.remove();
 		this.selection = null;
 		
@@ -167,6 +163,8 @@ class Circuit extends Group {
 				case 's': this.tool = "Source"; return;
 				case 'l': this.tool = "Light"; return;
 				case 'c': this.tool = "Clock"; return;
+
+				case 't': this.tool = "EightSegment"; return;
 
 				case 'delete': this._removeEditable(); return;
 			}

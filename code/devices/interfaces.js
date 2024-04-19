@@ -26,7 +26,7 @@ Devices.Source = class Source extends Devices.Device {
 		digit.content = '0';
 		digit.leading = 0;
 		digit.name = "digit";
-		digit.fillColor = button.strokeColor = this.getCircuit().appearance.color.fill;
+		digit.fillColor = this.getCircuit().appearance.color.fill;
 		control.addChild(digit);
 
 		this.addChild(control);
@@ -118,5 +118,72 @@ Devices.Light = class Light extends Devices.Device {
 			return;
 		this.state = this.read("i");
 		this.light();
+	}
+}
+
+
+Devices.EightSegment = class EightSegment extends Devices.Device {
+
+	constructor(parentGroup, point) {
+
+		const packageData = {
+			"pins": [
+				{"name":"bit0", "mode":"in", "side":2, "offset":0},
+				{"name":"bit1", "mode":"in", "side":2, "offset":1},
+				{"name":"bit2", "mode":"in", "side":2, "offset":2},
+				{"name":"bit3", "mode":"in", "side":2, "offset":3}
+			],
+			"body": {
+				"origin": {
+					x:1,
+					y:1
+				},
+				"dimensions": {
+					"width": 4,
+					"height": 5
+				},
+				"symbol": null,
+				"label": null
+			}	
+		}
+
+		super(parentGroup, point, packageData);
+		this.name = "Eight-segment display";
+		this.createDigit(point, packageData);
+		this.dict = ["0","1","2","3",
+				"4","5","6","7",
+				"8","9","A","B",
+				"C","D","E","F"]
+	}
+
+	createDigit(point, packageData) {
+		var digitOffset = new Point(
+			this.getCircuit().appearance.size.grid,
+			this.getCircuit().appearance.size.grid*2.5
+			);
+		var digit = new PointText(point.add(digitOffset));
+		digit.fontSize = this.getCircuit().appearance.size.grid * 3;
+		digit.justification = 'center';
+		digit.content = '0';
+		digit.leading = 0;
+		digit.name = "digit";
+		digit.fillColor = this.getCircuit().appearance.color.highlighted;
+		digit.strokeColor = this.getCircuit().appearance.color.highlighted;
+		this.addChild(digit);
+	}
+
+	update() {
+
+		
+		
+		var number = 0; // pins go in a sequence from lsb to msb
+		var order = 1;
+		for (var x = 0; x < 4; x++)
+		{
+			if (this.read(`bit${x}`) === true)
+				number += order;
+			order *= 2;
+		}
+		this.children.digit.content = this.dict[number];
 	}
 }

@@ -28,11 +28,9 @@ Devices.Device = class Device extends Group {
 		super();
 
 		this.position = point;
-
 		this.name = "dev"+circuit.children.devices._getIndex();
 		circuit.children.devices.addChild(this);
 		this.data.type = "device"; 
-
 		this.pivot = this.bounds.topLeft;
 		this.createPackage(point, packageData, circuit);
 	}	
@@ -52,6 +50,8 @@ Devices.Device = class Device extends Group {
 	}
 
 	remove() {
+		for (var pin of this.children.pins.children)
+			pin.disconnect();
 		this.parent._freeIndex(this.name);
 		super.remove();
 	}
@@ -64,21 +64,26 @@ Devices.Device = class Device extends Group {
 			point.y - packageData.body.origin.x*gridSize
 		);
 
-		const bodyDimensions = packageData.body.dimensions;
-		for (const pinData of packageData.pins)
-		{
-			this.addChild(new Pin(circuit, pinData, bodyDimensions, origin, gridSize));
-			this.lastChild
-			if (pinData.bulb)
-				this.addChild(this.lastChild.getInversionBulb());
-		}
-
 		if (!packageData.body.symbol) // if package has no symbol information - draw a rectangle
 			this.insertChild(packageData.pins.length, this.createBodyDefault(packageData, origin, gridSize));
 		else // else we have custom package information, then process it
 			this.insertChild(packageData.pins.length, this.createBodyCustom(packageData, origin, gridSize));
 		this.lastChild.name = "body";
-		this.lastChild.type = "body";
+		this.lastChild.data.type = "body";
+
+		const pins = new Group();
+		pins.name = "pins";
+		this.addChild(pins);
+		const bodyDimensions = packageData.body.dimensions;
+		for (const pinData of packageData.pins)
+		{
+			pins.addChild(new Pin(circuit, pinData, bodyDimensions, origin, gridSize));
+			this.lastChild
+			if (pinData.bulb)
+				this.addChild(pins.lastChild.getInversionBulb());
+		}
+
+		this.children.pins.sendToBack();
 
 		this.setStrokeColor(circuit.appearance.color.devices);
 		this.setStrokeWidth(circuit.appearance.size.device);
@@ -128,21 +133,21 @@ Devices.Device = class Device extends Group {
 	}
 
 	setState(pinName, state) {
-		return this.children[pinName].state = state;
+		return this.children.pins.children[pinName].state = state;
 	}
 
 	read(pinName) {
-		return this.children[pinName].get();
+		return this.children.pins.children[pinName].get();
 	}
 
 	write(pinName, state) {
-		this.children[pinName].set(state);
+		this.children.pins.children[pinName].set(state);
  	}
 
  	toggle(pinName) {
- 		if (this.children[pinName].state == undefined)
+ 		if (this.children.pins.children[pinName].state == undefined)
  			return;
- 		this.children[pinName].set(!this.children[pinName].get());
+ 		this.children.pins.children[pinName].set(!this.children.pins.children[pinName].get());
  	}
 
  	act(actuator) { // fires when the item's actuator has been pressed

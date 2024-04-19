@@ -18,6 +18,7 @@ class Pin extends Path {
 		this.add(start);
 		this.add(end);
 		this.strokeColor = circuit.appearance.color.undefined;
+		this.stokreWidth = circuit.appearance.size.device;
 		this.circuit = circuit;
 		this.net = null;
 		this.data.type = "pin";
@@ -61,6 +62,16 @@ class Pin extends Path {
 		this.net = net;
 	}
 
+	disconnect() {
+		if (!this.net)
+			return;
+		var index = this.net.connections.indexOf(this);
+		if (index == -1)
+			return console.log("pin does not belong to its own net?!");
+		this.net.connections.splice(index, 1);
+		this.net = null;
+	}
+
 	renet(net) { // alias
 		connect(net);
 	}
@@ -87,14 +98,7 @@ class Pin extends Path {
 		}
 	}
 
-	disconnect() {
-		var index = this.net.connections.indexOf(this);
-		if (index == -1)
-			return console.log("pin does not belong to its own net?!");
-		console.log("disconnecting", this, "from", this.net);
-		this.net.connections.splice(index, 1);
-		this.net = null;
-	}
+	
 
 	getInversionBulb(ratio=0.25) { // returns a circle path to be used by device body constructor
 		var pinLength = this.firstSegment.point.getDistance(this.lastSegment.point);
