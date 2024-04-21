@@ -22,8 +22,21 @@ class Wire extends Path {
 		return this.parent.parent;
 	}
 
+	export() {
+		return {
+			"start": {
+				"x": this.firstSegment.point.x,
+				"y": this.firstSegment.point.y
+			},
+			"finish": {
+				"x": this.lastSegment.point.x,
+				"y": this.lastSegment.point.y
+			}
+		};
+	}	
+
 	renet(newNet) {
-		newNet.children["wires"].addChild(this);
+		newNet.children.wires.addChild(this);
 	}
 
 	remove(bare=false) {
@@ -33,6 +46,7 @@ class Wire extends Path {
 		if (this.getNet().children["wires"].children.length == 1)
 			this.getNet().remove();
 		// update the device pins
+		
 		for (const point of [this.firstSegment.point, this.lastSegment.point])
 		{
 			this.pinConnectionCheck(point);
@@ -90,6 +104,7 @@ class Wire extends Path {
 	}
 
 	mergeAt(midpoint) {
+
 		var otherWires = midpoint.findEditable({type:"wire", exclude:this, all:true});
 		if (!otherWires)
 			return false;
@@ -102,12 +117,10 @@ class Wire extends Path {
 		if (!this.isParallel(otherWire))
 			return false; // don't merge if not parallel
 
+		midpoint.findEditable({type:"junction"}).remove(true); // remove junction in bare mode
 		this.firstSegment.point.isClose(midpoint,0)? this.firstSegment.remove() : this.lastSegment.remove();
 		this.add(otherWire.getOtherSide(midpoint));
-		otherWire.remove(true) // remove the now unneeded wire in bare mode
-
-		midpoint.findEditable({type:"junction"}).remove();	
-		return true;
+		return otherWire.remove(true) // remove the now unneeded wire in bare mode
 	}
 
 	splitAt(splitpoint) {

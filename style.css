@@ -16,13 +16,17 @@ body {
 	font-family: 'Courier New';
 	font-size: 14px;
 	overflow: hidden;
+	--menu-width: 300px;
+	--toolbar-height: 40px;
 }
 
 #simViewport {
-	width: 80%;
-	height: 100%;
-	left: 20%;
-	top: 0;
+	border-left: 1px solid #444;
+	border-top: 1px solid #444;
+	width: calc(100% - var(--menu-width) - 2px);
+	height: calc(100% - var(--toolbar-height) - 2px);
+	left: var(--menu-width);
+	top:var(--toolbar-height);
 	position: absolute;
 	overflow-x: scroll;
 	overflow-y: scroll;
@@ -53,12 +57,9 @@ body {
 
 }
 
-
-
 #menu {
-	background-color: #EEE;
-	width: calc(20% - 2px - 32px);
-	border-right: 2px solid #444;
+	background-color: #FFF;
+	width: calc(var(--menu-width) - 32px);
 	height: calc(100% - 32px);
 	position: absolute;
 	padding: 16px;
@@ -66,14 +67,33 @@ body {
 	left: 0;
 }
 
-#menu p {
+#toolbar {
+	background-color: #EEE;
+	height: calc(var(--toolbar-height));
+	width: calc(100% - var(--menu-width) - 1px);
+	position: absolute;
+	top: 0;
+	left: var(--menu-width);
+	font-size: 0;
+	border-left: 1px solid #444;
+}
+
+#toolbar p {
 	color: white;
-	background-color: #97F;
+	background-color: #FA4;
 	padding: 8px;
 	width: fit-content;
 	cursor: pointer;
+	display: inline-block;
+	margin: 0;
+	margin-left: 4px;
+	margin-top: 4px;
+	font-size: 14px;
+	font-weight: bold;
+	font-family: 'Arial';
+	font-style: italic;
 }
 
-#menu p:hover {
-	background-color: #64D;
+#toolbar p:hover {
+	background-color: #D82;
 }

@@ -7,8 +7,13 @@
 <body>
 
 	<div id="menu">
+	</div>
+
+	<div id="toolbar">
 		<p onclick="window.circuit.run()">Run</p>
 		<p onclick="window.circuit.stop()">Stop</p>
+		<p onclick="alert(window.circuit.export())">Save</p>
+		<p onclick="window.circuit.import(window.prompt('Paste circuit export JSON here:'))">Load</p>
 	</div>
 	
 	<div id="simViewport">

@@ -2,9 +2,7 @@ Devices.Source = class Source extends Devices.Device {
 	constructor(parentGroup, point) {
 
 		super(parentGroup, point);
-		this.name = "Manual source";
 		this.write('o', false);
-
 		this.createControlButton(point);
 		
 	}
@@ -92,7 +90,6 @@ Devices.Light = class Light extends Devices.Device {
 		}
 
 		super(parentGroup, point, packageData);
-		this.name = "Light indicator";
 		this.createLight(point);
 		this.state = this.read("i");
 	}
@@ -148,7 +145,6 @@ Devices.EightSegment = class EightSegment extends Devices.Device {
 		}
 
 		super(parentGroup, point, packageData);
-		this.name = "Eight-segment display";
 		this.createDigit(point, packageData);
 		this.dict = ["0","1","2","3",
 				"4","5","6","7",

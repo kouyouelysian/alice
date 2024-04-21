@@ -31,6 +31,10 @@ class Pin extends Path {
 		return this.net;
 	}
 
+	getDevice() {
+		return this.parent.parent;
+	}
+
 	set(state, color=null) {
 		if (state == this.state)
 			return;

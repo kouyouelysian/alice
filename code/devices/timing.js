@@ -2,11 +2,8 @@
 	constructor(parentGroup, point) {
 
 		super(parentGroup, point);
-		this.name = "Clock source";
-
 		this.write('o', false);
 		this.counter = 0;
-
 		this.period = 10 * this.getCircuit().ticksPerFrame;
 
 	}

@@ -295,6 +295,52 @@ class Circuit extends Group {
 	}
 
 
-	
+	export(pretty=false) {
+		var json = {
+			"devices": [],
+			"nets": []
+		}
 
+		var indent = 0;
+		if (pretty)
+			indent = 4;
+
+		for (var d of this.children.devices.children)
+			json.devices.push(d.export());
+
+		for (var n of this.children.nets.children)
+			json.nets.push(n.export());
+	
+		return JSON.stringify(json, null, indent);
+
+		
+	}
+
+	import(jsonString) {
+
+		const json = JSON.parse(jsonString);
+
+		for (const deviceRecord of json.devices)
+		{
+			var dev = new (eval("Devices."+deviceRecord.class))(
+				this,
+				new Point(deviceRecord.position.x, deviceRecord.position.y)
+				);
+			dev.name = deviceRecord.name;
+		}
+
+		for (const netRecord of json.nets) 
+		{
+			var net = new Net(this);
+			net.name = netRecord.name;
+			for (const wireRecord of netRecord.wires)
+			{
+				var w = new Wire(
+					new Point(wireRecord.start.x, wireRecord.start.y),
+					this
+					);
+				w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y))
+			}
+		}
+	}
 }

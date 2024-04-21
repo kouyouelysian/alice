@@ -22,12 +22,13 @@ class Junction extends Path {
 		newNet.children["junctions"].addChild(this);
 	}
 
-	remove() {
+	remove(bare=false) {
+		if (bare)
+			return super.remove();
+
 		var wires = this.position.findEditable({type:"wire", net:this.net, all:true});
-		console.log(wires);
 		for (var w of wires)
 			w.remove();
-		return super.remove();
 	}
 
 	radiusUpdate(notCount=null, point = this.position) {
@@ -35,14 +36,15 @@ class Junction extends Path {
 		var radius = this.getNet().getCircuit().appearance.size.junction.normal;
 
 		var wiresAtJunction = point.findEditable({type:"wire", all:true, exclude:notCount});
-		if (!wiresAtJunction)
-			this.remove(); // if ran out of wires at this junction - remove self
-
+		
 		var count = 0;
 		if (wiresAtJunction)
 			count = wiresAtJunction.length;
 		if (point.findEditable({type:"pin", all:true}))
 			count += 1;
+
+		if (!wiresAtJunction)
+			this.remove(true); // if ran out of wires at this junction - remove self
 
 		if (count >= 3)
 			var radius = this.getNet().getCircuit().appearance.size.junction.big;

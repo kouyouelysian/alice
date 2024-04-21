@@ -35,6 +35,24 @@ Devices.Device = class Device extends Group {
 		this.createPackage(point, packageData, circuit);
 	}	
 
+	export() {
+		return {
+			"name": this.name,
+			"class": this.constructor.name,
+			"position": {
+				"x": this.position.x,
+				"y": this.position.y
+			}
+		};
+	}	
+
+	remove() {
+		for (var pin of this.children.pins.children)
+			pin.disconnect();
+		this.parent._freeIndex(this.name);
+		super.remove();
+	}
+	
 	place() {
 		for (var ch of this.children) 
 		{
@@ -49,13 +67,6 @@ Devices.Device = class Device extends Group {
 		return this.parent.parent;
 	}
 
-	remove() {
-		for (var pin of this.children.pins.children)
-			pin.disconnect();
-		this.parent._freeIndex(this.name);
-		super.remove();
-	}
-	
 	createPackage(point, packageData, circuit) {
 
 		var gridSize = circuit.appearance.size.grid;

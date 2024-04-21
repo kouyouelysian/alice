@@ -27,6 +27,18 @@ class Net extends Group {
 
 	}
 
+	export() {
+		var record =  {
+			"name": this.name,
+			"wires": []
+		};
+
+		for (var w of this.children.wires.children)
+			record.wires.push(w.export());
+		
+		return record;
+	}
+
 	remove() {
 		this.parent._freeIndex(this.name);
 		super.remove();
