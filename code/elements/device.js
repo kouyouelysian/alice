@@ -47,24 +47,23 @@ Devices.Device = class Device extends Group {
 	}	
 
 	remove() {
-		for (var pin of this.children.pins.children)
+		for (var pin of this.getPins())
 			pin.disconnect();
 		this.parent._freeIndex(this.name);
 		super.remove();
 	}
 	
 	place() {
-		for (var ch of this.children) 
-		{
-			if (ch.data.type != "pin")
-				continue;
-			ch.place();
-
-		}
+		for (var pin of this.getPins()) 
+			pin.place();
 	}
 
 	getCircuit() {
 		return this.parent.parent;
+	}
+
+	getPins() {
+		return this.children.pins.children;
 	}
 
 	createPackage(point, packageData, circuit) {

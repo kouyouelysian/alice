@@ -68,12 +68,13 @@ class Pin extends Path {
 
 	disconnect() {
 		if (!this.net)
-			return;
+			return false;
 		var index = this.net.connections.indexOf(this);
 		if (index == -1)
-			return console.log("pin does not belong to its own net?!");
+			return false;
 		this.net.connections.splice(index, 1);
 		this.net = null;
+		return true;
 	}
 
 	renet(net) { // alias
@@ -90,13 +91,11 @@ class Pin extends Path {
 
 		if (junc)
 		{
-			console.log("pin created on junction");
 			this.connect(junc.getNet());
 			junc.radiusUpdate();
 		}
 		else if (wire)
 		{
-			console.log("pin created on wire");
 			this.connect(wire.getNet());
 			wire.splitAt(end);
 		}
