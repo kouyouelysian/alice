@@ -11,21 +11,24 @@
 	</div>
 
 	<div id="toolbar">
-		<p onclick="window.circuit.run()">Run</p>
-		<p onclick="window.circuit.stop()">Stop</p>
-		<p onclick="alert(window.circuit.export())">Save</p>
-		<p onclick="window.circuit.import(window.prompt('Paste circuit export JSON here:'))">Load</p>
+		<p class="command" onclick="window.sim.run()">Run</p>
+		<p class="command" onclick="window.sim.stop()">Stop</p>
+		<p class="command" onclick="alert(window.sim.export())">Save</p>
+		<p class="command" onclick="window.sim.import(window.prompt('Paste circuit export JSON here:'))">Load</p>
+		<p class="textDisplay" id="displayStatus"></p>
+		<p class="textDisplay" id="displayTool"></p>
+		<
 	</div>
 	
 	<div id="simViewport">
 		<canvas id="simCanvas"></canvas>
-		<div id="simClickbox" onclick="window.circuit.click()"></div>
+		<div id="simClickbox" onclick="window.sim.click()"></div>
 	</div>
 
-	<script type="text/javascript" src="./code/helpers/paper.js"></script>
-	<script type="text/javascript" src="./code/helpers/init.js"></script>
-	<script type="text/javascript" src="./code/helpers/indexedgroup.js"></script>
-	<script type="text/javascript" src="./code/helpers/visualschemes.js"></script>
+	<script type="text/javascript" src="./code/interface/paper.js"></script>
+	<script type="text/javascript" src="./code/interface/init.js"></script>
+	<script type="text/javascript" src="./code/interface/indexedgroup.js"></script>
+	<script type="text/javascript" src="./code/interface/visualschemes.js"></script>
 
 	<script type="text/javascript" src="./code/elements/junction.js"></script>
 	<script type="text/javascript" src="./code/elements/wire.js"></script>
@@ -38,7 +41,8 @@
 	<script type="text/javascript" src="./code/devices/interfaces.js"></script>
 	<script type="text/javascript" src="./code/devices/timing.js"></script>
 
-	<script type="text/javascript" src="./code/helpers/hook.js"></script>
+	<script type="text/javascript" src="./code/interface/sim.js"></script>
+	<script type="text/javascript" src="./code/interface/hook.js"></script>
 
 </body>
 </html>

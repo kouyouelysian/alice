@@ -31,7 +31,6 @@ body {
 	overflow-x: scroll;
 	overflow-y: scroll;
 	background-color: white;
-	cursor: crosshair;
 	
 }
 
@@ -83,17 +82,30 @@ body {
 	background-color: #FA4;
 	padding: 8px;
 	width: fit-content;
-	cursor: pointer;
 	display: inline-block;
 	margin: 0;
 	margin-left: 4px;
 	margin-top: 4px;
 	font-size: 14px;
-	font-weight: bold;
-	font-family: 'Arial';
-	font-style: italic;
+	vertical-align: top;
+	
 }
 
 #toolbar p:hover {
 	background-color: #D82;
+}
+
+#toolbar p.command {
+	font-weight: bold;
+	font-family: 'Arial';
+	font-style: italic;
+	cursor: pointer;
+}
+
+#toolbar p.textDisplay {
+	background-color: #fff;
+	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.3);
+	font-family: 'Courier New';
+	color: #000;
+	width: 200px;
 }

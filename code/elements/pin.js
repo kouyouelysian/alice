@@ -31,8 +31,12 @@ class Pin extends Path {
 		return this.net;
 	}
 
+	getCircuit() {
+		return this.getNet().getCircuit();
+	}
+
 	getDevice() {
-		return this.parent.parent;
+		return this.parent.parent; // pin>pins>device
 	}
 
 	set(state, color=null) {
@@ -54,11 +58,11 @@ class Pin extends Path {
 
 	colorByState(state) {
 		if (state === true)
-			return circuit.appearance.color.true;
+			return this.circuit.appearance.color.true;
 		else if (state === false)
-			return circuit.appearance.color.false;
+			return this.circuit.appearance.color.false;
 		else
-			return circuit.appearance.color.undefined;
+			return this.circuit.appearance.color.undefined;
 	}
 
 	connect(net) {

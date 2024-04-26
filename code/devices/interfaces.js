@@ -13,7 +13,8 @@ Devices.Source = class Source extends Devices.Device {
 
 		var button = new Path.Circle(point, this.getCircuit().appearance.size.grid * 0.5);
 		button.fillColor = this.getCircuit().appearance.color.false;
-		button.data.type = "actuator";
+		button.data.type = "body";
+		button.data.isActuator = true;
 		button.data.device = this;
 		button.name = "button";
 		control.addChild(button);
@@ -99,6 +100,7 @@ Devices.Light = class Light extends Devices.Device {
 		var light = new Path.Circle(point, this.getCircuit().appearance.size.grid * 0.45);
 		light.fillColor = this.getCircuit().appearance.color.undefined;
 		light.name = "light";
+		light.data.type = "body";
 		this.addChild(light);
 	}
 
