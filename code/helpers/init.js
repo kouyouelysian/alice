@@ -26,6 +26,8 @@ function patchPaperPoint() {
 		hitTestOptions.match = function(hit) {
 			if (!hit.item)
 				return false;
+			if (!hit.item.data.type)
+				return false;
 			if (options.type && hit.item.data.type != options.type)
 				return false;
 			if (options.net && hit.item.getNet() != options.net)

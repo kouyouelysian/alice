@@ -26,7 +26,7 @@ class Circuit extends Group {
 		this.status = "idle";
 		this.tool = "pointer";
 		this.selection = null;
-		this.wireDragged = null;
+		this.wireNew = null;
 		this.netHighlighted = null;
 		this.devicePicked = null;
 
@@ -152,6 +152,7 @@ class Circuit extends Group {
 		switch (key) {
 				case 'w': this.tool = "wire"; return;
 				case 'h': this.tool = "highlight"; return;
+				case 'd': this.tool = "drag"; return;
 
 				case 'a': this.tool = "And"; return;
 				case 'o': this.tool = "Or"; return;
@@ -175,7 +176,7 @@ class Circuit extends Group {
 	_actionStopAny() {
 		if (this.status == "net") { // drawing a net
 			if (this.tool == "wire") {
-				this.wireDragged.remove();
+				this.wireNew.remove();
 			}
 		}
 		else if (this.status == "device") {
@@ -203,7 +204,7 @@ class Circuit extends Group {
 		}
 
 		// prevent highlighting the wire we're currently drawing
-		if (this.status == "net" && hit.item == this.wireDragged)
+		if (this.status == "net" && hit.item == this.wireNew)
 			return;
 		// prevent highlighting the device we picked
 		else if (this.status == "device" && hit.item == this.devicePicked.children.body)
@@ -230,7 +231,19 @@ class Circuit extends Group {
 		this.netHighlighted.unhighlight();
 		this.netHighlighted = null;
 	}
-	
+
+	_dragStart(point) {
+		var firstEditable = point.findEditable();
+		if (!firstEditable)
+			return;
+		var editables = point.findEditable({all:true, net:firstEditable.getNet()});
+		for (var e of editables)
+			e.strokeColor = "red";
+	}	
+
+	_dragEnd() {
+		this.status == "idle";
+	}
 
 	click() { // called from gui clickbox onclick event
 
@@ -240,10 +253,14 @@ class Circuit extends Group {
 		if (this.status == "idle") {
 			switch (this.tool)
 			{
+				case "drag":
+					this.status = "drag";
+					this._dragStart(clickPoint);
+					return;
 				case "wire":
 					this.status = "net";
 					this._selectionNetUnhighlight();
-					return this.wireDragged = new Wire(clickPoint, this);
+					return this.wireNew = new Wire(clickPoint, this);
 				case "highlight":
 					return this._selectionNetHighlight();
 				case "pointer":
@@ -257,10 +274,10 @@ class Circuit extends Group {
 		}
 		else if (this.status == "net") 
 		{	
-			this.wireDragged.finish(clickPoint); // finalise wire to how it must be
+			this.wireNew.finish(clickPoint); // finalise wire to how it must be
 			if (Key.isDown('shift'))
-				return this.wireDragged = new Wire(clickPoint, this);
-			this.wireDragged
+				return this.wireNew = new Wire(clickPoint, this);
+			this.wireNew
 			this.status = "idle";
 		}
 		else if (this.status == "device")
@@ -268,6 +285,10 @@ class Circuit extends Group {
 			this.devicePicked.place();
 			this.devicePicked = null;
 			this.status = "idle";
+		}
+		else if (this.status == "drag")
+		{
+			this._dragEnd();
 		}
 	}
 

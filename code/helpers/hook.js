@@ -20,7 +20,7 @@ function setupTool() {
 		}
 		
 		if (window.circuit.status == "net") {
-			var wire = window.circuit.wireDragged;
+			var wire = window.circuit.wireNew;
 			wire.lastSegment.point = event.point;
 		}	
 		else if (window.circuit.status == "device" && window.circuit.devicePicked != null) {
