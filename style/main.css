@@ -8,7 +8,7 @@ body, html {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #fab;
+	
 }
 
 body {
@@ -18,19 +18,20 @@ body {
 	overflow: hidden;
 	--menu-width: 300px;
 	--toolbar-height: 40px;
+	background-color: white;
 }
 
 #simViewport {
-	border-left: 1px solid #444;
-	border-top: 1px solid #444;
+	border: 1px solid #444;
+	border-right: 0;
 	width: calc(100% - var(--menu-width) - 2px);
-	height: calc(100% - var(--toolbar-height) - 2px);
+	height: calc(100% - var(--toolbar-height) * 2 - 2px);
 	left: var(--menu-width);
 	top:var(--toolbar-height);
 	position: absolute;
 	overflow-x: scroll;
 	overflow-y: scroll;
-	background-color: white;
+	
 	
 }
 
@@ -42,7 +43,7 @@ body {
 
 #simClickbox {
 	z-index: 5;
-	background-image: url("./gfx/dot.png");
+	background-image: url("../gfx/dot.png");
 
 	/* margin: calc(var(--sizing) * 0.5); */
 	background-repeat: repeat;
@@ -56,28 +57,69 @@ body {
 
 }
 
-#menu {
-	background-color: #FFF;
-	width: calc(var(--menu-width) - 32px);
-	height: calc(100% - 32px);
-	position: absolute;
-	padding: 16px;
-	top: 0;
-	left: 0;
+#explorer {
+	
+
+  --sizing: 20px;
+  --text: #222;
+  --lines: #777;
+  --bg: #fff;
+
+
+  width: calc(var(--menu-width));
+  height: calc(60vh - var(--sizing) - 1px);
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  background-color: var(--bg);
+
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 0;
+
+  left: calc(var(--sizing) * -1);
+  padding: calc(var(--sizing) / 2);
+  border-bottom: 1px solid #444;
+
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  font-family: "Courier New";
 }
 
-#toolbar {
-	background-color: #EEE;
+#details {
+	position: absolute;
+	top: 60vh;
+	height: 40vh;
+	
+	width: calc(var(--menu-width));
+	overflow-y: scroll;
+}
+
+.bar {
+	
 	height: calc(var(--toolbar-height));
 	width: calc(100% - var(--menu-width) - 1px);
 	position: absolute;
-	top: 0;
+	
 	left: var(--menu-width);
 	font-size: 0;
 	border-left: 1px solid #444;
+
+	background-color: #f8f8f8;
 }
 
-#toolbar p {
+#toolbar {
+	top: 0;
+}
+
+#statusbar {
+	bottom: 0;
+}
+
+.bar p {
 	color: white;
 	background-color: #FA4;
 	padding: 8px;
@@ -91,21 +133,25 @@ body {
 	
 }
 
-#toolbar p:hover {
+.bar p:hover {
 	background-color: #D82;
 }
 
-#toolbar p.command {
+.bar p.command {
 	font-weight: bold;
 	font-family: 'Arial';
 	font-style: italic;
 	cursor: pointer;
 }
 
-#toolbar p.textDisplay {
+.bar p.textDisplay {
 	background-color: #fff;
 	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.3);
 	font-family: 'Courier New';
 	color: #000;
-	width: 200px;
+	width: 300px;
+}
+
+#statusbar p:last-child {
+	width: calc(100% - 345px);
 }

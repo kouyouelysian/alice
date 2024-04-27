@@ -26,7 +26,7 @@ class Sim {
 		// logic
 		this.status = undefined;
 		this.tool = undefined;
-		this._setTool("pointer");
+		this.setTool("pointer");
 		this._setStatus("idle");
 		this.editedElement = null;
 		this.selection = null;
@@ -56,22 +56,22 @@ class Sim {
 			return; // at least one has to be set
 
 		if (opts.name) // tool by name has prevalence
-			return _setTool(opts.name);
+			return setTool(opts.name);
 
 		switch (opts.key)
 		{
-			case "w": return this._setTool("wire");
-			case "d": return this._setTool("drag");
-			case "p": return this._setTool("pointer");
-			case "h": return this._setTool("highlight");
+			case "w": return this.setTool("wire");
+			case "d": return this.setTool("drag");
+			case "p": return this.setTool("pointer");
+			case "h": return this.setTool("highlight");
 
-			case "s": return this._setTool("Source");
-			case "l": return this._setTool("Light");
+			case "s": return this.setTool("Source");
+			case "l": return this.setTool("Light");
 		}
 
 	}
 
-	_setTool(tool) {
+	setTool(tool) {
 		this.pageParts.tool.innerHTML = "Tool: <b>" + tool.toLowerCase() + "</b>";
 		this.tool = tool;
 		switch (tool) {
@@ -124,11 +124,11 @@ class Sim {
 		}
 
 		// if not - check if this is a device that exists
-		if (Devices[this.tool] == null)
+		var classPointer = Devices[this.tool.split(".")[0]][this.tool.split(".")[1]];
+		if (classPointer == null)
 			return;
-
 		this._setStatus("adding device");
-		return this.editedElement = new Devices[this.tool](this.circuitActiveGet(), point);
+		return this.editedElement = new classPointer(this.circuitActiveGet(), point);
 	}
 
 	_actionFinish(point) {
@@ -206,7 +206,7 @@ class Sim {
 
 	run() {
 		this._setStatus("running");
-		this._setTool("pointer");
+		this.setTool("pointer");
 		view.autoUpdate = false;
 		if (!this.updateInterval)
 		{
@@ -267,7 +267,7 @@ class Sim {
 		if (key == "escape" && tool != "pointer")
 		{
 			this._actionStopAny();
-			return this._setTool("pointer");
+			return this.setTool("pointer");
 		}
 		else if (key == "delete")
 			return this._removeEditable();

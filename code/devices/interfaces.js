@@ -1,4 +1,7 @@
-Devices.Source = class Source extends Devices.Device {
+Devices.Interfaces = {};
+
+
+Devices.Interfaces.Source = class Source extends Devices.Device {
 	constructor(parentGroup, point) {
 
 		super(parentGroup, point);
@@ -51,7 +54,7 @@ Devices.Source = class Source extends Devices.Device {
 }
 
 
-Devices.Light = class Light extends Devices.Device {
+Devices.Interfaces.Light = class Light extends Devices.Device {
 
 	constructor(parentGroup, point) {
 
@@ -121,7 +124,7 @@ Devices.Light = class Light extends Devices.Device {
 }
 
 
-Devices.EightSegment = class EightSegment extends Devices.Device {
+Devices.Interfaces.EightSegment = class EightSegment extends Devices.Device {
 
 	constructor(parentGroup, point) {
 

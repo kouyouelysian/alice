@@ -2,28 +2,39 @@
 <html>
 <head>
 	<title>logic simulator</title>
-	<link rel="stylesheet" type="text/css" href="./style.css">
+	<link rel="stylesheet" type="text/css" href="./style/main.css">
+	<link rel="stylesheet" type="text/css" href="./style/explorer.css">
 	<meta name="application-name" content="Aubery's Logic Integrated Circuit Emulator (ALICE)">
 </head>
 <body>
 
-	<div id="menu">
+	<div id="explorer">
+	</div>
+	<div id="details">
 	</div>
 
-	<div id="toolbar">
+
+	<div class="bar" id="toolbar">
 		<p class="command" onclick="window.sim.run()">Run</p>
 		<p class="command" onclick="window.sim.stop()">Stop</p>
 		<p class="command" onclick="alert(window.sim.export())">Save</p>
 		<p class="command" onclick="window.sim.import(window.prompt('Paste circuit export JSON here:'))">Load</p>
+		
+	</div>
+	<div class="bar" id="statusbar">
 		<p class="textDisplay" id="displayStatus"></p>
 		<p class="textDisplay" id="displayTool"></p>
-		<
 	</div>
 	
 	<div id="simViewport">
 		<canvas id="simCanvas"></canvas>
 		<div id="simClickbox" onclick="window.sim.click()"></div>
 	</div>
+
+	
+
+	<script type="text/javascript" src="./code/bmco/bmco_general.js"></script>
+	<script type="text/javascript" src="./code/bmco/bmco_xml.js"></script>
 
 	<script type="text/javascript" src="./code/interface/paper.js"></script>
 	<script type="text/javascript" src="./code/interface/init.js"></script>
@@ -41,6 +52,7 @@
 	<script type="text/javascript" src="./code/devices/interfaces.js"></script>
 	<script type="text/javascript" src="./code/devices/timing.js"></script>
 
+	<script type="text/javascript" src="./code/interface/explorer.js"></script>
 	<script type="text/javascript" src="./code/interface/sim.js"></script>
 	<script type="text/javascript" src="./code/interface/hook.js"></script>
 

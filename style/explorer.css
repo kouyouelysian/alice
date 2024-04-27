@@ -1,0 +1,170 @@
+
+
+
+#explorer ul {
+  overflow: hidden;
+  height: auto;
+  margin: 0;
+  transition: height 0.2s;
+  transition-timing-function: linear;
+  list-style-type: disc;
+  user-select: none;
+  padding-left: var(--sizing);
+}
+
+#explorer li {
+  list-style-type: none;
+  user-select: none;
+  position: relative;
+  width: 100%;
+}
+
+
+
+#explorer .item::before, #explorer .dirControl::after, #explorer .dirControl {
+  width: var(--sizing);
+  height: var(--sizing);
+  background-repeat: no-repeat;
+  background-position: center;
+  display: inline-block;
+  z-index: 20;
+}
+
+#explorer .item::before, #explorer .dirControl::after {
+  content: '';
+  
+}
+
+#explorer .dirControl::after {
+  border-left: var(--sizing) solid transparent;
+}
+
+#explorer li span, #explorer li a {
+  font-size: 15px;
+  display: inline-block;
+  height: var(--sizing);
+  line-height: var(--sizing);
+  vertical-align: bottom;
+  position: relative;
+  z-index: 30;
+  color: var(--text);
+}
+
+#explorer .directory > a {
+  cursor: pointer;
+  padding-left: calc(var(--sizing) * 1.25);
+}
+#explorer .directory > span {
+  cursor: default;
+  padding-left: calc(var(--sizing) * 1.25);
+}
+
+#explorer .item > span, #explorer .item > a {
+  margin-left: calc(var(--sizing) * -1);
+  padding-left: calc(var(--sizing) * 1.25);
+  cursor: pointer;
+}
+
+#explorer li a {
+  text-decoration: underline dotted;
+}
+
+#explorer li a:hover {
+  color: #00f;
+}
+
+#explorer .item {
+  margin-left: var(--sizing);
+  --icon: url("../gfx/icon/ico16/file.png");
+}
+
+#explorer #explorerDevices .item {
+  --icon: url("../gfx/icon/ico16/chip.png");
+}
+
+
+#explorer .dirControl {
+  position: relative;
+  cursor: pointer;
+  margin-right: : var(--sizing);
+  background-image: url("../gfx/icon/plus.png");
+}
+
+#explorer .diropen > .dirControl {
+  background-image: url("../gfx/icon/minus.png");
+}
+
+#explorer .item:before {
+  background-image: var(--icon);
+}
+
+
+#explorer .directory > .dirControl::after {
+  background-image: url("../gfx/icon/ico16/dirclosed.png");
+}
+
+#explorer .directory.notebook > .dirControl::after {
+  background-image: url("../gfx/icon/ico16/bookopen.png");
+}
+
+#explorer .diropen > .dirControl::after {
+  background-image: url("../gfx/icon/ico16/diropen.png");
+}
+
+#explorer > .directory:first-child > .dirControl {
+  margin-right: calc(var(--sizing) * 1);
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+#explorer > .directory:first-child > .dirControl::after {
+  background-image: url("../gfx/icon/ico16/computer.png");
+}
+
+
+#explorer > .directory:first-child > .selectHor {
+  display: none;
+}
+
+
+
+
+#explorer .selectHor {
+  position: absolute;
+  width: calc(var(--sizing) / 2 + 4px);
+  height: 0;
+  top: calc(var(--sizing) / 2);
+  left: calc(var(--sizing) * -0.5 - 0.75px);
+  display: block;
+  border-bottom: 1px dotted var(--lines);
+  z-index: 10;
+}
+
+#explorer .directory > .selectHor {
+  left: 15px;
+  width: 7px;
+}
+
+
+#explorer .selectVert {
+  position: absolute;
+  width: 0px;
+  height: calc(100% - var(--sizing));
+  top: calc(var(--sizing) * 0.5 + 0.75px);
+  left: calc(var(--sizing) * 1.5);
+  display: block;
+  border-right: 1px dotted var(--lines);
+  z-index: 10;
+}
+
+
+.selectHide {
+  position: absolute;
+  z-index: 10;
+  background-color: var(--bg);
+  width: calc(var(--sizing) / 2);
+  height: calc(100% - var(--sizing) - 4px);
+  top: calc(var(--sizing) - 4px);
+  left: calc(var(--sizing) / 4);
+}

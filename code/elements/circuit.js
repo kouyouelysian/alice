@@ -4,15 +4,6 @@ class Circuit extends Group {
 
 		super();
 		this.name = "cir"+index.toString();
-
-		// paper.js stuff init
-		/*
-		this.editables = project.addLayer(new Layer({ name:"editables" }));
-		var above = project.addLayer(new Layer({ name:"above" }));
-		project.layers.editables.activate();
-		this.editables.addChild(this);
-		*/
-
 		project.layers.editables.addChild(this);
 
 		// main subgroups

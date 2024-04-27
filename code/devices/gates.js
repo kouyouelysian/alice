@@ -1,4 +1,6 @@
-Devices.Not = class Not extends Devices.Device {
+Devices.Gates = {}
+
+Devices.Gates.Not = class Not extends Devices.Device {
 
 	constructor(parentGroup, point) {
 
@@ -63,7 +65,7 @@ class Gate extends Devices.Device { // general constructor for 3-pin gates. not 
 	}
 }
 
-Devices.And = class And extends Gate {
+Devices.Gates.And = class And extends Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 
@@ -83,7 +85,7 @@ Devices.And = class And extends Gate {
 }
 
 
-Devices.Or = class Or extends Gate {
+Devices.Gates.Or = class Or extends Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 
@@ -104,7 +106,7 @@ Devices.Or = class Or extends Gate {
 	}	
 }
 
-Devices.Nand = class Nand extends Gate {
+Devices.Gates.Nand = class Nand extends Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 
@@ -123,7 +125,7 @@ Devices.Nand = class Nand extends Gate {
 	}	
 }
 
-Devices.Nor = class Nor extends Gate {
+Devices.Gates.Nor = class Nor extends Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 
@@ -143,7 +145,7 @@ Devices.Nor = class Nor extends Gate {
 	}	
 }
 
-Devices.Xor = class Xor extends Gate {
+Devices.Gates.Xor = class Xor extends Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 

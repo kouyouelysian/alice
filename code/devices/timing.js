@@ -1,4 +1,6 @@
- Devices.Clock = class Clock extends Devices.Device {
+Devices.Timing = {}
+
+Devices.Timing.Clock = class Clock extends Devices.Device {
 	constructor(parentGroup, point) {
 
 		super(parentGroup, point);

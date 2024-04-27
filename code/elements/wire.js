@@ -3,7 +3,6 @@ class Wire extends Path {
 	constructor(point, circuit, fromGui=true) {
 
 		super();
-
 		this.data.type = "wire";	
 		this.netElement = true;
 		this.circuit = circuit;
