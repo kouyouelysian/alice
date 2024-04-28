@@ -78,6 +78,10 @@
   --icon: url("../gfx/icon/ico16/file.png");
 }
 
+#explorer #explorerDevices .directory > .dirControl::after {
+  background-image: url("../gfx/icon/ico16/bookopen.png");
+}
+
 #explorer #explorerDevices .item {
   --icon: url("../gfx/icon/ico16/chip.png");
 }
@@ -167,4 +171,9 @@
   height: calc(100% - var(--sizing) - 4px);
   top: calc(var(--sizing) - 4px);
   left: calc(var(--sizing) / 4);
+}
+
+#explorer #explorerLoadedCircuit {
+  font-weight: bold;
+  
 }

@@ -11,8 +11,8 @@ class Sim {
 
 		// circuit system
 		this.circuits = new IndexedGroup();
-		this.activeCircuitIndex = 0;
-		this.circuitAdd();
+		this.activeCircuitIndex = null;
+		
 
 		// appearance, actual gui
 		this.appearance = VisualSchemes.default;
@@ -35,12 +35,28 @@ class Sim {
 		this.ticksPerFrame = 1; // ticks
 	}
 
+	onload() {
+		this.activeCircuitIndex = 0;
+		this.circuitAdd();
+		this.circuitLoad(this.circuits.firstChild.name, document.getElementById("explorerCircuits").lastChild.firstChild);
+	}
+
 	circuitAdd() {
 		this.circuits.addChild( new Circuit(this.circuits._getIndex()) );
+		Explorer.circuitAdd(this.circuits.lastChild.name);
 	}
 
 	circuitRemove(name) {
 		this.circuits.children[name].remove();
+	}
+
+	circuitLoad(name, callerElement) {
+		this.circuitActiveSet(name);
+		this.circuitMakeVisible(name);
+		var previousCaller = document.getElementById("explorerLoadedCircuit");
+		if (previousCaller)
+			previousCaller.removeAttribute("id");
+		callerElement.id = "explorerLoadedCircuit";
 	}
 
 	circuitActiveGet() {
@@ -49,6 +65,11 @@ class Sim {
 
 	circuitActiveSet(name) {
 		this.activeCircuitIndex = this.circuits.children[name].index;
+	}
+
+	circuitMakeVisible(name) {
+		for (var c of this.circuits.children)
+			c.name == name? c.visible = true : c.visible = false;
 	}
 
 	_pickTool(opts={/* key, name */}) {

@@ -191,6 +191,7 @@ var Explorer = {
 			
 
 			Explorer.closeFolders();
+			window.sim.onload();
 		})
 	},
 
@@ -224,11 +225,16 @@ var Explorer = {
 			return nav.classList.remove("folded");
 		return nav.classList.add("folded");
 
+	},
+
+	circuitAdd(circName)
+	{
+		var target = document.getElementById("explorerCircuits").lastChild;
+		var li = document.createElement("li");
+		li.classList.add("item");
+		li.innerHTML = `<a>${circName}</a>`;
+		li.setAttribute("onclick", `window.sim.circuitLoad('${circName}', this)`);
+		target.insertBefore(li, target.lastChild);
 	}
 
 }
-
-Explorer.createStructure();
-window.addEventListener("load", (event) => {
-	Explorer.onload();
-});

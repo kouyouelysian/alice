@@ -1,11 +1,11 @@
 <sitemap name="Project Tree" noclose="noclose">
 	
-	<directory name="Circuits" noclose="noclose">
-		<item name="Cir0" link="ainis"/>
+	<directory name="Circuits" noclose="noclose" id="explorerCircuits">
+		<item name="New Circuit..." onclick="window.sim.circuitAdd()" icon="desktop.png"/>
 	</directory>
 	<directory name="Integrated Circuits">
 	</directory>
 	
-	<directory name="Devices" id="explorerDevices">
+	<directory name="Devices" id="explorerDevices" noclose="noclose">
 	</directory>
 </sitemap>

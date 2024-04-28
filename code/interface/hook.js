@@ -52,4 +52,9 @@ window.onload = function() {
 		behavior: 'auto'
 	}); 
 
+	Explorer.createStructure();
+	Explorer.onload();
+	
+
 }}
+
