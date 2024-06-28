@@ -1,5 +1,6 @@
 
 sizing = 25;
+
 defaultSize = 
 {
 	"grid": sizing,
@@ -13,21 +14,22 @@ defaultSize =
 		"radius": 3,
 		"width": 1.5
 	}
-}
+};
 
+defaultColor = {
+	"fill": "#F8F8F8",
+	"false": "#000",
+	"undefined": "#999",
+	"true": "#0A0",
+	"selected": "#1BD",
+	"highlighted": "#F0B",
+	"devices": "#000"
+};
 
 var VisualSchemes = {	
 
 	default: {
-		"color": {
-			"fill": "white",
-			"false": "#000",
-			"undefined": "#999",
-			"true": "#0A0",
-			"selected": "#1BD",
-			"highlighted": "#F0B",
-			"devices": "#000"
-		},
+		"color": defaultColor,
 		"size": defaultSize
 	},
 
@@ -48,3 +50,4 @@ var VisualSchemes = {
 
 delete sizing;
 delete defaultSize;
+delete defaultColor;

@@ -101,15 +101,12 @@ class Circuit extends Group {
 	
 
 
-	export(pretty=false) {
+	export() {
+
 		var json = {
 			"devices": [],
 			"nets": []
 		}
-
-		var indent = 0;
-		if (pretty)
-			indent = 4;
 
 		for (var d of this.children.devices.children)
 			json.devices.push(d.export());
@@ -117,9 +114,8 @@ class Circuit extends Group {
 		for (var n of this.children.nets.children)
 			json.nets.push(n.export());
 	
-		return JSON.stringify(json, null, indent);
+		return json;
 
-		
 	}
 
 	import(jsonString) {

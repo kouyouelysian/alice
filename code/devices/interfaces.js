@@ -11,27 +11,27 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 	}
 
 	createControlButton(point) {
-		var control = new Group();
-		control.name = "control";
 
-		var button = new Path.Circle(point, this.getCircuit().appearance.size.grid * 0.5);
-		button.fillColor = this.getCircuit().appearance.color.false;
-		button.data.type = "body";
+		var button = new Path.Circle(point, window.sim.appearance.size.grid * 0.5);
+		button.fillColor = window.sim.appearance.color.false;
+		console.log(window.sim.appearance.color.false);
 		button.data.isActuator = true;
+		button.data.type = "body";
 		button.data.device = this;
 		button.name = "button";
-		control.addChild(button);
+		this.addChild(button);
 
-		var digit = new PointText(new Point(point.x, point.y + this.getCircuit().appearance.size.grid * 0.15));
-		digit.fontWeight = this.getCircuit().appearance.size.grid * 0.4;
+		var digit = new PointText(new Point(point.x, point.y + window.sim.appearance.size.grid * 0.15));
+		digit.fontWeight = window.sim.appearance.size.grid * 0.4;
 		digit.justification = 'center';
 		digit.content = '0';
 		digit.leading = 0;
 		digit.name = "digit";
-		digit.fillColor = this.getCircuit().appearance.color.fill;
-		control.addChild(digit);
+		this.addChild(digit);
+		digit.fillColor = window.sim.appearance.color.fill;
+		digit.strokeColor = window.sim.appearance.color.fill;
+		
 
-		this.addChild(control);
 	}
 
 
@@ -41,19 +41,28 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 		this.write("o", state);
 		if (state)
 		{
-			this.children["control"].children["button"].fillColor = this.getCircuit().appearance.color.true;
-			this.children["control"].children["digit"].content = "1";
+			this.children["button"].fillColor = window.sim.appearance.color.true;
+			this.children["digit"].content = "1";
 		}
 		else
 		{
-			this.children["control"].children["button"].fillColor = this.getCircuit().appearance.color.false;
-			this.children["control"].children["digit"].content = "0";
+			this.children["button"].fillColor = window.sim.appearance.color.false;
+			this.children["digit"].content = "0";
 		}
 		
 	}
+
+	reset() {
+		return;
+	}
+
+	recolor(color) {
+		super.recolor(color);
+		this.children["digit"].fillColor = window.sim.appearance.color.fill;
+		this.children["digit"].strokeColor = window.sim.appearance.color.fill;
+
+	}
 }
-
-
 Devices.Interfaces.Light = class Light extends Devices.Device {
 
 	constructor(parentGroup, point) {
@@ -100,7 +109,7 @@ Devices.Interfaces.Light = class Light extends Devices.Device {
 
 	createLight(point) {
 
-		var light = new Path.Circle(point, this.getCircuit().appearance.size.grid * 0.45);
+		var light = new Path.Circle(point, window.sim.appearance.size.grid * 0.45);
 		light.fillColor = this.getCircuit().appearance.color.undefined;
 		light.name = "light";
 		light.data.type = "body";
@@ -109,10 +118,10 @@ Devices.Interfaces.Light = class Light extends Devices.Device {
 
 	light() {
 		if (this.state === true)
-			return this.children["light"].fillColor = this.getCircuit().appearance.color.true;
+			return this.children["light"].fillColor = window.sim.appearance.color.true;
 		else if (this.state === false)
-			return this.children["light"].fillColor = this.getCircuit().appearance.color.false;
-		return this.children["light"].fillColor = this.getCircuit().appearance.color.undefined;
+			return this.children["light"].fillColor = window.sim.appearance.color.false;
+		return this.children["light"].fillColor = window.sim.appearance.color.undefined;
 	}
 
 	update() {
@@ -168,15 +177,12 @@ Devices.Interfaces.EightSegment = class EightSegment extends Devices.Device {
 		digit.content = '0';
 		digit.leading = 0;
 		digit.name = "digit";
+		this.addChild(digit);
 		digit.fillColor = this.getCircuit().appearance.color.highlighted;
 		digit.strokeColor = this.getCircuit().appearance.color.highlighted;
-		this.addChild(digit);
 	}
 
-	update() {
-
-		
-		
+	update() {	
 		var number = 0; // pins go in a sequence from lsb to msb
 		var order = 1;
 		for (var x = 0; x < 4; x++)
@@ -186,5 +192,11 @@ Devices.Interfaces.EightSegment = class EightSegment extends Devices.Device {
 			order *= 2;
 		}
 		this.children.digit.content = this.dict[number];
+	}
+
+	recolor(color) {
+		super.recolor(color);
+		this.children["digit"].fillColor = window.sim.appearance.color.highlighted;
+		this.children["digit"].strokeColor = window.sim.appearance.color.highlighted;
 	}
 }

@@ -25,6 +25,7 @@ class Pin extends Path {
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
 		this.state = undefined;
+		this.initial = undefined;
 	}
 
 	getNet() {
@@ -104,8 +105,6 @@ class Pin extends Path {
 			wire.splitAt(end);
 		}
 	}
-
-	
 
 	getInversionBulb(ratio=0.25) { // returns a circle path to be used by device body constructor
 		var pinLength = this.firstSegment.point.getDistance(this.lastSegment.point);

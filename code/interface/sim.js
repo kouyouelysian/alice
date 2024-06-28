@@ -41,6 +41,20 @@ class Sim {
 		this.circuitLoad(this.circuits.firstChild.name, document.getElementById("explorerCircuits").lastChild.firstChild);
 	}
 
+	export(pretty=false) {
+
+		var json = {
+			"circuits": []
+		}
+
+		for (var cir of this.circuits.children)
+			json.circuits.push(cir.export());
+
+		var indent = pretty? 0 : 4;
+		return JSON.stringify(json, null, indent);
+		
+	}
+
 	circuitAdd() {
 		this.circuits.addChild( new Circuit(this.circuits._getIndex()) );
 		Explorer.circuitAdd(this.circuits.lastChild.name);
@@ -86,8 +100,8 @@ class Sim {
 			case "p": return this.setTool("pointer");
 			case "h": return this.setTool("highlight");
 
-			case "s": return this.setTool("Source");
-			case "l": return this.setTool("Light");
+			case "s": return this.setTool("Interfaces.Source");
+			case "l": return this.setTool("Interfaces.Light");
 		}
 
 	}
@@ -131,10 +145,14 @@ class Sim {
 
 	_pointerClicked(point) {
 		var editable = point.findEditable(); // 
-		if (editable.data.isActuator) // if we clicked a button of some kind on some device
+		if (editable && editable.data.isActuator) // if we clicked a button of some kind on some device
 			editable.data.device.act(editable);
 	}
 	_actionStart(point) {
+
+		if (this.circuitActiveGet().netHighlighted)
+			this.circuitActiveGet().netHighlighted.unhighlight();
+
 		switch (this.tool) { // first figure out if this is some core action
 			case "wire":
 				this._setStatus("wiring");
@@ -142,22 +160,34 @@ class Sim {
 
 			case "pointer":
 				return this._pointerClicked(point);
+
+			case "highlight":
+				var editable = point.findEditable();
+				if (!editable)
+					return;
+				editable.getNet().highlight();
+				return this.circuitActiveGet().netHighlighted = editable.getNet();
 		}
 
 		// if not - check if this is a device that exists
-		var classPointer = Devices[this.tool.split(".")[0]][this.tool.split(".")[1]];
-		if (classPointer == null)
+		var deviceGroup = Devices[this.tool.split(".")[0]];
+		if (!deviceGroup)
 			return;
+
+		var deviceClass = deviceGroup[this.tool.split(".")[1]];
+		if (!deviceClass)
+			return;
+
 		this._setStatus("adding device");
-		return this.editedElement = new classPointer(this.circuitActiveGet(), point);
+		return this.editedElement = new deviceClass(this.circuitActiveGet(), point);
 	}
 
 	_actionFinish(point) {
 		switch (this.status) {
 			case "wiring":
 				this.editedElement.finish(point); // finalise wire to how it must be
-				if (Key.isDown('shift'))
-					this.editedElement = new Wire(point, this.circuitActiveGet());
+				if (!Key.isDown('shift'))
+					return this.editedElement = new Wire(point, this.circuitActiveGet());
 				break;
 			
 			case "adding device":
@@ -179,6 +209,7 @@ class Sim {
 	}
 
 	_selectionMake(item) {
+
 		switch (item.data.type)
 		{
 			case "junction":
@@ -187,13 +218,17 @@ class Sim {
 				item.strokeColor = this.appearance.color.selected;
 				break;
 			case "body":
-				item.parent.setStrokeColor(this.appearance.color.selected);
-				break;
+			case "bodyPart":
+				var p;
+				item.data.type=="body"? p=item.parent : p=item.parent.parent;
+				p.recolor(this.appearance.color.selected);
+				return p;
 		}
 		return item;	
 	}
 
 	_selectionColorBack(item) {
+
 		switch (this.selection.data.type)
 		{
 			case "junction":
@@ -203,8 +238,15 @@ class Sim {
 				return;
 			case "pin":
 				return item.autoColor();
-			case "body":
-				return item.parent.setStrokeColor(this.appearance.color.devices);
+			case "device":
+				item.recolor(this.appearance.color.devices);
+				for (var p of item.children["pins"].children) {
+					console.log(p.state);
+					p.autoColor();
+				}
+				return;
+	
+				
 		}
 	}
 
@@ -226,6 +268,7 @@ class Sim {
 	}
 
 	run() {
+		this.reset();
 		this._setStatus("running");
 		this.setTool("pointer");
 		view.autoUpdate = false;
@@ -246,6 +289,16 @@ class Sim {
 		this.ticks = 0;
 	}
 
+	reset() {
+		for (var d of this.circuitActiveGet().children["devices"].children) {
+			d.reset();
+		}
+		
+		for (var n of this.circuitActiveGet().children["nets"].children) {
+			n.state = undefined;
+			n.colorByState();
+		}
+	}
 
 
 
@@ -290,7 +343,7 @@ class Sim {
 			this._actionStopAny();
 			return this.setTool("pointer");
 		}
-		else if (key == "delete")
+		else if (key == "delete" || key == "backspace")
 			return this._removeEditable();
 		return this._pickTool({key:key})
 	}

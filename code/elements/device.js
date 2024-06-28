@@ -74,12 +74,15 @@ Devices.Device = class Device extends Group {
 			point.y - packageData.body.origin.x*gridSize
 		);
 
+		var body = new CompoundPath();
+		body.position = origin;
 		if (!packageData.body.symbol) // if package has no symbol information - draw a rectangle
-			this.insertChild(packageData.pins.length, this.createBodyDefault(packageData, origin, gridSize));
+			this.fillBodyDefault(body, packageData, origin, gridSize);
 		else // else we have custom package information, then process it
-			this.insertChild(packageData.pins.length, this.createBodyCustom(packageData, origin, gridSize));
-		this.lastChild.name = "body";
-		this.lastChild.data.type = "body";
+			this.fillBodyCustom(body, packageData, origin, gridSize);
+		body.name = "body";
+		body.data.type = "body";
+		this.addChild(body);
 
 		const pins = new Group();
 		pins.name = "pins";
@@ -101,41 +104,41 @@ Devices.Device = class Device extends Group {
 
 	}
 
-	createBodyDefault(packageData, origin, gridSize) {
-		var body = new Path.Rectangle(origin.x, origin.y, packageData.body.dimensions.width*gridSize, packageData.body.dimensions.height*gridSize)
-		body.strokeColor = body.parent.strokeColor;
-		return body;
+	fillBodyDefault(body, packageData, origin, gridSize) {
+		var outline = new Path.Rectangle(
+			origin.x,
+			origin.y,
+			packageData.body.dimensions.width*gridSize,
+			packageData.body.dimensions.height*gridSize
+			);
+		outline.data.type = "bodyPart";
+		body.addChild(outline);
 	}
 
-	createBodyCustom(packageData, origin, gridSize) {
-		//body = new Path.Circle(origin, 10);
-
-			var body = new CompoundPath();
-			body.position = origin;
-			
-			for (var pieceData of packageData.body.symbol)
+	fillBodyCustom(body, packageData, origin, gridSize) {
+		
+		for (var pieceData of packageData.body.symbol)
+		{
+			var piece = new Path();
+			for (var segment of pieceData.segmentData)
 			{
-				var piece = new Path();
-				for (var segment of pieceData.segmentData)
+				var point = origin.add(this.pointFromPackageNotation(segment.point, gridSize));
+				piece.add(point);
+				if (segment.handles)
 				{
-					var point = origin.add(this.pointFromPackageNotation(segment.point, gridSize));
-					piece.add(point);
-					if (segment.handles)
-					{
-						piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in, gridSize);
-						piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out, gridSize);
-					}
+					piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in, gridSize);
+					piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out, gridSize);
 				}
-				if (pieceData.closed)
-					piece.closed = true;
-				if (pieceData.smooth)
-					piece.smooth("continuous");
-				else
-					piece.fillColor = "transparent";
-				body.addChild(piece);
 			}
-			
-			return body;
+			if (pieceData.closed)
+				piece.closed = true;
+			if (pieceData.smooth)
+				piece.smooth("continuous");
+			else
+				piece.fillColor = "transparent";
+			piece.data.type = "bodyPart";
+			body.addChild(piece);
+		}
 	}
 
 	pointFromPackageNotation(pdn, gridSize) {
@@ -166,5 +169,14 @@ Devices.Device = class Device extends Group {
 
 	update() { // updates the device's outputs based on its inputs
 		return;
+	}
+
+	reset() {
+		for (var p of this.children["pins"].children)
+				p.set(p.initial);
+	}
+
+	recolor(color) {
+		this.strokeColor = color;
 	}
 }
