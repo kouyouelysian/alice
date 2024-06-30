@@ -22,6 +22,7 @@ class Sim {
 			status: document.getElementById("displayStatus"), 
 			tool: document.getElementById("displayTool")
 		}
+		this.activeWindow = null;
 
 		// logic
 		this.status = undefined;
@@ -33,12 +34,19 @@ class Sim {
 		this.updateInterval = null;
 		this.frameRate = 20; // ms
 		this.ticksPerFrame = 1; // ticks
+
+		// notes system
+		this.notes = {
+			"instructions": "PGgxPkFMSUNFIGluc3RydWN0aW9uIG1hbnVhbDwvaDE+CjxjZW50ZXI+PGk+Y3VycmVudGx5IHVuZGVyIGNvbnN0cnVjdGlvbiE8L2k+PC9jZW50ZXI+CjxwPlRoZSBwdXJwb3NlIG9mIHRoaXMgdG9vbCBpcyB0byBidWlsZCBzb21lIGxvZ2ljIGNpcmN1aXRzIGFuZCBoYXZlIGZ1biB3aXRoIHRoZW0uIEZvciBub3csIG9ubHkgdGhlIGJhc2ljIHN0dWZmIGxpa2UgbG9naWMgZ2F0ZXMgYXJlIGF2YWlsYWJsZS4gWW91IHBpY2sgdGhlIGRldmljZSBmcm9tIHRoZSA8Yj5EZXZpY2VzPC9iPiBmb2xkZXIgaW4gdGhlIHByb2plY3QgdHJlZSwgYW5kIHBsYWNlIHRoZW0gb250byB0aGUgc2ltdWxhdG9yIGdyaWQuIENvbm5lY3QgdGhlIGlucHV0cyBhbmQgb3V0cHV0cyB0b2dldGhlciB0byBmb3JtIGNpcmN1aXRzLCBhbmQgdXNlIHNvdXJjZXMgYW5kIGxpZ2h0cyBhcyBpbnB1dCBhbmQgb3V0cHV0IGRldmljZXMhPC9wPgo8aDI+Q29tbWFuZCBsaXN0IChwcmVzcyBrZXlzKTwvaDI+Cjx1bD4KPGxpPjxiPlc8L2I+OiByb3V0ZSB3aXJlPC9saT4KPGxpPjxiPkg8L2I+IC0gaGlnaGxpZ2h0PC9saT4KPGxpPkhvdmVyICsgPGI+RGVsPC9iPiwgPGI+QmFja3NwYWNlPC9iPjogZGVsZXRlPC9saT4KPGxpPjxiPlM8L2I+OiBwdXQgc291cmNlIChiYXNpYyBzaWduYWwgZ2VuZXJhdG9yKTwvbGk+CjxsaT48Yj5MPC9iPjogcHV0IGxpZ2h0IChiYXNpYyBzaWduYWwgaW5kaWNhdG9yKTwvbGk+CjwvdWw+"
+		};
+
 	}
 
 	onload() {
 		this.activeCircuitIndex = 0;
 		this.circuitAdd();
 		this.circuitLoad(this.circuits.firstChild.name, document.getElementById("explorerCircuits").lastChild.firstChild);
+		this.activateWindow("simViewport");
 	}
 
 	export(pretty=false) {
@@ -67,10 +75,8 @@ class Sim {
 	circuitLoad(name, callerElement) {
 		this.circuitActiveSet(name);
 		this.circuitMakeVisible(name);
-		var previousCaller = document.getElementById("explorerLoadedCircuit");
-		if (previousCaller)
-			previousCaller.removeAttribute("id");
-		callerElement.id = "explorerLoadedCircuit";
+		this.itemHighlight(callerElement);
+		this.activateWindow("simViewport");
 	}
 
 	circuitActiveGet() {
@@ -186,7 +192,7 @@ class Sim {
 		switch (this.status) {
 			case "wiring":
 				this.editedElement.finish(point); // finalise wire to how it must be
-				if (!Key.isDown('shift'))
+				if (Key.isDown('shift'))
 					return this.editedElement = new Wire(point, this.circuitActiveGet());
 				break;
 			
@@ -241,7 +247,6 @@ class Sim {
 			case "device":
 				item.recolor(this.appearance.color.devices);
 				for (var p of item.children["pins"].children) {
-					console.log(p.state);
 					p.autoColor();
 				}
 				return;
@@ -268,6 +273,8 @@ class Sim {
 	}
 
 	run() {
+		if (this.activeWindow != "simViewport")
+			return;
 		this.reset();
 		this._setStatus("running");
 		this.setTool("pointer");
@@ -351,6 +358,41 @@ class Sim {
 	visualSchemeSet(scheme) {
 		this.appearance = scheme;
 		document.getElementById("simViewport").style.backgroundColor = scheme.color.fill;
+	}
+
+	throwError(text="error!") {
+		this.stop();
+		window.alert(text);
+	}
+
+	activateWindow(id) {
+		if (!document.getElementById(id))
+			return;
+		for (var el of document.getElementsByClassName("mainWindow"))
+			el.classList.add("invisible");
+		document.getElementById(id).classList.remove("invisible");
+		this.activeWindow = id;
+	}
+
+	noteShow(name, callerElement) {
+		document.getElementById("noteText").innerHTML = atob(this.notes[name]);
+		this.activateWindow("noteArea");
+		this.itemHighlight(callerElement);
+	}
+
+	noteAdd() {
+
+	}
+
+	noteDelete(name) {
+
+	}
+
+	itemHighlight(itemElement) {
+		var previousCaller = document.getElementsByClassName("loadedItem")[0];
+		if (previousCaller)
+			previousCaller.classList.remove("loadedItem");
+		itemElement.classList.add("loadedItem");
 	}
 
 }

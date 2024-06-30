@@ -35,6 +35,8 @@ Devices.Device = class Device extends Group {
 		this.createPackage(point, packageData, circuit);
 	}	
 
+	static doNotIndex = false;
+
 	export() {
 		return {
 			"name": this.name,
@@ -66,12 +68,16 @@ Devices.Device = class Device extends Group {
 		return this.children.pins.children;
 	}
 
+	getPinByName(name) {
+		return this.children.pins.children[name];
+	}
+
 	createPackage(point, packageData, circuit) {
 
 		var gridSize = circuit.appearance.size.grid;
 		var origin = new Point(
 			point.x - packageData.body.origin.x*gridSize, 
-			point.y - packageData.body.origin.x*gridSize
+			point.y - packageData.body.origin.y*gridSize
 		);
 
 		var body = new CompoundPath();
@@ -143,6 +149,10 @@ Devices.Device = class Device extends Group {
 
 	pointFromPackageNotation(pdn, gridSize) {
 		return new Point(pdn[0], pdn[1]).multiply(gridSize);
+	}
+
+	mode(pinName, mode) {
+		return this.children.pins.children[pinName].mode = mode;
 	}
 
 	setState(pinName, state) {

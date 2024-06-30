@@ -3,9 +3,11 @@
 	<directory name="Circuits" noclose="noclose" id="explorerCircuits">
 		<item name="New Circuit..." onclick="window.sim.circuitAdd()" icon="desktop.png"/>
 	</directory>
-	<directory name="Integrated Circuits">
+	<directory name="Integrated Circuits"></directory>
+	<directory name="Notes" noclose="noclose">
+		<item name="Instructions" onclick="window.sim.noteShow('instructions', this)"></item>
+		<item name="New Note..." onclick="window.sim.noteAdd()" icon="desktop.png"/>
 	</directory>
-	
-	<directory name="Devices" id="explorerDevices" noclose="noclose">
-	</directory>
+	<directory name="Devices" id="explorerDevices" noclose="noclose"></directory>
+
 </sitemap>

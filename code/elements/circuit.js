@@ -25,9 +25,9 @@ class Circuit extends Group {
 		this.netHighlighted = null;
 		this.devicePicked = null;
 
-		
-
 		// other stuff
+		this.integrationDetails = {};
+		
 	}
 
 	
@@ -54,11 +54,6 @@ class Circuit extends Group {
 			timeStack += endTime - startTime;
 		}
 		console.log("average of", laps, "circuit update times:", timeStack/laps, "milliseconds.")
-	}
-
-	throwError(text) {
-		this.stop();
-		alert(text);
 	}
 
 	/*

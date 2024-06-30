@@ -53,7 +53,7 @@ class Net extends Group {
 				{
 					debugCircle(pin.lastSegment.point);
 					this.recolor(this.parent.parent.appearance.color.highlighted);
-					return this.parent.parent.throwError("short circuit!");
+					return window.sim.throwError("short circuit!");
 				}
 				stateUpdated = true;
 				if (this.state == pin.state)

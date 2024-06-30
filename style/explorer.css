@@ -173,7 +173,7 @@
   left: calc(var(--sizing) / 4);
 }
 
-#explorer #explorerLoadedCircuit {
+#explorer .loadedItem {
   font-weight: bold;
   
 }

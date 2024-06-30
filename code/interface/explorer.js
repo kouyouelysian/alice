@@ -165,6 +165,8 @@ var Explorer = {
 			var categoryXmlNode = xmldoc.createElement("directory");
 			categoryXmlNode.setAttribute("name", categoryName);
 			for (const deviceName in Devices[categoryName]) {
+				if (Devices[categoryName][deviceName].doNotIndex)
+					continue;
 				var deviceXmlNode = xmldoc.createElement("item");
 				deviceXmlNode.setAttribute("name", deviceName);
 				deviceXmlNode.setAttribute("onclick", `window.sim.setTool('${categoryName}.${deviceName}')`);

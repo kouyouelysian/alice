@@ -31,9 +31,7 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 		digit.fillColor = window.sim.appearance.color.fill;
 		digit.strokeColor = window.sim.appearance.color.fill;
 		
-
 	}
-
 
 	act(actuator) {
 

@@ -27,9 +27,13 @@
 		<p class="textDisplay" id="displayTool"></p>
 	</div>
 	
-	<div id="simViewport">
+	<div id="simViewport" class="mainWindow">
 		<canvas id="simCanvas"></canvas>
 		<div id="simClickbox" onclick="window.sim.click()"></div>
+	</div>
+
+	<div id="noteArea" class="mainWindow">
+		<article id="noteText"></article>
 	</div>
 
 	
@@ -52,6 +56,7 @@
 	<script type="text/javascript" src="./code/devices/gates.js"></script>
 	<script type="text/javascript" src="./code/devices/interfaces.js"></script>
 	<script type="text/javascript" src="./code/devices/timing.js"></script>
+	<script type="text/javascript" src="./code/devices/primitives.js"></script>
 
 	<script type="text/javascript" src="./code/interface/explorer.js"></script>
 	<script type="text/javascript" src="./code/interface/sim.js"></script>
