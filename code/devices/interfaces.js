@@ -14,7 +14,6 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 
 		var button = new Path.Circle(point, window.sim.appearance.size.grid * 0.5);
 		button.fillColor = window.sim.appearance.color.false;
-		console.log(window.sim.appearance.color.false);
 		button.data.isActuator = true;
 		button.data.type = "body";
 		button.data.device = this;

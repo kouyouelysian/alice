@@ -45,8 +45,11 @@ class Net extends Group {
 	}
 
 	update() {
+
 		var stateUpdated = false;
+
 		for (const pin of this.connections) { // first find out this net's state
+
 			if (pin.mode == "out")
 			{		
 				if (stateUpdated)
@@ -58,10 +61,13 @@ class Net extends Group {
 				stateUpdated = true;
 				if (this.state == pin.state)
 					continue;
-				this.state = pin.state;
-				this.colorByState(this.state);
+				this.setState(pin.state);
 			}
 		}
+
+		if (!stateUpdated) // no outputs located
+			this.setState(undefined);
+
 		for (const pin of this.connections) { // then distribute it to all input pins
 			if (pin.mode == "in")
 				pin.set(this.state, this.strokeColor);
@@ -80,6 +86,11 @@ class Net extends Group {
 		this.color = color;
 		this.strokeColor = color;
 		this.fillColor = color;
+	}
+
+	setState(state) {
+		this.state = state;
+		this.colorByState(state);
 	}
 
 	getCircuit() {

@@ -159,8 +159,9 @@ var Explorer = {
 		// the Devices var should be filled by importing the Device class and then stuff from code/devices
 		var allDevicesXmlNode  = bmco_xml_nodeGetByAttributeValue(xmldoc, "directory", "name", "Devices");
 		for (const categoryName in Devices) {
-			if (categoryName == "defaultPackageData" || categoryName == "Device")
-				continue; // skip the first two entries. sections follow
+
+			if (bmco_arrayHas(["defaultPackageData", "Device", "Templates"], categoryName))
+				continue;
 
 			var categoryXmlNode = xmldoc.createElement("directory");
 			categoryXmlNode.setAttribute("name", categoryName);

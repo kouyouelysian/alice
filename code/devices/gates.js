@@ -40,7 +40,7 @@ Devices.Gates.Not = class Not extends Devices.Device {
 	}	
 }
 
-class Gate extends Devices.Device { // general constructor for 3-pin gates. not to be used directly in circuits.
+Devices.Templates.Gate = class Gate extends Devices.Device { // general constructor for 3-pin gates. not to be used directly in circuits.
 	constructor(parentGroup, point, symbol, invertedOutput = false) {
 		const packageData = {
 			"pins": [
@@ -65,7 +65,7 @@ class Gate extends Devices.Device { // general constructor for 3-pin gates. not 
 	}
 }
 
-Devices.Gates.And = class And extends Gate {
+Devices.Gates.And = class And extends Devices.Templates.Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 
@@ -85,7 +85,7 @@ Devices.Gates.And = class And extends Gate {
 }
 
 
-Devices.Gates.Or = class Or extends Gate {
+Devices.Gates.Or = class Or extends Devices.Templates.Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 
@@ -106,7 +106,7 @@ Devices.Gates.Or = class Or extends Gate {
 	}	
 }
 
-Devices.Gates.Nand = class Nand extends Gate {
+Devices.Gates.Nand = class Nand extends Devices.Templates.Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 
@@ -125,7 +125,7 @@ Devices.Gates.Nand = class Nand extends Gate {
 	}	
 }
 
-Devices.Gates.Nor = class Nor extends Gate {
+Devices.Gates.Nor = class Nor extends Devices.Templates.Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 
@@ -145,7 +145,7 @@ Devices.Gates.Nor = class Nor extends Gate {
 	}	
 }
 
-Devices.Gates.Xor = class Xor extends Gate {
+Devices.Gates.Xor = class Xor extends Devices.Templates.Gate {
 	constructor(parentGroup, point) {
 		var symbol = [{
 			"segmentData": [ 

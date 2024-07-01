@@ -16,7 +16,9 @@ var Devices = {
 			"symbol": null,
 			"label": null
 		}
-	}	
+	},
+
+	Templates: { /* templates added here later */ }
 
 	/* other devices from /code/devices/* added here as to a dict  */
 }
@@ -152,7 +154,10 @@ Devices.Device = class Device extends Group {
 	}
 
 	mode(pinName, mode) {
-		return this.children.pins.children[pinName].mode = mode;
+		this.children.pins.children[pinName].mode = mode;
+		if (mode != "output")
+			this.children.pins.children[pinName].set(undefined);
+		return;
 	}
 
 	setState(pinName, state) {
