@@ -36,9 +36,7 @@ class Sim {
 		this.ticksPerFrame = 1; // ticks
 
 		// notes system
-		this.notes = {
-			"instructions": "PGgxPkFMSUNFIGluc3RydWN0aW9uIG1hbnVhbDwvaDE+CjxjZW50ZXI+PGk+Y3VycmVudGx5IHVuZGVyIGNvbnN0cnVjdGlvbiE8L2k+PC9jZW50ZXI+CjxwPlRoZSBwdXJwb3NlIG9mIHRoaXMgdG9vbCBpcyB0byBidWlsZCBzb21lIGxvZ2ljIGNpcmN1aXRzIGFuZCBoYXZlIGZ1biB3aXRoIHRoZW0uIEZvciBub3csIG9ubHkgdGhlIGJhc2ljIHN0dWZmIGxpa2UgbG9naWMgZ2F0ZXMgYXJlIGF2YWlsYWJsZS4gWW91IHBpY2sgdGhlIGRldmljZSBmcm9tIHRoZSA8Yj5EZXZpY2VzPC9iPiBmb2xkZXIgaW4gdGhlIHByb2plY3QgdHJlZSwgYW5kIHBsYWNlIHRoZW0gb250byB0aGUgc2ltdWxhdG9yIGdyaWQuIENvbm5lY3QgdGhlIGlucHV0cyBhbmQgb3V0cHV0cyB0b2dldGhlciB0byBmb3JtIGNpcmN1aXRzLCBhbmQgdXNlIHNvdXJjZXMgYW5kIGxpZ2h0cyBhcyBpbnB1dCBhbmQgb3V0cHV0IGRldmljZXMhPC9wPgo8aDI+Q29tbWFuZCBsaXN0IChwcmVzcyBrZXlzKTwvaDI+Cjx1bD4KPGxpPjxiPlc8L2I+OiByb3V0ZSB3aXJlPC9saT4KPGxpPjxiPkg8L2I+IC0gaGlnaGxpZ2h0PC9saT4KPGxpPkhvdmVyICsgPGI+RGVsPC9iPiwgPGI+QmFja3NwYWNlPC9iPjogZGVsZXRlPC9saT4KPGxpPjxiPlM8L2I+OiBwdXQgc291cmNlIChiYXNpYyBzaWduYWwgZ2VuZXJhdG9yKTwvbGk+CjxsaT48Yj5MPC9iPjogcHV0IGxpZ2h0IChiYXNpYyBzaWduYWwgaW5kaWNhdG9yKTwvbGk+CjwvdWw+"
-		};
+		this.notes = {};
 
 	}
 
@@ -47,6 +45,11 @@ class Sim {
 		this.circuitAdd();
 		this.circuitLoad(this.circuits.firstChild.name, document.getElementById("explorerCircuits").lastChild.firstChild);
 		this.activateWindow("simViewport");
+		bmco.httpRequest("./data/manual.html").then((data) => {
+			var htmlText = data.substring(data.indexOf("<article>")+9, data.indexOf("</article>")).replaceAll("\n\t", "\n");
+			this.noteAdd("instructions", htmlText);
+		});
+		
 	}
 
 	export(pretty=false) {
@@ -61,22 +64,6 @@ class Sim {
 		var indent = pretty? 0 : 4;
 		return JSON.stringify(json, null, indent);
 		
-	}
-
-	circuitAdd() {
-		this.circuits.addChild( new Circuit(this.circuits._getIndex()) );
-		Explorer.circuitAdd(this.circuits.lastChild.name);
-	}
-
-	circuitRemove(name) {
-		this.circuits.children[name].remove();
-	}
-
-	circuitLoad(name, callerElement) {
-		this.circuitActiveSet(name);
-		this.circuitMakeVisible(name);
-		this.itemHighlight(callerElement);
-		this.activateWindow("simViewport");
 	}
 
 	circuitActiveGet() {
@@ -374,18 +361,35 @@ class Sim {
 		this.activeWindow = id;
 	}
 
-	noteShow(name, callerElement) {
+	circuitAdd() {
+		this.circuits.addChild( new Circuit(this.circuits._getIndex()) );
+		Explorer.circuitAdd(this.circuits.lastChild.name);
+	}
+
+	circuitRemove(name) {
+		this.circuits.children[name].remove();
+	}
+
+	circuitLoad(name, callerElement) {
+		this.circuitActiveSet(name);
+		this.circuitMakeVisible(name);
+		this.itemHighlight(callerElement);
+		this.activateWindow("simViewport");
+	}
+
+	noteAdd(name, contents) {
+		this.notes[name] = btoa(contents);
+		Explorer.noteAdd(name);
+	}
+
+	noteRemove(name) {
+
+	}
+
+	noteLoad(name, callerElement) {
 		document.getElementById("noteText").innerHTML = atob(this.notes[name]);
 		this.activateWindow("noteArea");
 		this.itemHighlight(callerElement);
-	}
-
-	noteAdd() {
-
-	}
-
-	noteDelete(name) {
-
 	}
 
 	itemHighlight(itemElement) {

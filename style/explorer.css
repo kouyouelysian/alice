@@ -104,7 +104,7 @@
   --icon: url("../gfx/icon/ico16/file.png");
 }
 
-#explorer #explorerDevices .directory > .dirControl::after {
+#explorer #explorerDevices .directory:nth-child(n+2) > .dirControl::after {
   background-image: url("../gfx/icon/ico16/bookopen.png");
 }
 

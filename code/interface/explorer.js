@@ -45,9 +45,9 @@ var Explorer = {
 	fileLoad: function(path)
 	{
 		event.stopPropagation();
-		bmco_getParamWrite("file", path);
+		bmco.getParamWrite("file", path);
 		const dataRoot = "./files/";
-		bmco_xml_awaitXmlFromFile( (dataRoot+path).replace("//", "/") ).then(function(xmldoc){
+		bmco.xml.awaitXmlFromFile( (dataRoot+path).replace("//", "/") ).then(function(xmldoc){
 			GLOBAL_workingDoc = xmldoc;
 			const template = xmldoc.childNodes[0].tagName;
 			templateRender(xmldoc, template);
@@ -119,6 +119,9 @@ var Explorer = {
 
 		}
 
+		if (xmlTag.getAttribute("menu") && xmlTag.getAttribute("menu") != "")
+			li.setAttribute("oncontextmenu", `ContextMenu.show(event, this, "${xmlTag.getAttribute('menu')}")`);
+
 		var hsel = document.createElement("div");
 		hsel.classList.add("selectHor");
 		li.appendChild(hsel);
@@ -156,11 +159,12 @@ var Explorer = {
 	},
 
 	fillDevices: function(xmldoc) {
+
 		// the Devices var should be filled by importing the Device class and then stuff from code/devices
-		var allDevicesXmlNode  = bmco_xml_nodeGetByAttributeValue(xmldoc, "directory", "name", "Devices");
+		var allDevicesXmlNode  = bmco.xml.nodeGetByAttributeValue(xmldoc, "directory", "name", "Devices");
 		for (const categoryName in Devices) {
 
-			if (bmco_arrayHas(["defaultPackageData", "Device", "Templates"], categoryName))
+			if (bmco.arrayHas(["defaultPackageData", "Device", "Templates"], categoryName))
 				continue;
 
 			var categoryXmlNode = xmldoc.createElement("directory");
@@ -180,14 +184,14 @@ var Explorer = {
 
 	createStructure: function(xmlPath = "./data/explorer.xml")
 	{
-		bmco_xml_awaitXmlFromFile(xmlPath).then(function(xmldoc){
+		bmco.xml.awaitXmlFromFile(xmlPath).then(function(xmldoc){
 
 			Explorer.fillDevices(xmldoc);// custom addition
 
 			var target = document.getElementById(Explorer.target);
 			var ul = document.createElement("ul");
 			ul.id = "sitemap"
-			ul.appendChild(Explorer.buildDirectory(bmco_xml_nodeGetFirstOfTag(xmldoc, "sitemap")));
+			ul.appendChild(Explorer.buildDirectory(bmco.xml.nodeGetFirstOfTag(xmldoc, "sitemap")));
 			target.appendChild(ul);
 
 			
@@ -213,7 +217,7 @@ var Explorer = {
 
 	onload: function()
 	{
-		var getFname = bmco_getParamRead("file");
+		var getFname = bmco.getParamRead("file");
 		if ( (getFname != null) )
 			Explorer.fileLoad(getFname);
 	},
@@ -230,14 +234,26 @@ var Explorer = {
 
 	},
 
-	circuitAdd(circName)
+	itemAdd: function(type, name)
 	{
-		var target = document.getElementById("explorerCircuits").lastChild;
+		var targetId = `explorer${type.charAt(0).toUpperCase()+type.slice(1)}s`;
+		var target = document.getElementById(targetId).getElementsByTagName("ul")[0];
 		var li = document.createElement("li");
 		li.classList.add("item");
-		li.innerHTML = `<a>${circName}</a>`;
-		li.setAttribute("onclick", `window.sim.circuitLoad('${circName}', this)`);
-		target.insertBefore(li, target.lastChild);
+		li.innerHTML = `<a>${name}</a><div class='selectHor'></div>`;
+		li.setAttribute("onclick", `window.sim.${type}Load('${name}', this)`);
+		li.setAttribute("oncontextmenu", `ContextMenu.show(event, this, '${type}Edit')`);
+		target.appendChild(li);
+	},
+
+	circuitAdd(circName)
+	{
+		return Explorer.itemAdd("circuit", circName);
+	},
+
+	noteAdd(noteName)
+	{
+		return Explorer.itemAdd("note", noteName);
 	}
 
 }

@@ -16,7 +16,7 @@ body {
 	--c-borders: #444;
 	--c-text: black;
 	--c-pale: #EEE;
-	--c-accent: green;
+	--c-accent: #00E;
 	--sizing: 25px;
 }
 
@@ -137,23 +137,6 @@ body {
 #statusbar p:last-child {
 	width: calc(100% - 345px);
 }
-
-#noteArea h1 {
-	text-align: center;
-}
-
-#noteArea p {
-	text-align: justify;
-}
-
-#noteText {
-	margin: 0;
-	background-color: white;
-	padding: var(--sizing);
-	font-family: 'Times';
-	font-size: 22px;
-}
-
 
 .invisible {
 	display: none !important;

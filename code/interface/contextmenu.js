@@ -6,23 +6,52 @@ var ContextMenu = {
 	presets: {
 		"default": [
 			{
-				"text": "alert 1",
-				"onclick": "alert(1)"
+				"text": "(no menu actions available)"
+			}
+		],
+		"circuitNew": [
+			{
+				"text": "Add new...",
+				"onclick": "window.sim.circuitAdd()",
+				"icon": "desktop.png"
+			}
+		],
+		"circuitEdit": [
+			{
+				"text": "Rename",
+				"onclick": "window.sim.circuitRename()",
 			},
 			{
-				"text": "no action available"
+				"text": "Delete",
+				"onclick": "window.sim.circuitDelete()",
+			},
+			{
+				"text": "Export Circuit JSON",
+				"onclick": "window.sim.circuitExport()",
 			}
-		]
+		],
+		"noteNew": [
+			{
+				"text": "Add new...",
+				"onclick": "window.sim.noteAdd()",
+				"icon": "desktop.png"
+			}
+		],
+		"noteEdit": [
+			{
+				"text": "Rename",
+				"onclick": "window.sim.noteRename()",
+			},
+			{
+				"text": "Delete",
+				"onclick": "window.sim.noteDelete()",
+			}
+		],
 	},
 
 	onload: function(targetId = "contextMenu") {
 		ContextMenu.target = document.getElementById(targetId);
 		ContextMenu.backdrop = document.getElementById(`${targetId}Backdrop`);
-		document.addEventListener('contextmenu', function(event) {
-			ContextMenu.optionsFill();
-			ContextMenu.show(event.clientX, event.clientY);
-			event.preventDefault();
-		});
 	},
 
 	optionsFill: function(presetName="default") {
@@ -35,14 +64,24 @@ var ContextMenu = {
 				item.setAttribute("onclick", `ContextMenu.hide(); ${option.onclick}`);
 			else
 				item.classList.add("inactive");
+			if (option.icon)
+			{
+				item.classList.add("hasIcon");
+				var imageHTML = `<img src='./gfx/icon/ico16/${option.icon}'>`
+				item.innerHTML = `${imageHTML}${item.innerHTML}`
+			}
+
 			ContextMenu.target.appendChild(item);
 		}
 	}, 
 
-	show: function(x=0, y=0) {
+	show: function(event, elem, preset="default") {
+		event.preventDefault();
+		event.stopPropagation();
+		ContextMenu.optionsFill(preset);
 		ContextMenu.target.style.display = "block";
-		ContextMenu.target.style.left = `${x}px`;
-		ContextMenu.target.style.top = `${y}px`;
+		ContextMenu.target.style.left = `${event.clientX-4}px`;
+		ContextMenu.target.style.top = `${event.clientY-4}px`;
 		ContextMenu.backdrop.style.display = "block";
 	},
 

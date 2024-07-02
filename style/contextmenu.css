@@ -7,6 +7,7 @@
 	margin: 0;
 	padding: 0;
 	box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+	font-family: 'Verdana', sans;
 }
 
 #contextMenu li {
@@ -46,4 +47,14 @@
 	height: 100%;
 	width: 100%;
 	display: none;
+}
+
+#contextMenu li.hasIcon img {
+	margin: 0;
+	margin-right: 4px;
+	vertical-align: bottom;
+}
+
+#contextMenu li[noclose] {
+	background-color: red;
 }
