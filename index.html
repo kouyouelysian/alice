@@ -4,6 +4,7 @@
 	<title>ALICE</title>
 	<link rel="stylesheet" type="text/css" href="./style/main.css">
 	<link rel="stylesheet" type="text/css" href="./style/explorer.css">
+	<link rel="stylesheet" type="text/css" href="./style/contextmenu.css">
 	<meta name="application-name" content="Aubery's Logic Integrated Circuit Emulator (ALICE)">
 </head>
 <body>
@@ -37,6 +38,8 @@
 	</div>
 
 	
+	<div id="contextMenuBackdrop" onclick="ContextMenu.hide()"></div>
+	<menu type="context" id="contextMenu"></menu>
 
 	<script type="text/javascript" src="./code/bmco/bmco_general.js"></script>
 	<script type="text/javascript" src="./code/bmco/bmco_xml.js"></script>
@@ -60,6 +63,7 @@
 	<script type="text/javascript" src="./code/devices/primitives.js"></script>
 
 	<script type="text/javascript" src="./code/interface/explorer.js"></script>
+	<script type="text/javascript" src="./code/interface/contextmenu.js"></script>
 	<script type="text/javascript" src="./code/interface/sim.js"></script>
 	<script type="text/javascript" src="./code/interface/hook.js"></script>
 

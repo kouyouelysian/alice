@@ -84,7 +84,7 @@ var Explorer = {
 			var onClick = xmlTag.getAttribute("onclick");
 			if (onClick)
 				li.setAttribute("onclick", onClick);
-			
+							
 		}
 		else
 		{

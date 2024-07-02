@@ -54,7 +54,8 @@ window.onload = function() {
 
 	Explorer.createStructure();
 	Explorer.onload();
-	
+
+	ContextMenu.onload();
 
 }}
 
