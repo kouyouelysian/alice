@@ -12,18 +12,27 @@ body, html {
 }
 
 body {
+	--c-bg: white;
+	--c-borders: #444;
+	--c-text: black;
+	--c-pale: #EEE;
+	--c-accent: green;
 	--sizing: 25px;
+}
+
+
+body {
 	font-family: 'Courier New';
 	font-size: 14px;
 	overflow: hidden;
 	--menu-width: 300px;
 	--toolbar-height: 40px;
-	background-color: white;
+	background-color: var(--c-bg);
 }
 
 .mainWindow {
 
-	border: 1px solid #444;
+	border: 1px solid var(--c-text);
 	border-right: 0;
 	width: calc(100% - var(--menu-width) - 2px);
 	height: calc(100% - var(--toolbar-height) * 2 - 2px);
@@ -60,37 +69,6 @@ body {
 
 }
 
-#explorer {
-	
-
-  --sizing: 20px;
-  --text: #222;
-  --lines: #777;
-  --bg: #fff;
-
-
-  width: calc(var(--menu-width));
-  height: calc(60vh - var(--sizing) - 1px);
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  background-color: var(--bg);
-
-  image-rendering: crisp-edges;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 0;
-
-  left: calc(var(--sizing) * -1);
-  padding: calc(var(--sizing) / 2);
-  border-bottom: 1px solid #444;
-
-  overflow-y: scroll;
-  overflow-x: hidden;
-
-  font-family: "Courier New";
-}
 
 #details {
 	position: absolute;
@@ -109,9 +87,9 @@ body {
 	
 	left: var(--menu-width);
 	font-size: 0;
-	border-left: 1px solid #444;
+	border-left: 1px solid var(--c-borders);
 
-	background-color: #f8f8f8;
+	background-color: var(--c-pale);
 }
 
 #toolbar {
@@ -124,7 +102,7 @@ body {
 
 .bar p {
 	color: white;
-	background-color: #FA4;
+	background-color: var(--c-borders);
 	padding: 8px;
 	width: fit-content;
 	display: inline-block;
@@ -133,11 +111,12 @@ body {
 	margin-top: 4px;
 	font-size: 14px;
 	vertical-align: top;
+	transition: background-color 0.1s;
 	
 }
 
 .bar p:hover {
-	background-color: #D82;
+	background-color: var(--c-accent);
 }
 
 .bar p.command {
@@ -148,10 +127,10 @@ body {
 }
 
 .bar p.textDisplay {
-	background-color: #fff;
+	background-color: var(--c-bg);
 	box-shadow: inset 0px 0px 2px rgba(0,0,0,0.3);
 	font-family: 'Courier New';
-	color: #000;
+	color: var(--c-text);
 	width: 300px;
 }
 
