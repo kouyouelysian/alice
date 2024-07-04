@@ -361,6 +361,38 @@ class Sim {
 		this.activeWindow = id;
 	}
 
+	_itemHighlight(itemElement) {
+		var previousCaller = document.getElementsByClassName("loadedItem")[0];
+		if (previousCaller)
+			previousCaller.classList.remove("loadedItem");
+		itemElement.classList.add("loadedItem");
+	}
+
+	_itemRename(type) {
+		var oldName = ContextMenu.caller.innerHTML;
+		var source = this[`${type}s`];
+		if (this[`${type}s`].children)
+			source = this[`${type}s`].children;
+		var target = source[oldName];
+		if (!target)
+			return;
+
+		var newName = window.prompt(`New ${type} name:`);
+		if (target.name)
+			target.name = newName;
+		else
+		{
+			target[newName] = target[oldName];
+			target[oldName] = undefined;
+		}
+		console.log(ContextMenu.caller);
+		ContextMenu.caller.innerHTML = newName;
+		ContextMenu.caller.parentElement.setAttribute(
+			"onclick",
+			ContextMenu.caller.parentElement.getAttribute("onclick").replace(oldName, newName)
+			);
+	}
+
 	circuitAdd() {
 		this.circuits.addChild( new Circuit(this.circuits._getIndex()) );
 		Explorer.circuitAdd(this.circuits.lastChild.name);
@@ -370,10 +402,14 @@ class Sim {
 		this.circuits.children[name].remove();
 	}
 
+	circuitRename() {
+		return this._itemRename("circuit");
+	}
+
 	circuitLoad(name, callerElement) {
 		this.circuitActiveSet(name);
 		this.circuitMakeVisible(name);
-		this.itemHighlight(callerElement);
+		this._itemHighlight(callerElement);
 		this.activateWindow("simViewport");
 	}
 
@@ -389,14 +425,13 @@ class Sim {
 	noteLoad(name, callerElement) {
 		document.getElementById("noteText").innerHTML = atob(this.notes[name]);
 		this.activateWindow("noteArea");
-		this.itemHighlight(callerElement);
+		this._itemHighlight(callerElement);
 	}
 
-	itemHighlight(itemElement) {
-		var previousCaller = document.getElementsByClassName("loadedItem")[0];
-		if (previousCaller)
-			previousCaller.classList.remove("loadedItem");
-		itemElement.classList.add("loadedItem");
+	noteRename() {
+		return this._itemRename("note");
 	}
+
+
 
 }

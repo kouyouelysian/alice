@@ -120,7 +120,7 @@ var Explorer = {
 		}
 
 		if (xmlTag.getAttribute("menu") && xmlTag.getAttribute("menu") != "")
-			li.setAttribute("oncontextmenu", `ContextMenu.show(event, this, "${xmlTag.getAttribute('menu')}")`);
+			li.setAttribute("oncontextmenu", `ContextMenu.show(event, "${xmlTag.getAttribute('menu')}")`);
 
 		var hsel = document.createElement("div");
 		hsel.classList.add("selectHor");
@@ -240,9 +240,9 @@ var Explorer = {
 		var target = document.getElementById(targetId).getElementsByTagName("ul")[0];
 		var li = document.createElement("li");
 		li.classList.add("item");
-		li.innerHTML = `<a>${name}</a><div class='selectHor'></div>`;
+		var ctx = `ContextMenu.show(event, '${type}Edit')`;
+		li.innerHTML = `<a oncontextmenu="${ctx}">${name}</a><div class='selectHor'></div>`;
 		li.setAttribute("onclick", `window.sim.${type}Load('${name}', this)`);
-		li.setAttribute("oncontextmenu", `ContextMenu.show(event, this, '${type}Edit')`);
 		target.appendChild(li);
 	},
 

@@ -2,6 +2,7 @@ var ContextMenu = {
 
 	target: null,
 	backdrop: null,
+	caller: null,
 
 	presets: {
 		"default": [
@@ -61,7 +62,7 @@ var ContextMenu = {
 			var item = document.createElement("li");
 			item.innerHTML = option.text;
 			if (option.onclick)
-				item.setAttribute("onclick", `ContextMenu.hide(); ${option.onclick}`);
+				item.setAttribute("onclick", `ContextMenu.hide(${option.onclick})`);
 			else
 				item.classList.add("inactive");
 			if (option.icon)
@@ -75,19 +76,25 @@ var ContextMenu = {
 		}
 	}, 
 
-	show: function(event, elem, preset="default") {
+	show: function(event, preset="default") {
 		event.preventDefault();
 		event.stopPropagation();
 		ContextMenu.optionsFill(preset);
+		ContextMenu.caller = event.target || event.srcElement;
 		ContextMenu.target.style.display = "block";
 		ContextMenu.target.style.left = `${event.clientX-4}px`;
 		ContextMenu.target.style.top = `${event.clientY-4}px`;
 		ContextMenu.backdrop.style.display = "block";
 	},
 
-	hide: function() {
+	hide: function(onclickAction) {
 		ContextMenu.target.removeAttribute("style");
 		ContextMenu.backdrop.removeAttribute("style");
+		var d = document.createElement('div');
+		d.setAttribute('onclick', onclickAction);
+		d.click();
+		d.remove();
+		ContextMenu.caller = null;
 	}
 
 }
