@@ -10,46 +10,35 @@
 </head>
 <body oncontextmenu="ContextMenu.show(event)">
 
-	<div id="explorer">
-	</div>
-	<div id="details">
-	</div>
-
-
-	<div class="bar" id="toolbar">
-		<p class="command" onclick="window.sim.run()">Run</p>
-		<p class="command" onclick="window.sim.stop()">Stop</p>
-		<p class="command" onclick="window.sim.reset()">Reset</p>
-		<p class="command" onclick="alert(window.sim.export())">Save</p>
-		<p class="command" onclick="window.sim.import(window.prompt('Paste circuit export JSON here:'))">Load</p>
-		
-	</div>
+	<div id="explorer"></div>
+	<div id="details"></div>
+	<div class="bar" id="toolbar"></div>
 	<div class="bar" id="statusbar">
 		<p class="textDisplay" id="displayStatus"></p>
 		<p class="textDisplay" id="displayTool"></p>
 	</div>
-	
 	<div id="simViewport" class="mainWindow">
 		<canvas id="simCanvas"></canvas>
 		<div id="simClickbox" onclick="window.sim.click()"></div>
 	</div>
-
 	<div id="noteArea" class="mainWindow">
 		<article id="noteText"></article>
 	</div>
-
-	
+	<div id="noteEditor" class="mainWindow">
+		<textarea></textarea>
+	</div>
 	<div id="contextMenuBackdrop" onclick="ContextMenu.hide()"></div>
 	<menu type="context" id="contextMenu"></menu>
 
+	<!-- non-ALICE dependencies, basic stuff -->
 	<script type="text/javascript" src="./code/bmco/bmco.js"></script>
 	<script type="text/javascript" src="./code/bmco/bmco_xml.js"></script>
-
 	<script type="text/javascript" src="./code/interface/paper.js"></script>
 	<script type="text/javascript" src="./code/interface/init.js"></script>
 	<script type="text/javascript" src="./code/interface/indexedgroup.js"></script>
 	<script type="text/javascript" src="./code/interface/visualschemes.js"></script>
 
+	<!-- circuit elements -->
 	<script type="text/javascript" src="./code/elements/junction.js"></script>
 	<script type="text/javascript" src="./code/elements/wire.js"></script>
 	<script type="text/javascript" src="./code/elements/net.js"></script>
@@ -57,14 +46,18 @@
 	<script type="text/javascript" src="./code/elements/device.js"></script>
 	<script type="text/javascript" src="./code/elements/circuit.js"></script>
 
+	<!-- device libraries -->
 	<script type="text/javascript" src="./code/devices/gates.js"></script>
 	<script type="text/javascript" src="./code/devices/interfaces.js"></script>
 	<script type="text/javascript" src="./code/devices/routing.js"></script>
 	<script type="text/javascript" src="./code/devices/timing.js"></script>
 	<script type="text/javascript" src="./code/devices/primitives.js"></script>
 
+	<!-- simulation and interface -->
 	<script type="text/javascript" src="./code/interface/explorer.js"></script>
 	<script type="text/javascript" src="./code/interface/contextmenu.js"></script>
+	<script type="text/javascript" src="./code/interface/toolbar.js"></script>
+	<script type="text/javascript" src="./code/interface/hierarchymanager.js"></script>
 	<script type="text/javascript" src="./code/interface/sim.js"></script>
 	<script type="text/javascript" src="./code/interface/hook.js"></script>
 

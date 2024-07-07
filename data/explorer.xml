@@ -1,7 +1,11 @@
-<sitemap name="Project Tree" noclose="noclose">
-	<directory name="Circuits" id="explorerCircuits" menu="circuitNew" noclose="noclose"></directory>
-	<directory name="Notes" id="explorerNotes" menu="noteNew" noclose="noclose"></directory>
-	<directory name="Devices" id="explorerDevices" noclose="noclose">
-		<directory name="Integrated Circuits"></directory>
+<sitemap noclose="noclose">
+	<directory name="Project Tree" noclose="noclose">
+		<directory name="Circuits" id="explorerCircuits" menu="circuitNew" noclose="noclose"></directory>
+		<directory name="Notes" id="explorerNotes" menu="noteNew" noclose="noclose"></directory>
+		<directory name="Devices" id="explorerDevices" noclose="noclose">
+			<directory name="Integrated Circuits"></directory>
+		</directory>
 	</directory>
+	<item name="Load Project" onclick="window.sim.projectLoad()"></item>
+	<item name="Save Project" onclick="window.sim.projectSave()"></item>
 </sitemap>

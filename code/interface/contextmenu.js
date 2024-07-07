@@ -15,6 +15,10 @@ var ContextMenu = {
 				"text": "Add new...",
 				"onclick": "window.sim.circuitAdd()",
 				"icon": "desktop.png"
+			},
+			{
+				"text": "Upload circuit",
+				"onclick": "window.sim.circuitUpload()",
 			}
 		],
 		"circuitEdit": [
@@ -27,8 +31,12 @@ var ContextMenu = {
 				"onclick": "window.sim.circuitDelete()",
 			},
 			{
+				"text": "Download Circuit",
+				"onclick": "window.sim.circuitDownload()",
+			},
+			{
 				"text": "Export Circuit JSON",
-				"onclick": "window.sim.circuitExport()",
+				"onclick": "window.sim.circuitExport(true)",
 			}
 		],
 		"noteNew": [

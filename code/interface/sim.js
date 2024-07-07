@@ -52,18 +52,97 @@ class Sim {
 		
 	}
 
-	export(pretty=false) {
+	_downloadTextFile(text, name="project", extension="alice") {
+		var filename = `${name}.${extension}`;
+		var file = new Blob([text], {type: "text/plain"});
+		if (window.navigator.msSaveOrOpenBlob)
+	        window.navigator.msSaveOrOpenBlob(file, filename);
+	    else { 
+			var url = URL.createObjectURL(file);
+	        var a = document.createElement("a");
+	        a.href = url;
+	        a.download = filename;
+	        document.body.appendChild(a);
+	        a.click();
+	        setTimeout(function() {
+	            document.body.removeChild(a);
+	            window.URL.revokeObjectURL(url);  
+	        }, 100); 
+	    }
+	}
 
+	_selectTextFile(callback, extensions=null) {
+		var finput = document.createElement("input");
+		finput.id = "finput";
+		finput.setAttribute("type", "file");
+		finput.setAttribute("callback", callback);
+		finput.setAttribute("onchange", "window.sim._getTextFileContents()");
+		document.body.appendChild(finput);
+		finput.click();
+	}
+
+	_getTextFileContents() {
+		var finput = document.getElementById("finput");
+		var file = finput.files[0];
+		var reader = new FileReader();
+		reader.addEventListener('load', (event) => {
+			window.sim._parseTextFile(event.target.result);
+		});
+		reader.readAsText(file);
+	}
+
+	_parseTextFile(text) {
+		var callbackFnName = document.getElementById("finput").getAttribute("callback");
+		var callbackFn = this[callbackFnName];
+		callbackFn(text);
+		document.getElementById("finput").remove();
+	}
+
+
+	export() {
 		var json = {
-			"circuits": []
+			"circuits": [],
+			"notes": []
 		}
-
 		for (var cir of this.circuits.children)
 			json.circuits.push(cir.export());
+		for (var noteName in this.notes)
+		{
+			if (noteName == "instructions")
+				continue;
+			json.notes.push(this.noteJSON(noteName, this.notes[noteName]));
+		}
+		return json;
+	}
 
+	import(text) {
+		var json = JSON.parse(text);
+		console.log(json);
+	}
+
+
+	projectLoad() {
+		this._selectTextFile("import");
+	}
+
+	projectFileUpload() {
+		console.log("asdf");
+		var finput = document.getElementById("finput");
+		var file = finput.files[0];
+		var reader = new FileReader();
+		reader.addEventListener('load', (event) => {
+			var json = JSON.parse(event.target.result);
+			console.log(json);
+		});
+		reader.readAsText(file);
+	}
+
+
+	projectSave(pretty=false) {
+		var json = this.export();
 		var indent = pretty? 0 : 4;
-		return JSON.stringify(json, null, indent);
-		
+		var text = JSON.stringify(json, null, indent);
+		this._downloadTextFile(text);
 	}
 
 	circuitActiveGet() {
@@ -359,6 +438,7 @@ class Sim {
 			el.classList.add("invisible");
 		document.getElementById(id).classList.remove("invisible");
 		this.activeWindow = id;
+		ToolBar.load(id)
 	}
 
 	_itemHighlight(itemElement) {
@@ -371,26 +451,24 @@ class Sim {
 	_itemRename(type) {
 		var oldName = ContextMenu.caller.innerHTML;
 		var source = this[`${type}s`];
-		if (this[`${type}s`].children)
+		var target = null;
+		if (this[`${type}s`].children) 
+		{
 			source = this[`${type}s`].children;
-		var target = source[oldName];
-		if (!target)
-			return;
+		}
 
 		var newName = window.prompt(`New ${type} name:`);
-		if (target.name)
+		if (target)
 			target.name = newName;
 		else
 		{
-			target[newName] = target[oldName];
-			target[oldName] = undefined;
+			source[newName] = source[oldName];
+			delete source[oldName];
 		}
-		console.log(ContextMenu.caller);
+		
 		ContextMenu.caller.innerHTML = newName;
-		ContextMenu.caller.parentElement.setAttribute(
-			"onclick",
-			ContextMenu.caller.parentElement.getAttribute("onclick").replace(oldName, newName)
-			);
+		ContextMenu.caller.parentElement.setAttribute("onclick",
+			ContextMenu.caller.parentElement.getAttribute("onclick").replace(oldName, newName));
 	}
 
 	circuitAdd() {
@@ -413,7 +491,33 @@ class Sim {
 		this.activateWindow("simViewport");
 	}
 
-	noteAdd(name, contents) {
+	circuitExport(alert=false) {
+		var name = ContextMenu.caller.innerHTML;
+		var circuit = this.circuits.children[name];
+		if (!circuit)
+			return;
+		var json = circuit.export();
+		if (alert)
+			window.alert(json);
+		return json;
+	}
+
+	circuitSave(pretty=false) {
+		var json = circuitExport();
+		var indent = pretty? 0 : 4;
+		var text = JSON.stringify(json, null, indent);
+		this._downloadTextFile(text, json.name, "circuit");
+	}
+
+	circuitLoad() {
+		this._selectTextFile("circuitImport");
+	}
+
+	circuitImport(text) {
+		consolel.log("circuit", text);
+	}
+
+	noteAdd(name=`note${bmco.timestamp().substr(3,8)}`, contents="Note text") {
 		this.notes[name] = btoa(contents);
 		Explorer.noteAdd(name);
 	}
@@ -422,16 +526,46 @@ class Sim {
 
 	}
 
-	noteLoad(name, callerElement) {
+	noteLoad(name, callerElement=null) {
 		document.getElementById("noteText").innerHTML = atob(this.notes[name]);
 		this.activateWindow("noteArea");
-		this._itemHighlight(callerElement);
+		if (callerElement)
+			this._itemHighlight(callerElement);
 	}
 
 	noteRename() {
 		return this._itemRename("note");
 	}
 
+	noteJSON(name, text) {
+		return {"name":name, "text":text};
+	}
 
+	noteEdit() {
+		this.activateWindow("noteEditor");
+		var name = document.getElementsByClassName("loadedItem")[0].getElementsByTagName("a")[0].innerHTML;
+		var text = atob(this.notes[name]);
+		if (text.indexOf("<pre>") == 0)
+			text = text.replace("<pre>", "");
+		if (text.lastIndexOf("</pre>") == text.length - 6)
+			text = text.substring(0, text.length - 6);
+		document.getElementById("noteEditor").getElementsByTagName("textarea")[0].value = text;
+	}
+
+	noteSave(type="html") {
+		var text = document.getElementById("noteEditor").getElementsByTagName("textarea")[0].value; 
+		if (type == "plaintext")
+		{
+			if (text.indexOf("<pre>") == -1 )
+				text = `<pre>${text}`;
+			if (text.indexOf("</pre>") == -1 )
+				text = `${text}</pre>`;
+		}
+		var text64 = btoa(text);
+		var name = document.getElementsByClassName("loadedItem")[0].getElementsByTagName("a")[0].innerHTML;
+		this.notes[name] = text64;
+		this.noteLoad(name);
+		this.activateWindow("noteArea");
+	}
 
 }

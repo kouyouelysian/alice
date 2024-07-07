@@ -30,6 +30,10 @@ body {
 	background-color: var(--c-bg);
 }
 
+pre {
+	margin: 0;
+}
+
 .mainWindow {
 
 	border: 1px solid var(--c-text);
@@ -140,4 +144,19 @@ body {
 
 .invisible {
 	display: none !important;
+}
+
+#noteEditor {
+	background-color: var(--c-pale);
+}
+
+#noteEditor textarea {
+	background-color: var(--c-bg);
+	padding: 0;
+	border: 0;
+	display: block;
+	margin: var(--sizing);
+	padding: var(--sizing);
+	width: calc(100% - var(--sizing)*4);
+	height: calc(100% - var(--sizing)*4);
 }

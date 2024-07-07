@@ -157,7 +157,17 @@
   display: none;
 }
 
+#explorer .directory[root] > span {
+  display: none;
+}
 
+#explorer .directory[root] > ul {
+  padding-left: 0;
+}
+
+#explorer .directory[root] > .selectVert {
+  left: calc(var(--sizing) * 0.5);
+}
 
 
 #explorer .selectHor {

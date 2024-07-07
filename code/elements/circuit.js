@@ -99,6 +99,7 @@ class Circuit extends Group {
 	export() {
 
 		var json = {
+			"name": this.name,
 			"devices": [],
 			"nets": []
 		}

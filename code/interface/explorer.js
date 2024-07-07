@@ -54,7 +54,7 @@ var Explorer = {
 		});
 	},
 
-	buildListLine: function(xmlTag)
+	buildListLine: function(xmlTag, type)
 	{
 		var li = document.createElement('li');
 
@@ -66,7 +66,6 @@ var Explorer = {
 		{
 			li.classList.add("item");
 			
-
 			var a = document.createElement("a");
 			var link = xmlTag.getAttribute("link");
 			if (link)
@@ -90,11 +89,16 @@ var Explorer = {
 		{
 			li.classList.add("directory");
 
-			var control = document.createElement("div");
-			control.classList.add("dirControl");
-			control.setAttribute("onclick", "Explorer.directoryToggle(this)");
+			if (!type) 
+			{
+				var control = document.createElement("div");
+				control.classList.add("dirControl");
+				control.setAttribute("onclick", "Explorer.directoryToggle(this)");
+				li.appendChild(control);
+			}
 
-			li.appendChild(control);
+			if (type == "root")
+				li.setAttribute("root", "root");
 
 			xmlTag.getAttribute("link") == null? type = "span" : type = "a";
 			var label = document.createElement(type);
@@ -129,9 +133,9 @@ var Explorer = {
 		return li;
 	},
 
-	buildDirectory: function(xmlTag)
+	buildDirectory: function(xmlTag, type=null)
 	{
-		var li = Explorer.buildListLine(xmlTag);
+		var li = Explorer.buildListLine(xmlTag, type);
 		var ul = document.createElement("ul");
 		for (var x = 0; x < xmlTag.childNodes.length; x++)
 		{
@@ -190,13 +194,10 @@ var Explorer = {
 
 			var target = document.getElementById(Explorer.target);
 			var ul = document.createElement("ul");
-			ul.id = "sitemap"
-			ul.appendChild(Explorer.buildDirectory(bmco.xml.nodeGetFirstOfTag(xmldoc, "sitemap")));
+			ul.id = "sitemap";
+			var tree = Explorer.buildDirectory(bmco.xml.nodeGetFirstOfTag(xmldoc, "sitemap"), "root");
+			ul.appendChild(tree);
 			target.appendChild(ul);
-
-			
-			
-
 			Explorer.closeFolders();
 			window.sim.onload();
 		})
