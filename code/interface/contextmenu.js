@@ -12,53 +12,53 @@ var ContextMenu = {
 		],
 		"circuitNew": [
 			{
-				"text": "Add new...",
-				"onclick": "window.sim.circuitAdd()",
+				"text": "Create new",
+				"onclick": "HierarchyManager.circuit.create()",
 				"icon": "desktop.png"
 			},
 			{
 				"text": "Upload circuit",
-				"onclick": "window.sim.circuitUpload()",
+				"onclick": "HierarchyManager.circuit.upload()",
 			}
 		],
 		"circuitEdit": [
 			{
 				"text": "Rename",
-				"onclick": "window.sim.circuitRename()",
+				"onclick": "HierarchyManager.circuit.rename(ContextMenu.caller.innerHTML, ContextMenu.caller)",
 			},
 			{
 				"text": "Delete",
-				"onclick": "window.sim.circuitDelete()",
+				"onclick": "HierarchyManager.circuit.delete(ContextMenu.caller.innerHTML, ContextMenu.caller)",
 			},
 			{
 				"text": "Download Circuit",
-				"onclick": "window.sim.circuitDownload()",
+				"onclick": "HierarchyManager.circuit.download(ContextMenu.caller.innerHTML, ContextMenu.caller)",
 			},
 			{
 				"text": "Export Circuit JSON",
-				"onclick": "window.sim.circuitExport(true)",
+				"onclick": "HierarchyManager.circuit.export(ContextMenu.caller.innerHTML, ContextMenu.caller)",
 			}
 		],
 		"noteNew": [
 			{
-				"text": "Add new...",
-				"onclick": "window.sim.noteAdd()",
+				"text": "Create new",
+				"onclick": "HierarchyManager.note.create()",
 				"icon": "desktop.png"
 			}
 		],
 		"noteEdit": [
 			{
 				"text": "Rename",
-				"onclick": "window.sim.noteRename()",
+				"onclick": "HierarchyManager.note.rename(ContextMenu.caller.innerHTML, ContextMenu.caller)",
 			},
 			{
 				"text": "Delete",
-				"onclick": "window.sim.noteDelete()",
+				"onclick": "HierarchyManager.note.delete(ContextMenu.caller.innerHTML, ContextMenu.caller)",
 			}
 		],
 	},
 
-	onload: function(targetId = "contextMenu") {
+	onload: async function(targetId = "contextMenu") {
 		ContextMenu.target = document.getElementById(targetId);
 		ContextMenu.backdrop = document.getElementById(`${targetId}Backdrop`);
 	},
@@ -70,7 +70,7 @@ var ContextMenu = {
 			var item = document.createElement("li");
 			item.innerHTML = option.text;
 			if (option.onclick)
-				item.setAttribute("onclick", `ContextMenu.hide(${option.onclick})`);
+				item.setAttribute("onclick", `ContextMenu.hide('${option.onclick}')`);
 			else
 				item.classList.add("inactive");
 			if (option.icon)
@@ -83,10 +83,12 @@ var ContextMenu = {
 			ContextMenu.target.appendChild(item);
 		}
 	}, 
-
+	
 	show: function(event, preset="default") {
 		event.preventDefault();
 		event.stopPropagation();
+		if (ContextMenu.caller)
+			ContextMenu.hide();
 		ContextMenu.optionsFill(preset);
 		ContextMenu.caller = event.target || event.srcElement;
 		ContextMenu.target.style.display = "block";
@@ -95,14 +97,16 @@ var ContextMenu = {
 		ContextMenu.backdrop.style.display = "block";
 	},
 
-	hide: function(onclickAction) {
+	hide: function(onclickAction=null) {
 		ContextMenu.target.removeAttribute("style");
 		ContextMenu.backdrop.removeAttribute("style");
+		ContextMenu.caller = null;
+		if (!onclickAction)
+			return;
 		var d = document.createElement('div');
 		d.setAttribute('onclick', onclickAction);
 		d.click();
 		d.remove();
-		ContextMenu.caller = null;
 	}
 
 }

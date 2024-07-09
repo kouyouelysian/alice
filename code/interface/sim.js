@@ -40,17 +40,6 @@ class Sim {
 
 	}
 
-	onload() {
-		this.activeCircuitIndex = 0;
-		this.circuitAdd();
-		this.circuitLoad(this.circuits.firstChild.name, document.getElementById("explorerCircuits").lastChild.firstChild);
-		this.activateWindow("simViewport");
-		bmco.httpRequest("./data/manual.html").then((data) => {
-			var htmlText = data.substring(data.indexOf("<article>")+9, data.indexOf("</article>")).replaceAll("\n\t", "\n");
-			this.noteAdd("instructions", htmlText);
-		});
-		
-	}
 
 	_downloadTextFile(text, name="project", extension="alice") {
 		var filename = `${name}.${extension}`;
@@ -126,13 +115,11 @@ class Sim {
 	}
 
 	projectFileUpload() {
-		console.log("asdf");
 		var finput = document.getElementById("finput");
 		var file = finput.files[0];
 		var reader = new FileReader();
 		reader.addEventListener('load', (event) => {
 			var json = JSON.parse(event.target.result);
-			console.log(json);
 		});
 		reader.readAsText(file);
 	}
@@ -156,6 +143,7 @@ class Sim {
 	circuitMakeVisible(name) {
 		for (var c of this.circuits.children)
 			c.name == name? c.visible = true : c.visible = false;
+		this.circuitActiveSet(name);
 	}
 
 	_pickTool(opts={/* key, name */}) {
@@ -429,66 +417,10 @@ class Sim {
 	throwError(text="error!") {
 		this.stop();
 		window.alert(text);
-	}
-
-	activateWindow(id) {
-		if (!document.getElementById(id))
-			return;
-		for (var el of document.getElementsByClassName("mainWindow"))
-			el.classList.add("invisible");
-		document.getElementById(id).classList.remove("invisible");
-		this.activeWindow = id;
-		ToolBar.load(id)
-	}
-
-	_itemHighlight(itemElement) {
-		var previousCaller = document.getElementsByClassName("loadedItem")[0];
-		if (previousCaller)
-			previousCaller.classList.remove("loadedItem");
-		itemElement.classList.add("loadedItem");
-	}
-
-	_itemRename(type) {
-		var oldName = ContextMenu.caller.innerHTML;
-		var source = this[`${type}s`];
-		var target = null;
-		if (this[`${type}s`].children) 
-		{
-			source = this[`${type}s`].children;
-		}
-
-		var newName = window.prompt(`New ${type} name:`);
-		if (target)
-			target.name = newName;
-		else
-		{
-			source[newName] = source[oldName];
-			delete source[oldName];
-		}
-		
-		ContextMenu.caller.innerHTML = newName;
-		ContextMenu.caller.parentElement.setAttribute("onclick",
-			ContextMenu.caller.parentElement.getAttribute("onclick").replace(oldName, newName));
-	}
-
-	circuitAdd() {
-		this.circuits.addChild( new Circuit(this.circuits._getIndex()) );
-		Explorer.circuitAdd(this.circuits.lastChild.name);
-	}
-
-	circuitRemove(name) {
-		this.circuits.children[name].remove();
-	}
-
-	circuitRename() {
-		return this._itemRename("circuit");
-	}
+	}	
 
 	circuitLoad(name, callerElement) {
-		this.circuitActiveSet(name);
-		this.circuitMakeVisible(name);
-		this._itemHighlight(callerElement);
-		this.activateWindow("simViewport");
+		
 	}
 
 	circuitExport(alert=false) {
@@ -509,28 +441,12 @@ class Sim {
 		this._downloadTextFile(text, json.name, "circuit");
 	}
 
-	circuitLoad() {
-		this._selectTextFile("circuitImport");
-	}
-
 	circuitImport(text) {
 		consolel.log("circuit", text);
 	}
 
-	noteAdd(name=`note${bmco.timestamp().substr(3,8)}`, contents="Note text") {
-		this.notes[name] = btoa(contents);
-		Explorer.noteAdd(name);
-	}
-
 	noteRemove(name) {
 
-	}
-
-	noteLoad(name, callerElement=null) {
-		document.getElementById("noteText").innerHTML = atob(this.notes[name]);
-		this.activateWindow("noteArea");
-		if (callerElement)
-			this._itemHighlight(callerElement);
 	}
 
 	noteRename() {
@@ -566,6 +482,46 @@ class Sim {
 		this.notes[name] = text64;
 		this.noteLoad(name);
 		this.activateWindow("noteArea");
+	}
+
+	setupTool() {
+
+		var tool = new Tool();
+		tool.minDistnace = 4;
+
+		tool.onMouseMove = function(event) {
+			const quantizedPoint = new Point(
+				event.point.x,
+				event.point.y
+				);
+			quantizedPoint.quantize(window.sim.appearance.size.grid);
+			if (!window.sim.cursor.position.isClose(quantizedPoint, 1)) {
+				window.sim.cursor.position = quantizedPoint;
+				window.sim.point(event.point, quantizedPoint);
+			}
+			switch (window.sim.status) {
+				case "wiring":
+					return window.sim.editedElement.lastSegment.point = event.point;
+				case "adding device":
+					return window.sim.editedElement.position = quantizedPoint;
+			}
+		}
+
+		tool.onKeyDown = function(event) {	
+			window.sim.key(event.key);
+		}
+
+		return tool;
+	}
+
+	onload() {
+		this.activeCircuitIndex = 0;
+		this.setupTool();
+		document.getElementById('simCanvas').scrollIntoView({
+			block: 'center',
+			inline: 'center',
+			behavior: 'auto'
+		}); 
 	}
 
 }

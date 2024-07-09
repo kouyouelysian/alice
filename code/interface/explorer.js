@@ -186,21 +186,18 @@ var Explorer = {
 		}
 	},
 
-	createStructure: function(xmlPath = "./data/explorer.xml")
+	onload: async function(xmlPath = "./data/explorer.xml")
 	{
-		bmco.xml.awaitXmlFromFile(xmlPath).then(function(xmldoc){
-
-			Explorer.fillDevices(xmldoc);// custom addition
-
-			var target = document.getElementById(Explorer.target);
-			var ul = document.createElement("ul");
-			ul.id = "sitemap";
-			var tree = Explorer.buildDirectory(bmco.xml.nodeGetFirstOfTag(xmldoc, "sitemap"), "root");
-			ul.appendChild(tree);
-			target.appendChild(ul);
-			Explorer.closeFolders();
-			window.sim.onload();
-		})
+	
+		xmldoc = await bmco.xml.awaitXmlFromFile(xmlPath);
+		Explorer.fillDevices(xmldoc);// custom addition
+		var target = document.getElementById(Explorer.target);
+		var ul = document.createElement("ul");
+		ul.id = "sitemap";
+		var tree = Explorer.buildDirectory(bmco.xml.nodeGetFirstOfTag(xmldoc, "sitemap"), "root");
+		ul.appendChild(tree);
+		target.appendChild(ul);
+		Explorer.closeFolders();
 	},
 
 	closeFolders: function()
@@ -216,11 +213,11 @@ var Explorer = {
 		}
 	},
 
-	onload: function()
-	{
-		var getFname = bmco.getParamRead("file");
-		if ( (getFname != null) )
-			Explorer.fileLoad(getFname);
+	highlight(itemElement) {
+		var previousCaller = document.getElementsByClassName("loadedItem")[0];
+		if (previousCaller)
+			previousCaller.classList.remove("loadedItem");
+		itemElement.classList.add("loadedItem");
 	},
 
 	toggleFolded: function()
@@ -243,18 +240,8 @@ var Explorer = {
 		li.classList.add("item");
 		var ctx = `ContextMenu.show(event, '${type}Edit')`;
 		li.innerHTML = `<a oncontextmenu="${ctx}">${name}</a><div class='selectHor'></div>`;
-		li.setAttribute("onclick", `window.sim.${type}Load('${name}', this)`);
+		li.setAttribute("onclick", `HierarchyManager.${type}.show('${name}', this)`);
 		target.appendChild(li);
 	},
-
-	circuitAdd(circName)
-	{
-		return Explorer.itemAdd("circuit", circName);
-	},
-
-	noteAdd(noteName)
-	{
-		return Explorer.itemAdd("note", noteName);
-	}
 
 }
