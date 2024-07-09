@@ -174,6 +174,7 @@ var Explorer = {
 			var categoryXmlNode = xmldoc.createElement("directory");
 			categoryXmlNode.setAttribute("name", categoryName);
 			for (const deviceName in Devices[categoryName]) {
+				Devices[categoryName][deviceName].category = {"name":categoryName, "object":Devices[categoryName]};
 				if (Devices[categoryName][deviceName].doNotIndex)
 					continue;
 				var deviceXmlNode = xmldoc.createElement("item");
@@ -218,6 +219,11 @@ var Explorer = {
 		if (previousCaller)
 			previousCaller.classList.remove("loadedItem");
 		itemElement.classList.add("loadedItem");
+	},
+
+	getHighlighted(asElement=false) {
+		var li = document.getElementsByClassName("loadedItem")[0];
+		return asElement?  li : li.getElementsByTagName("a")[0].innerHTML;
 	},
 
 	toggleFolded: function()

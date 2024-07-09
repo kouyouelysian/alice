@@ -1,11 +1,15 @@
 <sitemap noclose="noclose">
 	<directory name="Project Tree" noclose="noclose">
 		<directory name="Circuits" id="explorerCircuits" menu="circuitNew" noclose="noclose"></directory>
-		<directory name="Notes" id="explorerNotes" menu="noteNew" noclose="noclose"></directory>
+		<directory name="Notes" id="explorerNotes" menu="noteNew" noclose="noclose">
+			<item name="instructions" onclick="HierarchyManager.note.show('instructions', this)"></item>
+		</directory>
 		<directory name="Devices" id="explorerDevices" noclose="noclose">
 			<directory name="Integrated Circuits"></directory>
 		</directory>
 	</directory>
-	<item name="Load Project" onclick="window.sim.projectLoad()"></item>
-	<item name="Save Project" onclick="window.sim.projectSave()"></item>
+	<item name="Project Settings" onclick="alert('todo')" icon="gears.png"></item>
+	<item name="Load Project" onclick="HierarchyManager.project.upload()" icon="open.png"></item>
+	<item name="Save Project" onclick="HierarchyManager.project.download()" icon="save.png"></item>
+
 </sitemap>

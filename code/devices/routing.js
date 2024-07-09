@@ -2,7 +2,7 @@ Devices.Routing = {}
 
 Devices.Routing.TriState = class extends Devices.Device { // general constructor for 3-pin gates. not to be used directly in circuits.
 	
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 
 		const packageData = {
 			"pins": [
@@ -38,7 +38,7 @@ Devices.Routing.TriState = class extends Devices.Device { // general constructor
 				"label": null
 			}	
 		}
-		super(parentGroup, point, packageData);
+		super(circuit, point, packageData);
 	}
 
 	update() {

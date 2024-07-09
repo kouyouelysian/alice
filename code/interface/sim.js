@@ -9,6 +9,12 @@ class Sim {
 		view.draw();
 		view.autoUpdate = true;
 
+		// project metadata
+
+		this.meta = {
+			"name":"project"
+		}
+
 		// circuit system
 		this.circuits = new IndexedGroup();
 		this.activeCircuitIndex = null;
@@ -38,98 +44,6 @@ class Sim {
 		// notes system
 		this.notes = {};
 
-	}
-
-
-	_downloadTextFile(text, name="project", extension="alice") {
-		var filename = `${name}.${extension}`;
-		var file = new Blob([text], {type: "text/plain"});
-		if (window.navigator.msSaveOrOpenBlob)
-	        window.navigator.msSaveOrOpenBlob(file, filename);
-	    else { 
-			var url = URL.createObjectURL(file);
-	        var a = document.createElement("a");
-	        a.href = url;
-	        a.download = filename;
-	        document.body.appendChild(a);
-	        a.click();
-	        setTimeout(function() {
-	            document.body.removeChild(a);
-	            window.URL.revokeObjectURL(url);  
-	        }, 100); 
-	    }
-	}
-
-	_selectTextFile(callback, extensions=null) {
-		var finput = document.createElement("input");
-		finput.id = "finput";
-		finput.setAttribute("type", "file");
-		finput.setAttribute("callback", callback);
-		finput.setAttribute("onchange", "window.sim._getTextFileContents()");
-		document.body.appendChild(finput);
-		finput.click();
-	}
-
-	_getTextFileContents() {
-		var finput = document.getElementById("finput");
-		var file = finput.files[0];
-		var reader = new FileReader();
-		reader.addEventListener('load', (event) => {
-			window.sim._parseTextFile(event.target.result);
-		});
-		reader.readAsText(file);
-	}
-
-	_parseTextFile(text) {
-		var callbackFnName = document.getElementById("finput").getAttribute("callback");
-		var callbackFn = this[callbackFnName];
-		callbackFn(text);
-		document.getElementById("finput").remove();
-	}
-
-
-	export() {
-		var json = {
-			"circuits": [],
-			"notes": []
-		}
-		for (var cir of this.circuits.children)
-			json.circuits.push(cir.export());
-		for (var noteName in this.notes)
-		{
-			if (noteName == "instructions")
-				continue;
-			json.notes.push(this.noteJSON(noteName, this.notes[noteName]));
-		}
-		return json;
-	}
-
-	import(text) {
-		var json = JSON.parse(text);
-		console.log(json);
-	}
-
-
-	projectLoad() {
-		this._selectTextFile("import");
-	}
-
-	projectFileUpload() {
-		var finput = document.getElementById("finput");
-		var file = finput.files[0];
-		var reader = new FileReader();
-		reader.addEventListener('load', (event) => {
-			var json = JSON.parse(event.target.result);
-		});
-		reader.readAsText(file);
-	}
-
-
-	projectSave(pretty=false) {
-		var json = this.export();
-		var indent = pretty? 0 : 4;
-		var text = JSON.stringify(json, null, indent);
-		this._downloadTextFile(text);
 	}
 
 	circuitActiveGet() {
@@ -327,7 +241,7 @@ class Sim {
 	}
 
 	run() {
-		if (this.activeWindow != "simViewport")
+		if (HierarchyManager.windowActive != "simViewport")
 			return;
 		this.reset();
 		this._setStatus("running");
@@ -360,8 +274,6 @@ class Sim {
 			n.colorByState();
 		}
 	}
-
-
 
 	point(raw, quantized) {
 		var hit = null;
@@ -419,69 +331,8 @@ class Sim {
 		window.alert(text);
 	}	
 
-	circuitLoad(name, callerElement) {
-		
-	}
-
-	circuitExport(alert=false) {
-		var name = ContextMenu.caller.innerHTML;
-		var circuit = this.circuits.children[name];
-		if (!circuit)
-			return;
-		var json = circuit.export();
-		if (alert)
-			window.alert(json);
-		return json;
-	}
-
-	circuitSave(pretty=false) {
-		var json = circuitExport();
-		var indent = pretty? 0 : 4;
-		var text = JSON.stringify(json, null, indent);
-		this._downloadTextFile(text, json.name, "circuit");
-	}
-
-	circuitImport(text) {
-		consolel.log("circuit", text);
-	}
-
-	noteRemove(name) {
-
-	}
-
-	noteRename() {
-		return this._itemRename("note");
-	}
-
 	noteJSON(name, text) {
 		return {"name":name, "text":text};
-	}
-
-	noteEdit() {
-		this.activateWindow("noteEditor");
-		var name = document.getElementsByClassName("loadedItem")[0].getElementsByTagName("a")[0].innerHTML;
-		var text = atob(this.notes[name]);
-		if (text.indexOf("<pre>") == 0)
-			text = text.replace("<pre>", "");
-		if (text.lastIndexOf("</pre>") == text.length - 6)
-			text = text.substring(0, text.length - 6);
-		document.getElementById("noteEditor").getElementsByTagName("textarea")[0].value = text;
-	}
-
-	noteSave(type="html") {
-		var text = document.getElementById("noteEditor").getElementsByTagName("textarea")[0].value; 
-		if (type == "plaintext")
-		{
-			if (text.indexOf("<pre>") == -1 )
-				text = `<pre>${text}`;
-			if (text.indexOf("</pre>") == -1 )
-				text = `${text}</pre>`;
-		}
-		var text64 = btoa(text);
-		var name = document.getElementsByClassName("loadedItem")[0].getElementsByTagName("a")[0].innerHTML;
-		this.notes[name] = text64;
-		this.noteLoad(name);
-		this.activateWindow("noteArea");
 	}
 
 	setupTool() {
@@ -514,6 +365,44 @@ class Sim {
 		return tool;
 	}
 
+	export() {
+		var json = {
+			"circuits": [],
+			"notes": [],
+			"meta": this.meta
+		}
+		for (var cir of this.circuits.children)
+			json.circuits.push(cir.export());
+		for (var noteName in this.notes)
+		{
+			if (noteName == "instructions")
+				continue;
+			json.notes.push(this.noteJSON(noteName, this.notes[noteName]));
+		}
+		return json;
+	}
+
+	import(json) {
+		this.meta = json.meta;
+		this.circuits.clear();
+		this.notes = {"instructions":this.notes.instructions};
+		for (var cir of json.circuits)
+		{
+			var circuit = new Circuit();
+			this.circuits.addChild(circuit);
+			this.circuitMakeVisible(circuit.name);
+			circuit.import(cir);
+			Explorer.itemAdd("circuit", cir.name);
+		}
+		
+
+		for (var n of json.notes)
+		{
+			this.notes[n.name] = n.text;
+			Explorer.itemAdd("note", n.name);
+		}
+	}
+
 	onload() {
 		this.activeCircuitIndex = 0;
 		this.setupTool();
@@ -521,6 +410,10 @@ class Sim {
 			block: 'center',
 			inline: 'center',
 			behavior: 'auto'
+		}); 
+		bmco.httpRequest("./data/manual.html").then((data) => {
+			var htmlText = data.substring(data.indexOf("<article>")+9, data.indexOf("</article>")).replaceAll("\n\t", "\n");
+			this.notes["instructions"] = btoa(htmlText);
 		}); 
 	}
 

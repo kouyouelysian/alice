@@ -36,3 +36,7 @@ article {
 	font-family: 'Times';
 	font-size: 22px;
 }
+
+textarea {
+	font-size: 22px;
+}

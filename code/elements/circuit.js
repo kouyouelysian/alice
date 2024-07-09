@@ -1,9 +1,13 @@
 class Circuit extends Group {
 
-	constructor(index=0) {
+	constructor(name=undefined, index=window.sim.circuits.getIndex()) {
 
 		super();
-		this.name = "cir"+index.toString();
+		if (name)
+			this.name = name;
+		else
+			this.name = "cir"+index.toString();
+
 		project.layers.editables.addChild(this);
 
 		// main subgroups
@@ -26,11 +30,8 @@ class Circuit extends Group {
 		this.devicePicked = null;
 
 		// other stuff
-		this.integrationDetails = {};
-		
+		this.integrationDetails = {};		
 	}
-
-	
 
 	frame() {
 		//for (var x = 0; x < this.ticksPerFrame; x++)
@@ -56,45 +57,34 @@ class Circuit extends Group {
 		console.log("average of", laps, "circuit update times:", timeStack/laps, "milliseconds.")
 	}
 
-	/*
+	import(json) {
 
-	
+		this.name = json.name;
 
-	
+		for (const deviceRecord of json.devices)
+		{
+			var parts = deviceRecord.class.split(".");
+			var category = parts[0];
+			var device = parts[1];
+			var dev = new Devices[category][device](this,
+				new Point(deviceRecord.position.x, deviceRecord.position.y));
+			dev.name = deviceRecord.name;
+		}
 
-	
-	_selectionNetHighlight() {
-		this._selectionNetUnhighlight();
-		if (this.selection == null)
-			return;
-		this.netHighlighted = this.selection.getNet();
-		return this.selection.parent.parent.highlight();
+		for (const netRecord of json.nets) 
+		{
+			var net = new Net(this);
+			net.name = netRecord.name;
+			for (const wireRecord of netRecord.wires)
+			{
+				var w = new Wire(
+					new Point(wireRecord.start.x, wireRecord.start.y),
+					this
+					);
+				w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y));
+			}
+		}
 	}
-
-	_selectionNetUnhighlight() {
-		if (!this.netHighlighted)
-			return;
-		this.netHighlighted.unhighlight();
-		this.netHighlighted = null;
-	}
-
-	_dragStart(point) {
-		var firstEditable = point.findEditable();
-		if (!firstEditable)
-			return;
-		var editables = point.findEditable({all:true, net:firstEditable.getNet()});
-		for (var e of editables)
-			e.strokeColor = "red";
-	}	
-
-	_dragEnd() {
-		this.status == "idle";
-	}
-
-	*/
-
-	
-
 
 	export() {
 
@@ -111,34 +101,6 @@ class Circuit extends Group {
 			json.nets.push(n.export());
 	
 		return json;
-
 	}
 
-	import(jsonString) {
-
-		const json = JSON.parse(jsonString);
-
-		for (const deviceRecord of json.devices)
-		{
-			var dev = new (eval("Devices."+deviceRecord.class))(
-				this,
-				new Point(deviceRecord.position.x, deviceRecord.position.y)
-				);
-			dev.name = deviceRecord.name;
-		}
-
-		for (const netRecord of json.nets) 
-		{
-			var net = new Net(this);
-			net.name = netRecord.name;
-			for (const wireRecord of netRecord.wires)
-			{
-				var w = new Wire(
-					new Point(wireRecord.start.x, wireRecord.start.y),
-					this
-					);
-				w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y))
-			}
-		}
-	}
 }

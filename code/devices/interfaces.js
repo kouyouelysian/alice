@@ -2,9 +2,9 @@ Devices.Interfaces = {};
 
 
 Devices.Interfaces.Source = class Source extends Devices.Device {
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 
-		super(parentGroup, point);
+		super(circuit, point);
 		this.write('o', false);
 		this.createControlButton(point);
 		
@@ -62,7 +62,7 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 }
 Devices.Interfaces.Light = class Light extends Devices.Device {
 
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 
 		const packageData = {
 			"pins": [
@@ -99,7 +99,7 @@ Devices.Interfaces.Light = class Light extends Devices.Device {
 			}	
 		}
 
-		super(parentGroup, point, packageData);
+		super(circuit, point, packageData);
 		this.createLight(point);
 		this.state = this.read("i");
 	}
@@ -130,9 +130,9 @@ Devices.Interfaces.Light = class Light extends Devices.Device {
 }
 
 
-Devices.Interfaces.EightSegment = class EightSegment extends Devices.Device {
+Devices.Interfaces.SevenSegment = class EightSegment extends Devices.Device {
 
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 
 		const packageData = {
 			"pins": [
@@ -155,7 +155,7 @@ Devices.Interfaces.EightSegment = class EightSegment extends Devices.Device {
 			}	
 		}
 
-		super(parentGroup, point, packageData);
+		super(circuit, point, packageData);
 		this.createDigit(point, packageData);
 		this.dict = ["0","1","2","3",
 				"4","5","6","7",

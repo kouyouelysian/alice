@@ -4,7 +4,7 @@ class Net extends Group {
 		
 		super();
 	
-		this.name = "net"+circuit.children.nets._getIndex();
+		this.name = "net"+circuit.children.nets.getIndex();
 		circuit.children.nets.addChild(this);
 		this.data.type = "net";
 
@@ -40,7 +40,7 @@ class Net extends Group {
 	}
 
 	remove() {
-		this.parent._freeIndex(this.name);
+		this.parent.freeIndex(this.name);
 		super.remove();
 	}
 

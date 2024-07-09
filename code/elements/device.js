@@ -30,7 +30,7 @@ Devices.Device = class Device extends Group {
 		super();
 
 		this.position = point;
-		this.name = "dev"+circuit.children.devices._getIndex();
+		this.name = "dev"+circuit.children.devices.getIndex();
 		circuit.children.devices.addChild(this);
 		this.data.type = "device"; 
 		this.pivot = this.bounds.topLeft;
@@ -39,10 +39,12 @@ Devices.Device = class Device extends Group {
 
 	static doNotIndex = false;
 
+	static category = {"name":null, "object":null};
+
 	export() {
 		return {
 			"name": this.name,
-			"class": this.constructor.name,
+			"class": `${this.constructor.category.name}.${this.constructor.name}`,
 			"position": {
 				"x": this.position.x,
 				"y": this.position.y
@@ -53,7 +55,7 @@ Devices.Device = class Device extends Group {
 	remove() {
 		for (var pin of this.getPins())
 			pin.disconnect();
-		this.parent._freeIndex(this.name);
+		this.parent.freeIndex(this.name);
 		super.remove();
 	}
 	

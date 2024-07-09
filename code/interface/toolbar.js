@@ -12,11 +12,11 @@ var ToolBar = {
 			{"text":"Reset", "onclick":"window.sim.reset()"}
 		],
 		"noteArea": [
-			{"text":"Edit", "onclick":"window.sim.noteEdit()"}
+			{"text":"Edit", "onclick":"HierarchyManager.note.edit()"}
 		],
 		"noteEditor": [
-			{"text":"Update As HTML", "onclick":"window.sim.noteSave('html')"},
-			{"text":"Update As Plaintext", "onclick":"window.sim.noteSave('plaintext')"}
+			{"text":"Update As HTML", "onclick":"HierarchyManager.note.save('html')"},
+			{"text":"Update As Plaintext", "onclick":"HierarchyManager.note.save('plaintext')"}
 		]
 	},
 

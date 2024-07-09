@@ -2,9 +2,9 @@ Devices.Primitives = {};
 
 Devices.Primitives.IntegratedCircuit = class extends Devices.Device {
 
-	constructor(parentGroup, point, circuitName) {
+	constructor(circuit, point, circuitName) {
 
-		super(parentGroup, point);
+		super(circuit, point);
 		this.circuit = window.sim.circuits.children[circuitName];
 		if (!this.circuit || this.circuit.integrationDetails === {})
 			return;
@@ -15,7 +15,7 @@ Devices.Primitives.IntegratedCircuit = class extends Devices.Device {
 
 Devices.Primitives.PullUp = class extends Devices.Device {
 
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 
 		const packageData = {
 			pins: [{"name":"leg", "mode":"hi-z", "side":3, "offset":0}],
@@ -65,7 +65,7 @@ Devices.Primitives.PullUp = class extends Devices.Device {
 			}
 		};
 
-		super(parentGroup, point, packageData);
+		super(circuit, point, packageData);
 	}
 
 	update() {
@@ -100,7 +100,7 @@ Devices.Primitives.PullUp = class extends Devices.Device {
 
 Devices.Primitives.PullDown = class extends Devices.Device {
 
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 
 		const packageData = {
 			pins: [{"name":"leg", "mode":"hi-z", "side":1, "offset":0}],
@@ -144,7 +144,7 @@ Devices.Primitives.PullDown = class extends Devices.Device {
 			}
 		};
 
-		super(parentGroup, point, packageData);
+		super(circuit, point, packageData);
 
 	}
 

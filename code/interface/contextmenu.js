@@ -17,8 +17,9 @@ var ContextMenu = {
 				"icon": "desktop.png"
 			},
 			{
-				"text": "Upload circuit",
+				"text": "Upload existing .acirc",
 				"onclick": "HierarchyManager.circuit.upload()",
+				"icon": "open.png"
 			}
 		],
 		"circuitEdit": [
@@ -87,8 +88,6 @@ var ContextMenu = {
 	show: function(event, preset="default") {
 		event.preventDefault();
 		event.stopPropagation();
-		if (ContextMenu.caller)
-			ContextMenu.hide();
 		ContextMenu.optionsFill(preset);
 		ContextMenu.caller = event.target || event.srcElement;
 		ContextMenu.target.style.display = "block";
@@ -100,13 +99,14 @@ var ContextMenu = {
 	hide: function(onclickAction=null) {
 		ContextMenu.target.removeAttribute("style");
 		ContextMenu.backdrop.removeAttribute("style");
+		if (onclickAction)
+		{
+			var d = document.createElement('div');
+			d.setAttribute('onclick', onclickAction);
+			d.click();
+			d.remove();
+		}
 		ContextMenu.caller = null;
-		if (!onclickAction)
-			return;
-		var d = document.createElement('div');
-		d.setAttribute('onclick', onclickAction);
-		d.click();
-		d.remove();
 	}
 
 }

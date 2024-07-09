@@ -2,7 +2,7 @@ Devices.Gates = {}
 
 Devices.Gates.Not = class Not extends Devices.Device {
 
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 
 		const packageData = {
 			"pins": [
@@ -32,7 +32,7 @@ Devices.Gates.Not = class Not extends Devices.Device {
 				"label": null
 			}	
 		}
-		super(parentGroup, point, packageData);
+		super(circuit, point, packageData);
 	}
 
 	update() {
@@ -41,7 +41,7 @@ Devices.Gates.Not = class Not extends Devices.Device {
 }
 
 Devices.Templates.Gate = class Gate extends Devices.Device { // general constructor for 3-pin gates. not to be used directly in circuits.
-	constructor(parentGroup, point, symbol, invertedOutput = false) {
+	constructor(circuit, point, symbol, invertedOutput = false) {
 		const packageData = {
 			"pins": [
 				{"name":"a", "mode":"in", "side":2, "offset":0},
@@ -61,12 +61,12 @@ Devices.Templates.Gate = class Gate extends Devices.Device { // general construc
 				"label": null
 			}	
 		}
-		super(parentGroup, point, packageData);
+		super(circuit, point, packageData);
 	}
 }
 
 Devices.Gates.And = class And extends Devices.Templates.Gate {
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 		var symbol = [{
 			"segmentData": [ 
 				{"point":[0,0.5]}, 
@@ -77,7 +77,7 @@ Devices.Gates.And = class And extends Devices.Templates.Gate {
 				],
 			"closed": true
 		}];
-		super(parentGroup, point, symbol);
+		super(circuit, point, symbol);
 	}
 	update() {
 		this.write("q", this.read("a") && this.read("b"));
@@ -86,7 +86,7 @@ Devices.Gates.And = class And extends Devices.Templates.Gate {
 
 
 Devices.Gates.Or = class Or extends Devices.Templates.Gate {
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 		var symbol = [{
 			"segmentData": [ 
 				{"point":[-0.25,0.5]}, 
@@ -98,7 +98,7 @@ Devices.Gates.Or = class Or extends Devices.Templates.Gate {
 				],
 			"closed": true
 		}];
-		super(parentGroup, point, symbol);
+		super(circuit, point, symbol);
 	}
 
 	update() {
@@ -107,7 +107,7 @@ Devices.Gates.Or = class Or extends Devices.Templates.Gate {
 }
 
 Devices.Gates.Nand = class Nand extends Devices.Templates.Gate {
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 		var symbol = [{
 			"segmentData": [ 
 				{"point":[0,0.5]}, 
@@ -118,7 +118,7 @@ Devices.Gates.Nand = class Nand extends Devices.Templates.Gate {
 				],
 			"closed": true
 		}];
-		super(parentGroup, point, symbol, true);
+		super(circuit, point, symbol, true);
 	}
 	update() {
 		this.write("q", !(this.read("a") && this.read("b")));
@@ -126,7 +126,7 @@ Devices.Gates.Nand = class Nand extends Devices.Templates.Gate {
 }
 
 Devices.Gates.Nor = class Nor extends Devices.Templates.Gate {
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 		var symbol = [{
 			"segmentData": [ 
 				{"point":[-0.25,0.5]}, 
@@ -138,7 +138,7 @@ Devices.Gates.Nor = class Nor extends Devices.Templates.Gate {
 				],
 			"closed": true
 		}];
-		super(parentGroup, point, symbol, true);
+		super(circuit, point, symbol, true);
 	}
 	update() {
 		this.write("q", !(this.read("a") || this.read("b")));
@@ -146,7 +146,7 @@ Devices.Gates.Nor = class Nor extends Devices.Templates.Gate {
 }
 
 Devices.Gates.Xor = class Xor extends Devices.Templates.Gate {
-	constructor(parentGroup, point) {
+	constructor(circuit, point) {
 		var symbol = [{
 			"segmentData": [ 
 				{"point":[0.25,0.5]}, 
@@ -168,7 +168,7 @@ Devices.Gates.Xor = class Xor extends Devices.Templates.Gate {
 			"closed": false
 		}
 		];
-		super(parentGroup, point, symbol);
+		super(circuit, point, symbol);
 	}
 	update() {
 		this.write("q", (this.read("a") != this.read("b")));
