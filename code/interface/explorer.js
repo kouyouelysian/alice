@@ -248,6 +248,7 @@ var Explorer = {
 		li.innerHTML = `<a oncontextmenu="${ctx}">${name}</a><div class='selectHor'></div>`;
 		li.setAttribute("onclick", `HierarchyManager.${type}.show('${name}', this)`);
 		target.appendChild(li);
+		return li;
 	},
 
 }

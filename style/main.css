@@ -27,7 +27,11 @@ body {
 	overflow: hidden;
 	--menu-width: 300px;
 	--toolbar-height: 40px;
-	background-color: var(--c-bg);
+	background-color: var(--c-pale);
+	background-image: url("../gfx/logobg.png");
+	background-size: 50px;
+	background-repeat: repeat;
+	background-position: center;
 }
 
 pre {
@@ -36,14 +40,13 @@ pre {
 
 .mainWindow {
 
-	border: 1px solid var(--c-text);
-	border-right: 0;
-	width: calc(100% - var(--menu-width) - 2px);
-	height: calc(100% - var(--toolbar-height) * 2 - 2px);
+	width: calc(100% - var(--menu-width));
+	height: calc(100% - var(--toolbar-height) * 2);
 	left: var(--menu-width);
 	top:var(--toolbar-height);
 	position: absolute;
 	overflow-y: scroll;
+	background-color: var(--c-bg);
 	
 }
 
@@ -73,34 +76,48 @@ pre {
 
 }
 
+#explorer, #details {
+	border-right: 1px solid var(--c-borders);
+	overflow-y: scroll;
+	width: calc(var(--menu-width) - 1px);
+	background-color: var(--c-bg);
+}
+
+#explorer {
+	
+	height: calc(60vh - var(--sizing) - 1px);
+	position: absolute;
+	top: 0;
+	left: calc(var(--sizing) * -1);
+	padding: calc(var(--sizing) / 2);
+	border-bottom: 1px solid var(--c-borders);
+}
 
 #details {
 	position: absolute;
 	top: 60vh;
 	height: 40vh;
-	
-	width: calc(var(--menu-width));
-	overflow-y: scroll;
+	left: 0;
 }
+
 
 .bar {
 	
-	height: calc(var(--toolbar-height));
-	width: calc(100% - var(--menu-width) - 1px);
+	height: calc(var(--toolbar-height) - 1px);
+	width: calc(100% - var(--menu-width));
 	position: absolute;
-	
 	left: var(--menu-width);
 	font-size: 0;
-	border-left: 1px solid var(--c-borders);
-
 	background-color: var(--c-pale);
 }
 
 #toolbar {
+	border-bottom: 1px solid var(--c-borders); 
 	top: 0;
 }
 
 #statusbar {
+	border-top: 1px solid var(--c-borders);
 	bottom: 0;
 }
 

@@ -77,13 +77,22 @@ var HierarchyManager = {
 
 		create: function(name=null) {
 			window.sim.circuits.addChild(new Circuit(name));
-			Explorer.itemAdd("circuit", window.sim.circuits.lastChild.name);
+			var exi = Explorer.itemAdd("circuit", window.sim.circuits.lastChild.name);
+			exi.click();
 		},
 
 		delete: function(name, caller=null) {
 			window.sim.circuits.children[name].remove();
 			if (caller)
 				caller.parentElement.remove();
+			if (HierarchyManager.windowActive != "simViewport")
+				return;
+			window.sim.stop();
+			if (window.sim.circuits.children.length == 0)
+				return HierarchyManager.windowActivate(null);
+			HierarchyManager.circuit.showFirst();
+
+
 		},
 
 		show: function(name, caller=null) {
@@ -91,6 +100,11 @@ var HierarchyManager = {
 			HierarchyManager.windowActivate("simViewport");
 			if (caller)
 				Explorer.highlight(caller);
+			window.sim.stop();
+		},
+
+		showFirst: function() {
+			document.getElementById("explorerCircuits").getElementsByTagName("li")[0].click();
 		},
 
 		rename: function(name, caller=null) {
@@ -129,13 +143,15 @@ var HierarchyManager = {
 
 		create: function(name=`note${bmco.timestamp().substr(3,8)}`, contents="Note text") {
 			window.sim.notes[name] = btoa(contents);
-			Explorer.itemAdd("note", name);
+			var exi = Explorer.itemAdd("note", name);
+			exi.click();
 		},
 
 		delete: function(name, caller=null) {
 			delete window.sim.notes[name];
 			if (caller)
 				caller.parentElement.remove();
+			HierarchyManager.note.showFirst();
 		},
 
 		show: function(name, caller=null) {
@@ -143,6 +159,14 @@ var HierarchyManager = {
 			HierarchyManager.windowActivate("noteArea");
 			if (caller)
 				Explorer.highlight(caller);
+			window.sim.stop();
+		},
+
+		showFirst: function() {
+			var noteLis = document.getElementById("explorerNotes").getElementsByTagName("li");
+			if (noteLis.length > 1)		
+				return noteLis[1].click();
+			noteLis[0].click();
 		},
 
 		rename: function(name, caller=null) {
@@ -195,21 +219,21 @@ var HierarchyManager = {
 			await Explorer.onload();
 			var json = JSON.parse(text);
 			window.sim.import(json);
-			document.getElementById("explorerCircuits").getElementsByTagName("li")[0].click();
+			HierarchyManager.circuit.showFirst();
 		}
 
 	},
 
 	windowActive: null,
 	
-	windowActivate(id) {
-		if (!document.getElementById(id))
-			return;
+	windowActivate(id=null) {
 		for (var el of document.getElementsByClassName("mainWindow"))
 			el.classList.add("invisible");
+		ToolBar.load(id);
+		if (!document.getElementById(id))
+			return;
 		document.getElementById(id).classList.remove("invisible");
 		HierarchyManager.windowActive = id;
-		ToolBar.load(id)
 	},
 
 	onload: async function() {

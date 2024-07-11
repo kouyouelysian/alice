@@ -1,25 +1,12 @@
 #explorer {
 
   --sizing: 20px;
-
-  width: calc(var(--menu-width));
-  height: calc(60vh - var(--sizing) - 1px);
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  background-color: var(--c-bg);
-
+  
   image-rendering: crisp-edges;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 0;
 
-  left: calc(var(--sizing) * -1);
-  padding: calc(var(--sizing) / 2);
-  border-bottom: 1px solid var(--c-borders);
-
-  overflow-y: scroll;
   overflow-x: hidden;
 
   font-family: "Courier New";

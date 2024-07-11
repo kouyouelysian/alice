@@ -26,7 +26,8 @@ var ToolBar = {
 			return;
 		else
 			t.innerHTML = "";
-
+		if (!preset)
+			return;
 		for (var pitem of ToolBar.presets[preset])
 			t.appendChild(ToolBar.makeCommandButton(pitem.text, pitem.onclick));
 	},
