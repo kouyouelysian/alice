@@ -46,6 +46,14 @@ class Sim {
 
 	}
 
+	get grid() {
+		return this.appearance.size.grid;
+	}
+
+	get circuit() {
+		return this.circuits.children[this.activeCircuitIndex];
+	}
+
 	circuitActiveGet() {
 		return this.circuits.children[this.activeCircuitIndex];
 	}
@@ -88,11 +96,12 @@ class Sim {
 			case "highlight": 
 			return this.pageParts.viewport.removeAttribute("style");
 			case "wire": 
-			case "device":
 			return this.pageParts.viewport.setAttribute("style", "cursor: crosshair;");
 			case "drag":
 			return this.pageParts.viewport.setAttribute("style", "cursor: grab;");
 		}
+		if (tool.indexOf(".") != -1) // if it's a device
+			return this.pageParts.viewport.setAttribute("style", "cursor: grabbing;");
 	}
 
 	_setStatus(status) {
@@ -118,19 +127,22 @@ class Sim {
 	}
 
 	_pointerClicked(point) {
-		var editable = point.findEditable(); // 
-		if (editable && editable.data.isActuator) // if we clicked a button of some kind on some device
+		var editable = point.findEditable(); 
+		if (!editable) // if we clicked a button of some kind on some device
+			return;
+		if (editable.data.isActuator)
 			editable.data.device.act(editable);
+		Details.show(editable);
 	}
 	_actionStart(point) {
 
-		if (this.circuitActiveGet().netHighlighted)
-			this.circuitActiveGet().netHighlighted.unhighlight();
+		if (this.circuit.netHighlighted)
+			this.circuit.netHighlighted.unhighlight();
 
 		switch (this.tool) { // first figure out if this is some core action
 			case "wire":
 				this._setStatus("wiring");
-				return this.editedElement = new Wire(point, this.circuitActiveGet());
+				return this.editedElement = new Wire(point, this.circuit);
 
 			case "pointer":
 				return this._pointerClicked(point);
@@ -140,7 +152,7 @@ class Sim {
 				if (!editable)
 					return;
 				editable.getNet().highlight();
-				return this.circuitActiveGet().netHighlighted = editable.getNet();
+				return this.circuit.netHighlighted = editable.getNet();
 		}
 
 		// if not - check if this is a device that exists
@@ -153,7 +165,7 @@ class Sim {
 			return;
 
 		this._setStatus("adding device");
-		return this.editedElement = new deviceClass(this.circuitActiveGet(), point);
+		return this.editedElement = new deviceClass(this.circuit, point);
 	}
 
 	_actionFinish(point) {
@@ -161,7 +173,7 @@ class Sim {
 			case "wiring":
 				this.editedElement.finish(point); // finalise wire to how it must be
 				if (Key.isDown('shift'))
-					return this.editedElement = new Wire(point, this.circuitActiveGet());
+					return this.editedElement = new Wire(point, this.circuit);
 				break;
 			
 			case "adding device":
@@ -254,6 +266,7 @@ class Sim {
 				window.sim.circuitActiveGet().frame();
 			}, this.frameRate);
 		}
+		Details.setReadOnly(true);
 	}
 
 	stop() {
@@ -262,14 +275,15 @@ class Sim {
 		this.updateInterval = null;
 		view.autoUpdate = true;
 		this.ticks = 0;
+		Details.setReadOnly(false);
 	}
 
 	reset() {
-		for (var d of this.circuitActiveGet().children["devices"].children) {
+		for (var d of this.circuit.children["devices"].children) {
 			d.reset();
 		}
 		
-		for (var n of this.circuitActiveGet().children["nets"].children) {
+		for (var n of this.circuit.children["nets"].children) {
 			n.state = undefined;
 			n.colorByState();
 		}

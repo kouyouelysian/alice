@@ -33,6 +33,14 @@ class Circuit extends Group {
 		this.integrationDetails = {};		
 	}
 
+	get devices() {
+		return this.children.devices.children;
+	}
+
+	get nets() {
+		return this.children.nets.children;
+	}
+
 	frame() {
 		//for (var x = 0; x < this.ticksPerFrame; x++)
 		{
@@ -57,6 +65,41 @@ class Circuit extends Group {
 		console.log("average of", laps, "circuit update times:", timeStack/laps, "milliseconds.")
 	}
 
+	rollByPrefix(property="name", prefix="dev") {
+		var counter = -1;
+		var ok;
+		var rolledText = null;
+		do 
+		{
+			counter += 1;
+			ok = true;
+			rolledText = `${prefix}${counter}`;
+			for (var d of this.children.devices.children)
+			{
+				var v;
+				try // very hacky, i know.. this is to support 'name' as well as 'property.label.value' etc
+					{v = eval(`d.${property}`);}
+				catch
+					{continue;}
+				if (rolledText == v)
+					ok = false;
+			}
+		}
+		while (!ok);
+		return rolledText;
+	}
+
+	getDevicesByClass(fullClassString)
+	{
+		var out = [];
+		for (var d of this.devices)
+		{
+			if (d.fullClass == fullClassString)
+				out.push(d);
+		}
+		return out;
+	}
+
 	import(json) {
 
 		this.name = json.name;
@@ -69,6 +112,11 @@ class Circuit extends Group {
 			var dev = new Devices[category][device](this,
 				new Point(deviceRecord.position.x, deviceRecord.position.y));
 			dev.name = deviceRecord.name;
+			if (deviceRecord.options)
+			{
+				dev.options = deviceRecord.options;
+				dev.reload();
+			}
 		}
 
 		for (const netRecord of json.nets) 

@@ -25,19 +25,19 @@ var ContextMenu = {
 		"circuitEdit": [
 			{
 				"text": "Rename",
-				"onclick": "HierarchyManager.circuit.rename(ContextMenu.caller.innerHTML, ContextMenu.caller)",
+				"onclick": "HierarchyManager.circuit.rename(ContextMenu.caller.innerHTML, ContextMenu.caller)"
 			},
 			{
 				"text": "Delete",
-				"onclick": "HierarchyManager.circuit.delete(ContextMenu.caller.innerHTML, ContextMenu.caller)",
+				"onclick": "HierarchyManager.circuit.delete(ContextMenu.caller.innerHTML, ContextMenu.caller)"
 			},
 			{
 				"text": "Download Circuit",
-				"onclick": "HierarchyManager.circuit.download(ContextMenu.caller.innerHTML, ContextMenu.caller)",
+				"onclick": "HierarchyManager.circuit.download(ContextMenu.caller.innerHTML, ContextMenu.caller)"
 			},
 			{
-				"text": "Export Circuit JSON",
-				"onclick": "HierarchyManager.circuit.export(ContextMenu.caller.innerHTML, ContextMenu.caller)",
+				"text": "Create IC",
+				"onclick": "HierarchyManager.circuit.integrate(ContextMenu.caller.innerHTML, ContextMenu.caller)"
 			}
 		],
 		"noteNew": [
@@ -50,11 +50,11 @@ var ContextMenu = {
 		"noteEdit": [
 			{
 				"text": "Rename",
-				"onclick": "HierarchyManager.note.rename(ContextMenu.caller.innerHTML, ContextMenu.caller)",
+				"onclick": "HierarchyManager.note.rename(ContextMenu.caller.innerHTML, ContextMenu.caller)"
 			},
 			{
 				"text": "Delete",
-				"onclick": "HierarchyManager.note.delete(ContextMenu.caller.innerHTML, ContextMenu.caller)",
+				"onclick": "HierarchyManager.note.delete(ContextMenu.caller.innerHTML, ContextMenu.caller)"
 			}
 		],
 	},

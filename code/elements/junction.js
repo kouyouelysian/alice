@@ -1,7 +1,7 @@
 class Junction extends Path {
 	
 	constructor(point, net) {
-		
+
 		super();
 		net.children["junctions"].addChild(this);
 		

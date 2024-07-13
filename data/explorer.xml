@@ -5,7 +5,7 @@
 			<item name="instructions" onclick="HierarchyManager.note.show('instructions', this)"></item>
 		</directory>
 		<directory name="Devices" id="explorerDevices" noclose="noclose">
-			<directory name="Integrated Circuits"></directory>
+			<directory name="Integrated Circuits" id="explorerIcs"></directory>
 		</directory>
 	</directory>
 	<item name="Project Settings" onclick="alert('todo')" icon="gears.png"></item>

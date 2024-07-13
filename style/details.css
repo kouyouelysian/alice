@@ -1,0 +1,35 @@
+#details input, #details label {
+	display: block;
+	width: 100%;
+}
+
+#details > * {
+	margin: 0;
+	margin-bottom: calc(var(--sizing) / 2);
+}
+
+#details > *:last-child {
+	margin-bottom: 0;
+}
+
+#details > hr {
+	border: none;
+	border-bottom: 1px solid var(--c-borders);
+}
+
+#details input, #details select {
+	display: block;
+	width: 100%;
+	padding: 4px;
+	border: 1px solid var(--c-borders);
+	border-radius: 0;
+	background-color: var(--c-pale);
+}
+
+#details input[type="number"] {
+	width: calc(100% - 10px);
+}
+
+#details input[type="button"] {
+	cursor: pointer;
+}

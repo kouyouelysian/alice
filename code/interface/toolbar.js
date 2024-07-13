@@ -17,6 +17,9 @@ var ToolBar = {
 		"noteEditor": [
 			{"text":"Update As HTML", "onclick":"HierarchyManager.note.save('html')"},
 			{"text":"Update As Plaintext", "onclick":"HierarchyManager.note.save('plaintext')"}
+		],
+		"icDesigner": [
+			{"text":"Update", "onclick":"HierarchyManager.ic.save()"}
 		]
 	},
 

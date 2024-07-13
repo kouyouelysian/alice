@@ -1,6 +1,6 @@
 Devices.Routing = {}
 
-Devices.Routing.TriState = class extends Devices.Device { // general constructor for 3-pin gates. not to be used directly in circuits.
+Devices.Routing.TriState = class TriState extends Devices.Device { // general constructor for 3-pin gates. not to be used directly in circuits.
 	
 	constructor(circuit, point) {
 

@@ -79,24 +79,22 @@ pre {
 #explorer, #details {
 	border-right: 1px solid var(--c-borders);
 	overflow-y: scroll;
-	width: calc(var(--menu-width) - 1px);
+	width: calc(var(--menu-width) - var(--sizing) - 1px);
 	background-color: var(--c-bg);
+	padding: calc(var(--sizing) / 2);
 }
 
-#explorer {
-	
+#explorer { 
 	height: calc(60vh - var(--sizing) - 1px);
 	position: absolute;
 	top: 0;
-	left: calc(var(--sizing) * -1);
-	padding: calc(var(--sizing) / 2);
 	border-bottom: 1px solid var(--c-borders);
 }
 
 #details {
 	position: absolute;
 	top: 60vh;
-	height: 40vh;
+	height: calc(40vh - var(--sizing));
 	left: 0;
 }
 

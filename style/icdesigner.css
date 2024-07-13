@@ -1,0 +1,34 @@
+#icDesigner {
+	padding: var(--sizing);
+}
+
+#icDesigner table {
+	border-collapse: collapse;
+}
+
+#icDesigner table th, #icDesigner table td {
+	border: 1px solid var(--c-borders);
+	padding: calc(var(--sizing) / 2);
+}
+
+#icDesigner table th {
+	background-color: var(--c-borders);
+	color: var(--c-bg);
+}
+
+#icDesigner table tr td:last-child {
+	padding: 0;
+}
+
+#icDesigner table td input[type="button"] {
+	width: 100%;
+	height: 100%;
+	border-radius: 0;
+	border: 0;
+	padding: calc(var(--sizing)/2);
+	cursor: pointer;
+}
+
+#icDesigner table td input[type="button"]:hover {
+	background-color: var(--c-bg);
+}

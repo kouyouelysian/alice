@@ -1,6 +1,6 @@
 class Pin extends Path {
 
-	constructor(circuit, pinData /*name, mode, side, offset, bulb*/, packageDimensions, origin, sizing) {
+	constructor(circuit, pinData /*name, mode, side, offset, bulb*/, packageDimensions, origin, sizing=window.sim.appearance.size.grid) {
 
 		// mathematical shenanigans to find the position of the pin
 		const hor = ((pinData.side+1)%2) * ((pinData.side>0)*-2+1);
@@ -17,8 +17,8 @@ class Pin extends Path {
 		super();
 		this.add(start);
 		this.add(end);
-		this.strokeColor = circuit.appearance.color.undefined;
-		this.stokreWidth = circuit.appearance.size.device;
+		this.setStrokeColor(circuit.appearance.color.undefined);
+		this.setStrokeWidth(circuit.appearance.size.wire);
 		this.circuit = circuit;
 		this.net = null;
 		this.data.type = "pin";
@@ -112,6 +112,19 @@ class Pin extends Path {
 		var center = this.firstSegment.point;
 		var offset = this.firstSegment.point.subtract(this.lastSegment.point);
 		return Path.Circle(center.subtract(offset.multiply(ratio)), radius);
+	}
+
+	getLabel(text) {
+		var point = this.firstSegment.point.add(new Point(window.sim.grid*-0.5, window.sim.grid*0.2))
+		var label = new PointText(point);
+		label.setStrokeColor("transparent");
+		label.setStrokeWidth(0);
+		label.setFillColor("black");
+		label.fontWeight = "normal";
+		label.fontSize = window.sim.grid * 0.8;
+		label.justification = "right";
+		label.content = "text";
+		return label; 
 	}
 
 }

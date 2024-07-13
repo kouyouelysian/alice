@@ -4,47 +4,107 @@ Devices.Interfaces = {};
 Devices.Interfaces.Source = class Source extends Devices.Device {
 	constructor(circuit, point) {
 
-		super(circuit, point);
-		this.write('o', false);
-		this.createControlButton(point);
+		var packageData = Devices.defaultPackageData;
+		packageData.pins = [];
+
+		super(circuit, point, packageData);
+
+		this.options = {
+			buttons: {"type":"qty", "value":1},
+			style: {"type":"choice", "choices":["full","compact"], "value":"full"}
+		};
+	
+		this.createButtons(point);
 		
 	}
 
-	createControlButton(point) {
+	reload() {
+		for (var cname in this.children)
+		{
+			if (!isNaN(cname))
+				continue;
+			var c = this.children[cname];
+			if (c.name.indexOf("button") != -1 || c.name.indexOf("digit") != -1)
+				c.remove();
+		}
+		this.children.pins.removeChildren();
 
-		var button = new Path.Circle(point, window.sim.appearance.size.grid * 0.5);
+		this.createButtons(this.position);
+		var grid = window.sim.appearance.size.grid;
+		var seg1 = this.children.body.firstChild.segments[0];
+		var seg2 = this.children.body.firstChild.segments[3];
+		var step = this.options.style.value=="compact"? 1 : 2;
+		var y = this.position.y + grid*((step*this.options.buttons.value)+(step*-1+1));
+		seg1.point.y = y;
+		seg2.point.y = y;
+	}
+
+	createButtons(point) {
+		for (var x = 0; x < this.options.buttons.value; x++)
+			this.createControlButton(point, x);
+	}
+
+	createControlButton(origin, number) {
+
+		var grid = window.sim.appearance.size.grid;
+		var step = this.options.style.value=="compact"? 1 : 2;
+		var point = new Point(origin.x, origin.y + grid * number * step);
+		var button;
+
+		if (this.options.style.value == "full")
+			button = new Path.Circle(point, window.sim.appearance.size.grid * 0.5);
+		else if (this.options.style.value == "compact")
+		{
+			button = new Path.Rectangle(
+				new Point(point.x - grid*0.75, point.y - grid*0.3),
+				new Point(point.x + grid*0.75, point.y + grid*0.3));
+		}
+
 		button.fillColor = window.sim.appearance.color.false;
 		button.data.isActuator = true;
 		button.data.type = "body";
 		button.data.device = this;
-		button.name = "button";
+		button.name = `button${number}`;
 		this.addChild(button);
 
-		var digit = new PointText(new Point(point.x, point.y + window.sim.appearance.size.grid * 0.15));
+		var digit = new PointText(new Point(point.x, point.y + grid * 0.15));
 		digit.fontWeight = window.sim.appearance.size.grid * 0.4;
 		digit.justification = 'center';
 		digit.content = '0';
 		digit.leading = 0;
-		digit.name = "digit";
+		digit.name = `digit${number}`;
 		this.addChild(digit);
-		digit.fillColor = window.sim.appearance.color.fill;
-		digit.strokeColor = window.sim.appearance.color.fill;
+
+		var pinData = {"name":`o${number}`, "mode":"out", "side":0, "offset":number*step};
+		var bodyDimensions = {"width":1,"height":-1+step*number};
+		var pin = this.children.pins.addChild(
+			new Pin(this.getCircuit(), pinData, bodyDimensions, new Point(origin.x, origin.y-grid))
+			);
+		this.write(`o${number}`, false);
+
+		digit.setFillColor(window.sim.appearance.color.fill);
+		digit.setStrokeColor(window.sim.appearance.color.fill);
 		
 	}
 
 	act(actuator) {
 
-		var state = !this.read("o");
-		this.write("o", state);
+		var bname = actuator.name;
+		var dname = bname.replace("button", "digit");
+		var pname = bname.replace("button", "o");
+
+		var state = !this.read(pname);
+		this.write(pname, state);
+
 		if (state)
 		{
-			this.children["button"].fillColor = window.sim.appearance.color.true;
-			this.children["digit"].content = "1";
+			this.children[bname].fillColor = window.sim.appearance.color.true;
+			this.children[dname].content = "1";
 		}
 		else
 		{
-			this.children["button"].fillColor = window.sim.appearance.color.false;
-			this.children["digit"].content = "0";
+			this.children[bname].fillColor = window.sim.appearance.color.false;
+			this.children[dname].content = "0";
 		}
 		
 	}
@@ -53,10 +113,10 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 		return;
 	}
 
-	recolor(color) {
+	recolor(color, number=0) {
 		super.recolor(color);
-		this.children["digit"].fillColor = window.sim.appearance.color.fill;
-		this.children["digit"].strokeColor = window.sim.appearance.color.fill;
+		this.children[`digit${number}`].fillColor = window.sim.appearance.color.fill;
+		this.children[`digit${number}`].strokeColor = window.sim.appearance.color.fill;
 
 	}
 }

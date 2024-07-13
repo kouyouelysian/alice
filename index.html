@@ -5,6 +5,8 @@
 	<meta charset="utf-8">
 	<link rel="stylesheet" type="text/css" href="./style/main.css">
 	<link rel="stylesheet" type="text/css" href="./style/explorer.css">
+	<link rel="stylesheet" type="text/css" href="./style/details.css">
+	<link rel="stylesheet" type="text/css" href="./style/icdesigner.css">
 	<link rel="stylesheet" type="text/css" href="./style/contextmenu.css">
 	<link rel="stylesheet" type="text/css" href="./style/article.css">
 	<meta name="application-name" content="Aubery's Logic Integrated Circuit Emulator (ALICE)">
@@ -19,9 +21,15 @@
 		<p class="textDisplay" id="displayStatus"></p>
 		<p class="textDisplay" id="displayTool"></p>
 	</div>
+
 	<div id="simViewport" class="mainWindow">
 		<canvas id="simCanvas"></canvas>
 		<div id="simClickbox" onclick="window.sim.click()"></div>
+	</div>
+	<div id="icDesigner" class="mainWindow">
+		<table id="icTable">
+			<tr><th>Label</th><th>Dev. Name</th><th>Direction</th></tr>
+		</table>
 	</div>
 	<div id="noteArea" class="mainWindow">
 		<article id="noteText"></article>
@@ -29,6 +37,7 @@
 	<div id="noteEditor" class="mainWindow">
 		<textarea id="noteEditArea"></textarea>
 	</div>
+
 	<div id="contextMenuBackdrop" onclick="ContextMenu.hide()"></div>
 	<menu type="context" id="contextMenu"></menu>
 
@@ -59,6 +68,8 @@
 	<script type="text/javascript" src="./code/interface/explorer.js"></script>
 	<script type="text/javascript" src="./code/interface/contextmenu.js"></script>
 	<script type="text/javascript" src="./code/interface/toolbar.js"></script>
+	<script type="text/javascript" src="./code/interface/details.js"></script>
+	<script type="text/javascript" src="./code/interface/icdesigner.js"></script>
 	<script type="text/javascript" src="./code/interface/hierarchymanager.js"></script>
 	<script type="text/javascript" src="./code/interface/sim.js"></script>
 	<script type="text/javascript" src="./code/interface/hook.js"></script>

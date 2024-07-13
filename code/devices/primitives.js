@@ -1,6 +1,6 @@
 Devices.Primitives = {};
 
-Devices.Primitives.IntegratedCircuit = class extends Devices.Device {
+Devices.Primitives.IntegratedCircuit = class PullDown extends Devices.Device {
 
 	constructor(circuit, point, circuitName) {
 
@@ -13,7 +13,7 @@ Devices.Primitives.IntegratedCircuit = class extends Devices.Device {
 	static doNotIndex = true;
 };
 
-Devices.Primitives.PullUp = class extends Devices.Device {
+Devices.Primitives.PullUp = class PullUp extends Devices.Device {
 
 	constructor(circuit, point) {
 
@@ -177,3 +177,87 @@ Devices.Primitives.PullDown = class extends Devices.Device {
 	}
 
 };
+
+
+Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
+
+	constructor(circuit, point) {
+
+		const packageData = {
+			pins: [{"name":"io", "mode":"hi-z", "side":0, "offset":0, "label":"iopin"}],
+			body: {
+				"origin": {
+					x:1,
+					y:1
+				},
+				"dimensions": {
+					"width": 4,
+					"height": 2
+				},
+				"symbol": [],
+				"label": null
+			}
+		};
+
+		super(circuit, point, packageData);
+
+		this.swapSymbolData = {
+			"inside": 
+			[
+				{
+					"segmentData": [ 
+						{"point":[0,0.5]},
+						{"point":[3.5,0.5]},
+						{"point":[4,1]},
+						{"point":[3.5,1.5]},
+						{"point":[0,1.5]}
+					],
+					"closed": true
+				}
+			],
+			"outside": 
+			[
+				{
+					"segmentData": [ 
+						{"point":[4,0.5]},
+						{"point":[0.5,0.5]},
+						{"point":[0,1]},
+						{"point":[0.5,1.5]},
+						{"point":[4,1.5]}
+					],
+					"closed": true
+				}
+			]
+		}
+
+		this.options = {
+			"direction": {"type":"choice", "choices":["inside","outside"], "value":"inside"},
+			"label": {"type":"string", "value":this.name.replace("InOutPin", "io")}
+		}
+		this.direction = null;
+		this.directionSet(this.options.direction.value);
+		this.relabel();
+	}
+
+	relabel(text=this.options.label.value) {
+		this.labels.firstChild.content = text; 
+	}
+
+	reload() {
+		this.directionSet(this.options.direction.value);
+		this.relabel()
+	}
+
+	directionSet(mode) {
+
+		this.deleteBody();
+		var pd = Devices.defaultPackageData;
+		pd.body.symbol = mode=="inside"? this.swapSymbolData.inside :  this.swapSymbolData.outside;
+		var grid = window.sim.appearance.size.grid;
+		var o = this.position.add(new Point(grid*-1,grid*-1));
+		this.fillBodyCustom(this.children.body, pd, o, grid);
+	
+		this.mode("io", mode);
+	}
+
+}

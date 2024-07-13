@@ -135,6 +135,24 @@ var HierarchyManager = {
 				window.sim.circuits.lastChild.import(json);
 			});
 			
+		},
+
+		integrate: function(name, caller=null) {
+			var exi = Explorer.itemAdd("ic", name);
+			exi.click();
+			IcDesigner.createFrom(sim.circuitActiveGet());
+		}
+
+	},
+
+	ic: {
+
+		show: function(name, caller=null) {
+			HierarchyManager.windowActivate("icDesigner");
+		},
+
+		delete: function(name, caller=null) {
+
 		}
 
 	},
@@ -224,6 +242,31 @@ var HierarchyManager = {
 
 	},
 
+	paper: {
+
+		scopes: {},
+
+		create: function(name, targetCanvasId) {
+			console.log("asdf");
+			var canvas = document.getElementById(targetCanvasId);
+			if (!canvas)
+				return alert("drawing canvas not found!");
+			var ps = new paper.PaperScope();
+			ps.setup(canvas);
+			HierarchyManager.paper.scopes[name] = ps;
+			HierarchyManager.paper.use(name);
+		},
+
+		use: function(name) {
+			if (!HierarchyManager.paper.scopes[name])
+				return false;
+			//return HierarchyManager.paper.scopes[name].activate();
+			paper = HierarchyManager.paper.scopes[name];
+			project = HierarchyManager.paper.scopes[name].project;
+		}
+
+	},
+
 	windowActive: null,
 	
 	windowActivate(id=null) {
@@ -237,9 +280,12 @@ var HierarchyManager = {
 	},
 
 	onload: async function() {
+
 		HierarchyManager.circuit.create();
-		HierarchyManager.circuit.show(window.sim.circuits.firstChild.name,
-			document.getElementById("explorerCircuits").lastChild.firstChild);
-	}
+		HierarchyManager.circuit.showFirst();
+
+	},
+
+
 
 }

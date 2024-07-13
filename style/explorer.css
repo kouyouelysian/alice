@@ -1,6 +1,5 @@
-#explorer {
 
-  --sizing: 20px;
+#explorer {
   
   image-rendering: crisp-edges;
   -webkit-font-smoothing: antialiased;
@@ -12,7 +11,9 @@
   font-family: "Courier New";
 }
 
-
+#explorer * {
+  --sizing: 20px;
+}
 
 #explorer ul {
   overflow: hidden;
@@ -23,6 +24,10 @@
   list-style-type: disc;
   user-select: none;
   padding-left: var(--sizing);
+}
+
+#explorer > ul {
+  padding-left: 0;
 }
 
 #explorer li {
