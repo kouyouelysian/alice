@@ -49,11 +49,15 @@ Devices.Device = class Device extends Group {
 	}
 
 	get pins() {
-		return this.children.pins;
+		return this.children.pins.children;
 	}
 
 	get labels() {
-		return this.children.labels;
+		return this.children.labels.children;
+	}
+
+	get circuit() {
+		return this.parent.parent;
 	}
 
 	get fullClass() {
@@ -75,14 +79,14 @@ Devices.Device = class Device extends Group {
 	}	
 
 	remove() {
-		for (var pin of this.getPins())
+		for (var pin of this.pins)
 			pin.disconnect();
 		this.parent.freeIndex(this.name);
 		super.remove();
 	}
 	
 	place() {
-		for (var pin of this.getPins()) 
+		for (var pin of this.pins) 
 			pin.place();
 	}
 
@@ -90,21 +94,9 @@ Devices.Device = class Device extends Group {
 		// for devices with options - apply options here
 	}
 
-	getCircuit() {
-		return this.parent.parent;
-	}
-
-	getPins() {
-		return this.pins.children;
-	}
-
-	getPinByName(name) {
-		return this.pins.children[name];
-	}
-
 	createPackage(point, packageData, circuit) {
 
-		var gridSize = circuit.appearance.size.grid;
+		var gridSize = window.sim.appearance.size.grid;
 		var origin = new Point(
 			point.x - packageData.body.origin.x*gridSize, 
 			point.y - packageData.body.origin.y*gridSize
@@ -143,16 +135,12 @@ Devices.Device = class Device extends Group {
 				this.children.labels.addChild(pins.lastChild.getLabel());
 		}
 
-		this.pins.sendToBack();
+		this.children.pins.sendToBack();
 		this.children.labels.bringToFront();
 
-		this.body.setStrokeColor(circuit.appearance.color.devices);
-		this.body.setStrokeWidth(circuit.appearance.size.device);
-		this.body.setFillColor(circuit.appearance.color.fill);
-		
-
-		
-
+		this.body.setStrokeColor(window.sim.appearance.color.devices);
+		this.body.setStrokeWidth(window.sim.appearance.size.device);
+		this.body.setFillColor(window.sim.appearance.color.fill);
 	}
 
 	fillBodyDefault(body, packageData, origin, gridSize) {
@@ -201,32 +189,32 @@ Devices.Device = class Device extends Group {
 	}
 
 	mode(pinName, mode) {
-		this.pins.children[pinName].mode = mode;
+		this.pins[pinName].mode = mode;
 		if (mode != "output")
-			this.pins.children[pinName].set(undefined);
+			this.pins[pinName].set(undefined);
 		return;
 	}
 
 	label(pinName, label=null) {
-		return this.pins.children[pinName].label = label;
+		return this.pins[pinName].label = label;
 	}
 
 	setState(pinName, state) {
-		return this.pins.children[pinName].state = state;
+		return this.pins[pinName].state = state;
 	}
 
 	read(pinName) {
-		return this.pins.children[pinName].get();
+		return this.pins[pinName].get();
 	}
 
 	write(pinName, state) {
-		return this.pins.children[pinName].set(state);
+		return this.pins[pinName].set(state);
  	}
 
  	toggle(pinName) {
- 		if (this.pins.children[pinName].state == undefined)
+ 		if (this.pins[pinName].state == undefined)
  			return;
- 		this.pins.children[pinName].set(!this.pins.children[pinName].get());
+ 		this.pins[pinName].set(!this.pins[pinName].get());
  	}
 
  	act(actuator) { // fires when the item's actuator has been pressed
@@ -238,7 +226,7 @@ Devices.Device = class Device extends Group {
 	}
 
 	reset() {
-		for (var p of this.children["pins"].children)
+		for (var p of this.pins)
 				p.set(p.initial);
 	}
 

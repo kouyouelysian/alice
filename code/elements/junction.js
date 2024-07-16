@@ -14,8 +14,12 @@ class Junction extends Path {
 		this.radiusUpdate(point);
 	}
 
-	getNet() {
+	get net() {
 		return this.parent.parent;
+	}
+
+	get circuit() {
+		return this.net.circuit;
 	}
 
 	renet(newNet) {
@@ -33,7 +37,7 @@ class Junction extends Path {
 
 	radiusUpdate(notCount=null, point = this.position) {
 
-		var radius = this.getNet().getCircuit().appearance.size.junction.normal;
+		var radius = window.sim.appearance.size.junction.normal;
 
 		var wiresAtJunction = point.findEditable({type:"wire", all:true, exclude:notCount});
 		
@@ -47,7 +51,7 @@ class Junction extends Path {
 			this.remove(true); // if ran out of wires at this junction - remove self
 
 		if (count >= 3)
-			var radius = this.getNet().getCircuit().appearance.size.junction.big;
+			var radius = window.sim.appearance.size.junction.big;
 
 		function __segmentsGenerate(p,r) {
 			var helperCircle = Path.Circle(p, r);

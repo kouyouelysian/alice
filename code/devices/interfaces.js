@@ -78,7 +78,7 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 		var pinData = {"name":`o${number}`, "mode":"out", "side":0, "offset":number*step};
 		var bodyDimensions = {"width":1,"height":-1+step*number};
 		var pin = this.children.pins.addChild(
-			new Pin(this.getCircuit(), pinData, bodyDimensions, new Point(origin.x, origin.y-grid))
+			new Pin(this.circuit, pinData, bodyDimensions, new Point(origin.x, origin.y-grid))
 			);
 		this.write(`o${number}`, false);
 
@@ -167,7 +167,7 @@ Devices.Interfaces.Light = class Light extends Devices.Device {
 	createLight(point) {
 
 		var light = new Path.Circle(point, window.sim.appearance.size.grid * 0.45);
-		light.fillColor = this.getCircuit().appearance.color.undefined;
+		light.fillColor = window.sim.appearance.color.undefined;
 		light.name = "light";
 		light.data.type = "body";
 		this.addChild(light);
@@ -225,18 +225,18 @@ Devices.Interfaces.SevenSegment = class EightSegment extends Devices.Device {
 
 	createDigit(point, packageData) {
 		var digitOffset = new Point(
-			this.getCircuit().appearance.size.grid,
-			this.getCircuit().appearance.size.grid*2.5
+			window.sim.appearance.size.grid,
+			window.sim.appearance.size.grid*2.5
 			);
 		var digit = new PointText(point.add(digitOffset));
-		digit.fontSize = this.getCircuit().appearance.size.grid * 3;
+		digit.fontSize = window.sim.appearance.size.grid * 3;
 		digit.justification = 'center';
 		digit.content = '0';
 		digit.leading = 0;
 		digit.name = "digit";
 		this.addChild(digit);
-		digit.fillColor = this.getCircuit().appearance.color.highlighted;
-		digit.strokeColor = this.getCircuit().appearance.color.highlighted;
+		digit.fillColor = window.sim.appearance.color.highlighted;
+		digit.strokeColor = window.sim.appearance.color.highlighted;
 	}
 
 	update() {	

@@ -14,13 +14,15 @@ class Pin extends Path {
 			 
 		var start = new Point(origin.x+pinx*sizing, origin.y+piny*sizing);
 		var end = start.add(new Point(hor*sizing, vert*sizing));
+
 		super();
 		this.add(start);
 		this.add(end);
-		this.setStrokeColor(circuit.appearance.color.undefined);
-		this.setStrokeWidth(circuit.appearance.size.wire);
+		this.setStrokeColor(window.sim.appearance.color.undefined);
+		this.setStrokeWidth(window.sim.appearance.size.wire);
 		this.circuit = circuit;
 		this.net = null;
+		this.side = pinData.side;
 		this.data.type = "pin";
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
@@ -28,16 +30,14 @@ class Pin extends Path {
 		this.initial = undefined;
 	}
 
-	getNet() {
-		return this.net;
-	}
-
-	getCircuit() {
-		return this.getNet().getCircuit();
-	}
-
-	getDevice() {
+	get device() {
 		return this.parent.parent; // pin>pins>device
+	}
+
+	static sideDict = ["right", "top", "left", "bottom"];
+
+	get sideName() {
+		return Pin.sideDict[this.side];
 	}
 
 	set(state, color=null) {
@@ -59,11 +59,11 @@ class Pin extends Path {
 
 	colorByState(state) {
 		if (state === true)
-			return this.circuit.appearance.color.true;
+			return window.sim.appearance.color.true;
 		else if (state === false)
-			return this.circuit.appearance.color.false;
+			return window.sim.appearance.color.false;
 		else
-			return this.circuit.appearance.color.undefined;
+			return window.sim.appearance.color.undefined;
 	}
 
 	connect(net) {
@@ -96,12 +96,12 @@ class Pin extends Path {
 
 		if (junc)
 		{
-			this.connect(junc.getNet());
+			this.connect(junc.net);
 			junc.radiusUpdate();
 		}
 		else if (wire)
 		{
-			this.connect(wire.getNet());
+			this.connect(wire.net);
 			wire.splitAt(end);
 		}
 	}

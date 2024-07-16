@@ -6,7 +6,7 @@ Devices.Timing.Clock = class Clock extends Devices.Device {
 		super(circuit, point);
 		this.write('o', false);
 		this.counter = 0;
-		this.period = 10 * this.getCircuit().ticksPerFrame;
+		this.period = 10 * this.circuit.ticksPerFrame;
 
 	}
 

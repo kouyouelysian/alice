@@ -6,8 +6,8 @@ class Wire extends Path {
 		this.data.type = "wire";	
 		this.netElement = true;
 		this.circuit = circuit;
-		this.strokeColor = circuit.appearance.color.undefined;
-		this.strokeWidth = circuit.appearance.size.wire;
+		this.strokeColor = window.sim.appearance.color.undefined;
+		this.strokeWidth = window.sim.appearance.size.wire;
 
 		if (fromGui)
 		{
@@ -17,7 +17,7 @@ class Wire extends Path {
 		}
 	}
 
-	getNet() {
+	get net() {
 		return this.parent.parent;
 	}
 
@@ -42,25 +42,25 @@ class Wire extends Path {
 		if (bare) // for inner functinos like merge; omits all the merging hussle
 			return super.remove();
 		// if this was the last wire - remove the entire net
-		if (this.getNet().children["wires"].children.length == 1)
-			this.getNet().remove();
+		if (this.net.children["wires"].children.length == 1)
+			this.net.remove();
 		// update the device pins
 		
 		for (const point of [this.firstSegment.point, this.lastSegment.point])
 		{
 			this.pinConnectionCheck(point);
-			var junc = point.findEditable({type:"junction", net:this.getNet()});
+			var junc = point.findEditable({type:"junction", net:this.net});
 			if (junc) // junc can be null if the wire is being drawn and got cancelled
 				junc.radiusUpdate(this);
 		}
 		// absolutely distaesteful bunch of vars because i actually have to use them after i nuke the segments
 		var start  = this.firstSegment.point;
 		var finish = this.lastSegment.point;
-		var wiresAtStart = start.findEditable({type:"wire", net:this.getNet(), exclude:this, all:true});
-		var wiresAtFinish = finish.findEditable({type:"wire", net:this.getNet(), exclude:this, all:true});
+		var wiresAtStart = start.findEditable({type:"wire", net:this.net, exclude:this, all:true});
+		var wiresAtFinish = finish.findEditable({type:"wire", net:this.net, exclude:this, all:true});
 		// fi both sides had other wires, this checks if the net is still contiguous. splits off a new one if not
 		if (wiresAtStart && wiresAtFinish)
-			this.getNet().wireRemovalScan(this); 
+			this.net.wireRemovalScan(this); 
 		// will attempt merging other wires at this wire's start/finish if there were two and they were parallel
 		this.segments = []; // this is done so that the other wires don't attempt merging with this one
 		if (wiresAtStart) 
@@ -88,16 +88,16 @@ class Wire extends Path {
 	place(point) {
 		var otherWire = point.findEditable({type:"wire", exclude:this}); 
 		// if at nowhere - make junction. otherwise contact other wire, junctions handled further
-		otherWire? this.contact(otherWire, point) : new Junction(point, this.getNet());
+		otherWire? this.contact(otherWire, point) : new Junction(point, this.net);
 		this.pinConnect(point); // will connect a pin at that point if there's any
 	}
 
 	contact(otherWire, point, parallelOnly=true) {
 		// merge the nets of the two wires
-		if (this.getNet() != otherWire.getNet())
-			otherWire.getNet().mergeWith(this.getNet());		
+		if (this.net != otherWire.net)
+			otherWire.net.mergeWith(this.net);		
 
-		var junc = point.findEditable({type:"junction", net:otherWire.getNet()});
+		var junc = point.findEditable({type:"junction", net:otherWire.net});
 		junc? junc.radiusUpdate() : otherWire.splitAt(point);
 
 	}
@@ -125,28 +125,28 @@ class Wire extends Path {
 	splitAt(splitpoint) {
 		// make new wire from midpoint to finish
 		var newWire = new Wire(splitpoint, this.circuit, false);
-		newWire.renet(this.getNet());
+		newWire.renet(this.net);
 		newWire.add(splitpoint);
 		newWire.add(this.lastSegment.point);
 		// make this wire from start to midpoint
 		this.lastSegment.remove();
 		this.add(splitpoint);
 		// create a junction because we just split
-		new Junction(splitpoint, this.getNet())
+		new Junction(splitpoint, this.net)
 	}
 
 	pinConnect(point) {
 		var pin = point.findEditable({type:"pin"});
 		if (!pin)
 			return;
-		pin.connect(this.getNet());
+		pin.connect(this.net);
 	}
 
 	pinConnectionCheck(point) {
 		var pin = point.findEditable({type:"pin"});
 		if (!pin) // can't disconnect a pin that does not exist
 			return;
-		var wires = point.findEditable({type:"wire", net:this.getNet()});
+		var wires = point.findEditable({type:"wire", net:this.net});
 		if (wires) // no need to disconnect a pin if it has wires from the same net
 			return; 
 		pin.disconnect();

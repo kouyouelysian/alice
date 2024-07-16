@@ -54,8 +54,12 @@ class Sim {
 		return this.circuits.children[this.activeCircuitIndex];
 	}
 
-	circuitActiveGet() {
+	get circuitActive() {
 		return this.circuits.children[this.activeCircuitIndex];
+	}
+
+	set circuitActive(name) {
+		this.activeCircuitIndex = this.circuits.children[name].index;
 	}
 
 	circuitActiveSet(name) {
@@ -65,7 +69,7 @@ class Sim {
 	circuitMakeVisible(name) {
 		for (var c of this.circuits.children)
 			c.name == name? c.visible = true : c.visible = false;
-		this.circuitActiveSet(name);
+		this.circuitActive = name;
 	}
 
 	_pickTool(opts={/* key, name */}) {
@@ -131,8 +135,9 @@ class Sim {
 		if (!editable) // if we clicked a button of some kind on some device
 			return;
 		if (editable.data.isActuator)
-			editable.data.device.act(editable);
+			return editable.data.device.act(editable);
 		Details.show(editable);
+
 	}
 	_actionStart(point) {
 
@@ -151,8 +156,8 @@ class Sim {
 				var editable = point.findEditable();
 				if (!editable)
 					return;
-				editable.getNet().highlight();
-				return this.circuit.netHighlighted = editable.getNet();
+				editable.net.highlight();
+				return this.circuit.netHighlighted = editable.net;
 		}
 
 		// if not - check if this is a device that exists
@@ -218,9 +223,9 @@ class Sim {
 		switch (this.selection.data.type)
 		{
 			case "junction":
-				item.fillColor = item.getNet().color;
+				item.fillColor = item.net.color;
 			case "wire":
-				item.strokeColor = item.getNet().color;
+				item.strokeColor = item.net.color;
 				return;
 			case "pin":
 				return item.autoColor();
@@ -263,7 +268,7 @@ class Sim {
 		{
 			this.updateInterval = window.setInterval(function() 
 			{
-				window.sim.circuitActiveGet().frame();
+				window.sim.circuitActive.frame();
 			}, this.frameRate);
 		}
 		Details.setReadOnly(true);

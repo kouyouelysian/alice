@@ -72,10 +72,10 @@ Devices.Primitives.PullUp = class PullUp extends Devices.Device {
 		
 		this.mode("leg", "hi-z");
 
-		if (!this.getPinByName("leg").net)
+		if (!this.pins["leg"].net)
 			return;
 
-		for (var p of this.getPinByName("leg").net.connections)
+		for (var p of this.pins["leg"].net.connections)
 		{
 			if (p.mode == "out") {
 				if (p.name == "leg" && p.parent != this)
@@ -152,10 +152,10 @@ Devices.Primitives.PullDown = class extends Devices.Device {
 		
 		this.mode("leg", "hi-z");
 
-		if (!this.getPinByName("leg").net)
+		if (!this.pins["leg"].net)
 			return;
 
-		for (var p of this.getPinByName("leg").net.connections)
+		for (var p of this.pins["leg"].net.connections)
 		{
 			if (p.mode == "out") {
 				if (p.name == "leg" && p.parent != this)
@@ -201,37 +201,34 @@ Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
 
 		super(circuit, point, packageData);
 
-		this.swapSymbolData = {
-			"inside": 
-			[
-				{
-					"segmentData": [ 
-						{"point":[0,0.5]},
-						{"point":[3.5,0.5]},
-						{"point":[4,1]},
-						{"point":[3.5,1.5]},
-						{"point":[0,1.5]}
-					],
-					"closed": true
-				}
-			],
-			"outside": 
-			[
-				{
-					"segmentData": [ 
-						{"point":[4,0.5]},
-						{"point":[0.5,0.5]},
-						{"point":[0,1]},
-						{"point":[0.5,1.5]},
-						{"point":[4,1.5]}
-					],
-					"closed": true
-				}
-			]
-		}
+		this.nameInput = "inbound";
+		this.nameOutput = "outbound";
 
+		this.swapSymbolData = {};
+		this.swapSymbolData[this.nameInput] = [{
+			"segmentData": [ 
+				{"point":[0,0.5]},
+				{"point":[3.5,0.5]},
+				{"point":[4,1]},
+				{"point":[3.5,1.5]},
+				{"point":[0,1.5]}
+			],
+			"closed": true
+		}];
+
+		this.swapSymbolData[this.nameOutput] = [{
+			"segmentData": [ 
+				{"point":[4,0.5]},
+				{"point":[0.5,0.5]},
+				{"point":[0,1]},
+				{"point":[0.5,1.5]},
+				{"point":[4,1.5]}
+			],
+			"closed": true
+		}];
+			
 		this.options = {
-			"direction": {"type":"choice", "choices":["inside","outside"], "value":"inside"},
+			"direction": {"type":"choice", "choices":[this.nameInput,this.nameOutput], "value":this.nameInput},
 			"label": {"type":"string", "value":this.name.replace("InOutPin", "io")}
 		}
 		this.direction = null;
@@ -240,7 +237,7 @@ Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
 	}
 
 	relabel(text=this.options.label.value) {
-		this.labels.firstChild.content = text; 
+		this.labels[0].content = text; 
 	}
 
 	reload() {
@@ -252,7 +249,7 @@ Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
 
 		this.deleteBody();
 		var pd = Devices.defaultPackageData;
-		pd.body.symbol = mode=="inside"? this.swapSymbolData.inside :  this.swapSymbolData.outside;
+		pd.body.symbol = mode==this.nameInput? this.swapSymbolData[this.nameInput] :  this.swapSymbolData[this.nameOutput];
 		var grid = window.sim.appearance.size.grid;
 		var o = this.position.add(new Point(grid*-1,grid*-1));
 		this.fillBodyCustom(this.children.body, pd, o, grid);

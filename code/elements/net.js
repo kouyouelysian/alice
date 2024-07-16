@@ -8,8 +8,8 @@ class Net extends Group {
 		circuit.children.nets.addChild(this);
 		this.data.type = "net";
 
-		this.color = circuit.appearance.color.undefined;
-		this.width = circuit.appearance.size.wire;	
+		this.color = window.sim.appearance.color.undefined;
+		this.width = window.sim.appearance.size.wire;	
 
 		this.state = undefined;
 
@@ -25,6 +25,10 @@ class Net extends Group {
 
 		this.data.draggedWire = null;
 
+	}
+
+	get circuit() {
+		return this.parent.parent;
 	}
 
 	export() {
@@ -55,7 +59,7 @@ class Net extends Group {
 				if (stateUpdated)
 				{
 					debugCircle(pin.lastSegment.point);
-					this.recolor(this.parent.parent.appearance.color.highlighted);
+					this.recolor(window.sim.appearance.color.highlighted);
 					return window.sim.throwError("short circuit!");
 				}
 				stateUpdated = true;
@@ -91,10 +95,6 @@ class Net extends Group {
 	setState(state) {
 		this.state = state;
 		this.colorByState(state);
-	}
-
-	getCircuit() {
-		return this.parent.parent;
 	}
 
 	wireRemovalScan(wire) {
@@ -136,18 +136,18 @@ class Net extends Group {
 
 	colorByState(state) {
 		if (state === true)
-			this.recolor(this.getCircuit().appearance.color.true);
+			this.recolor(window.sim.appearance.color.true);
 		else if (state === false)
-			this.recolor(this.getCircuit().appearance.color.false);
+			this.recolor(window.sim.appearance.color.false);
 		else
-			this.recolor(this.getCircuit().appearance.color.undefined);
+			this.recolor(window.sim.appearance.color.undefined);
 	}
 
 	highlight() {
-		this.recolor(this.getCircuit().appearance.color.highlighted);
+		this.recolor(window.sim.appearance.color.highlighted);
 	}
 
 	unhighlight() {
-		this.recolor(this.getCircuit().appearance.color.undefined);
+		this.recolor(window.sim.appearance.color.undefined);
 	}
 }

@@ -18,9 +18,6 @@ class Circuit extends Group {
 		this.addChild(nets);	
 		this.addChild(devices);
 		
-		// style definitions
-		this.appearance = VisualSchemes.default;
-
 		// logic 
 		this.status = "idle";
 		this.tool = "pointer";

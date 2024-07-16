@@ -114,7 +114,7 @@ var HierarchyManager = {
 		},
 
 		download: function(name) {
-			var jsonText = JSON.stringify(window.sim.circuitActiveGet().export(), null, 4);
+			var jsonText = JSON.stringify(window.sim.circuitActive.export(), null, 4);
 			HierarchyManager.textdoc.download(jsonText, `${window.sim.meta.name}-${name}`, "acirc");
 		},
 
@@ -138,9 +138,11 @@ var HierarchyManager = {
 		},
 
 		integrate: function(name, caller=null) {
+			if (!IcDesigner.isEligible(sim.circuitActive))
+				return false;
 			var exi = Explorer.itemAdd("ic", name);
 			exi.click();
-			IcDesigner.createFrom(sim.circuitActiveGet());
+			IcDesigner.createFrom(sim.circuitActive);
 		}
 
 	},
@@ -285,7 +287,5 @@ var HierarchyManager = {
 		HierarchyManager.circuit.showFirst();
 
 	},
-
-
 
 }

@@ -30,7 +30,7 @@ function patchPaperPoint() {
 				return false;
 			if (options.type && hit.item.data.type != options.type)
 				return false;
-			if (options.net && hit.item.getNet() != options.net)
+			if (options.net && hit.item.net != options.net)
 				return false;
 			if (options.exclude && hit.item == options.exclude)
 				return false;				

@@ -5,32 +5,49 @@ var IcDesigner = {
 	},
 
 	createFrom: function(circuit) {
-		var inOutPins = circuit.getDevicesByClass("Primitives.InOutPin");
-		if (inOutPins.length == 0)
-			return alert("no in/out labels!");
+	
 		for (var iop of inOutPins)
 			IcDesigner.targets.table.appendChild(IcDesigner.createTableRow(iop));
 
 	},
 
+	isEligible(circuit) {
+		var inOutPins = circuit.getDevicesByClass("Primitives.InOutPin");
+		if (inOutPins.length == 0)
+			window.sim.throwError("not a single in/out label found!");
+			return false;
+
+	},
+
 	createTableRow(inOutPin) {
-
 		var tr = document.createElement("tr");
-
-		var tdLabel = document.createElement("td");
-		var tdName = document.createElement("td");
-		var tdDirection = document.createElement("td");
-		var tdSelect = document.createElement("td");
-		tdLabel.innerHTML = inOutPin.options.label.value;
-		tdName.innerHTML = inOutPin.name;
-		tdDirection.innerHTML = inOutPin.options.direction.value;
-		tdSelect.innerHTML = `<input type='button' value='manage' onclick='IcDesigner.editPin("${inOutPin.name}")'>`;
-		tr.appendChild(tdLabel);
-		tr.appendChild(tdName);
-		tr.appendChild(tdDirection);
-		tr.appendChild(tdSelect);
-
+		IcDesigner.createTableCell(tr, inOutPin.name);
+		IcDesigner.createTableCell(tr, inOutPin.options.label.value);
+		IcDesigner.createTableCell(tr, inOutPin.options.direction.value);
+		var side = IcDesigner.createTableCell(tr, "");
+		IcDesigner.createSelect(side, [["left",0],["top",1],["right",2],["bottom",3]]);
 		return tr;
+	},
+
+	createTableCell(parentRow, cellContents, bareText = true)
+	{
+		var td = document.createElement("td");
+		bareText? td.innerHTML = cellContents : td.appendChild(cellContents);
+		parentRow.appendChild(td);
+		return td;
+	},
+
+	createSelect(parentCell, options=[/*["name", "value"], ...*/])
+	{
+		var sel = document.createElement("select");
+		for (var o of options)
+		{
+			var opt = document.createElement("option");
+			opt.innerHTML = o[0];
+			opt.value = o[1];
+			sel.appendChild(opt);
+		}
+		parentCell.appendChild(sel);
 	},
 
 	editPin: function(name) {
