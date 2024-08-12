@@ -10,8 +10,9 @@
 	<link rel="stylesheet" type="text/css" href="./style/contextmenu.css">
 	<link rel="stylesheet" type="text/css" href="./style/article.css">
 	<meta name="application-name" content="Aubery's Logic Integrated Circuit Emulator (ALICE)">
+	<link rel="icon" type="image/x-icon" href="./favicon.ico">
 </head>
-<body oncontextmenu="ContextMenu.show(event)">
+<body oncontextmenu="window.sim.rclick(event)">
 
 	<!-- html page base structure -->
 	<div id="explorer"></div>
@@ -24,7 +25,7 @@
 
 	<div id="simViewport" class="mainWindow">
 		<canvas id="simCanvas"></canvas>
-		<div id="simClickbox" onclick="window.sim.click()"></div>
+		<div id="simClickbox" onclick="window.sim.click(event)"></div>
 	</div>
 	<div id="icDesigner" class="mainWindow">
 		<table id="icTable">

@@ -307,7 +307,7 @@ class Sim {
 			return;
 		// prevent highlighting the device we picked
 		if (this.status == "device" && hit.item == this.devicePicked.children.body)
-			return;
+			return this.devicePicked.position = quantized;
 		// prevent rehighlighting the selection we already have
 		if (hit.item == this.selection)
 			return;
@@ -317,7 +317,7 @@ class Sim {
 		
 	}
 
-	click() {
+	click(event) {
 		const p = new Point(event.offsetX, event.offsetY);
 		p.quantize(this.appearance.size.grid);
 		if (this.status == "running")
@@ -325,6 +325,14 @@ class Sim {
 		if (this.status == "idle")
 			return this._actionStart(p);
 		return this._actionFinish(p);
+	}
+
+	rclick(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		if (this.status == "adding device")
+			return this.editedElement.reorient();
+		ContextMenu.show(event);
 	}
 
 	key(key) {

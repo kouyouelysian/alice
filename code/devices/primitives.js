@@ -22,41 +22,41 @@ Devices.Primitives.PullUp = class PullUp extends Devices.Device {
 			body: {
 				"origin": {
 					x:1,
-					y:1
+					y:2
 				},
 				"dimensions": {
 					"width": 2,
-					"height": 2
+					"height": 3
 				},
 				"symbol": [
 					{
 						"segmentData": [ 
-							{"point":[0.6,0]},
-							{"point":[1.4,0]},
-							{"point":[1.4,2]},
-							{"point":[0.6,2]}
+							{"point":[0.6,1]},
+							{"point":[1.4,1]},
+							{"point":[1.4,3]},
+							{"point":[0.6,3]}
 						],
 						"closed": true
 					},
 					{
 						"segmentData": [ 
 							
+							{"point":[1,1]},
 							{"point":[1,0]},
-							{"point":[1,-1]},
 						]
 					},
 					{
 						"segmentData": [ 
 							
-							{"point":[1,-1]},
-							{"point":[1.3,-0.4]}
+							{"point":[1,0]},
+							{"point":[1.3,0.6]}
 						]
 					},
 					{
 						"segmentData": [ 
 							
-							{"point":[1,-1]},
-							{"point":[0.7,-0.4]}
+							{"point":[1,0]},
+							{"point":[0.7,0.6]}
 						]
 					}
 
@@ -111,7 +111,7 @@ Devices.Primitives.PullDown = class extends Devices.Device {
 				},
 				"dimensions": {
 					"width": 2,
-					"height": 2
+					"height": 3
 				},
 				"symbol": [
 					{

@@ -25,24 +25,58 @@ var Devices = {
 
 Devices.Device = class Device extends Group {
 
-	constructor(circuit, point, packageData=Devices.defaultPackageData) {
+	static packageData = Devices.defaultPackageData;
 
+	constructor(circuit, point) {
 		super();
-
-		this.position = point;		
 		this.name = window.sim.circuit.rollByPrefix("name", (this.constructor.name || "dev"));
 		circuit.children.devices.addChild(this);
 		this.data.type = "device"; 
 		this.options = {
 			/* option": {"type":"int", "value":"1"} */
 		};
-		this.pivot = this.bounds.topLeft;
-		this.createPackage(point, packageData, circuit);
+
+		this.position = point;
+		this.orientation = 0; // direction. "rotation" is taken by paperjs
+		this.createChildren();
+		console.log(this, this.children);
+		this.createPackage(point, circuit);
 	}	
+
+	createChildren() {
+		var body = new CompoundPath();
+		body.name = "body";
+		body.data.type = "body";
+		this.addChild(body);
+
+		var pins = new Group();
+		pins.name = "pins";
+		this.addChild(pins);
+
+		const bulbs = new Group();
+		bulbs.name = "bulbs";
+		bulbs.data.type = "body";
+		this.addChild(bulbs);
+
+		const labels = new Group();
+		labels.name = "labels";
+		this.addChild(labels);
+
+		
+		body.sendToBack();
+		pins.sendToBack();
+		bulbs.bringToFront();
+		labels.bringToFront();
+	}
 
 	static doNotIndex = false;
 
 	static category = {"name":null, "object":null};
+
+	get packageData() {
+		console.log(this.fullClass);
+		return eval(`Devices.${this.fullClass}.packageData`);
+	}
 
 	get body() {
 		return this.children.body;
@@ -94,79 +128,68 @@ Devices.Device = class Device extends Group {
 		// for devices with options - apply options here
 	}
 
-	createPackage(point, packageData, circuit) {
+	createPackage(point, circuit, rotation=0) {
 
 		var gridSize = window.sim.appearance.size.grid;
+
 		var origin = new Point(
-			point.x - packageData.body.origin.x*gridSize, 
-			point.y - packageData.body.origin.y*gridSize
+			point.x - this.packageData.body.origin.x*gridSize, 
+			point.y - this.packageData.body.origin.y*gridSize
 		);
-
-		var body = new CompoundPath();
-		body.position = origin;
-		if (!packageData.body.symbol) // if package has no symbol information - draw a rectangle
-			this.fillBodyDefault(body, packageData, origin, gridSize);
+		
+		if (!this.packageData.body.symbol) // if package has no symbol information - draw a rectangle
+			this.fillBodyDefault(this.body, origin, gridSize, rotation);
 		else // else we have custom package information, then process it
-			this.fillBodyCustom(body, packageData, origin, gridSize);
-		body.name = "body";
-		body.data.type = "body";
-		this.addChild(body);
+			this.fillBodyCustom(this.body, origin, gridSize,rotation);
+		
+		const bodyDimensions = this.packageData.body.dimensions;
 
-		const pins = new Group();
-		pins.name = "pins";
-		this.addChild(pins);
-
-		const labels = new Group();
-		labels.name = "labels";
-		this.addChild(labels);
-
-		const bodyDimensions = packageData.body.dimensions;
-		for (const pinData of packageData.pins)
+		for (const pinData of this.packageData.pins)
 		{
-			pins.addChild(new Pin(circuit, pinData, bodyDimensions, origin, gridSize));
+			pinData.side = (pinData.side + rotation) % 4;
+			this.children.pins.addChild(new Pin(circuit, pinData, bodyDimensions, origin, gridSize));
 			this.lastChild
 			if (pinData.bulb)
 			{
-				var bulb = pins.lastChild.getInversionBulb();
+				var bulb = this.children.pins.lastChild.getInversionBulb();
 				this.body.addChild(bulb);
 				bulb.bringToFront();
 			}
 			if (pinData.label)
-				this.children.labels.addChild(pins.lastChild.getLabel());
+				this.children.labels.addChild(this.children.pins.lastChild.getLabel());
 		}
 
-		this.children.pins.sendToBack();
-		this.children.labels.bringToFront();
 
 		this.body.setStrokeColor(window.sim.appearance.color.devices);
 		this.body.setStrokeWidth(window.sim.appearance.size.device);
 		this.body.setFillColor(window.sim.appearance.color.fill);
 	}
 
-	fillBodyDefault(body, packageData, origin, gridSize) {
+
+	fillBodyDefault(body, origin, gridSize, rotation) {
 		var outline = new Path.Rectangle(
 			origin.x,
 			origin.y,
-			packageData.body.dimensions.width*gridSize,
-			packageData.body.dimensions.height*gridSize
+			this.packageData.body.dimensions.width*gridSize,
+			this.packageData.body.dimensions.height*gridSize
 			);
 		outline.data.type = "bodyPart";
 		body.addChild(outline);
 	}
 
-	fillBodyCustom(body, packageData, origin, gridSize) {
-		
-		for (var pieceData of packageData.body.symbol)
+	fillBodyCustom(body, origin, gridSize, rotation) {
+		console.log("asdf", origin);
+		for (var pieceData of this.packageData.body.symbol)
 		{
 			var piece = new Path();
 			for (var segment of pieceData.segmentData)
 			{
-				var point = origin.add(this.pointFromPackageNotation(segment.point, gridSize));
-				piece.add(point);
+				var point = this.pointFromPackageNotation(segment.point, gridSize, rotation);
+				piece.add(origin.add(point));
 				if (segment.handles)
 				{
-					piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in, gridSize);
-					piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out, gridSize);
+					piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in, gridSize, rotation, point);
+					piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out, gridSize, rotation, point);
 				}
 			}
 			if (pieceData.closed)
@@ -180,12 +203,26 @@ Devices.Device = class Device extends Group {
 		}
 	}
 
+	deletePackage() {
+		this.deleteBody();
+		this.deletePins();
+	}
+
+	deletePins() {
+		this.children.pins.removeChildren();
+		this.children.pins.remove();	
+	}
+
 	deleteBody() {
 		this.children.body.removeChildren();
 	}
 
-	pointFromPackageNotation(pdn, gridSize) {
-		return new Point(pdn[0], pdn[1]).multiply(gridSize);
+	pointFromPackageNotation(pdn, gridSize, rotation, rotationOrigin=new Point(0,0)) {
+		var p = new Point(pdn[0], pdn[1]).multiply(gridSize);
+		if (rotation !== null)
+			p = p.rotate(rotation*-90, rotationOrigin);
+		return p;
+
 	}
 
 	mode(pinName, mode) {
@@ -232,6 +269,10 @@ Devices.Device = class Device extends Group {
 
 	recolor(color) {
 		this.strokeColor = color;
+	}
+
+	reorient(orientation = (this.orientation+1)%4) {
+		this.orientation = orientation;
 	}
 
 

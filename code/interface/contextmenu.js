@@ -86,8 +86,6 @@ var ContextMenu = {
 	}, 
 	
 	show: function(event, preset="default") {
-		event.preventDefault();
-		event.stopPropagation();
 		ContextMenu.optionsFill(preset);
 		ContextMenu.caller = event.target || event.srcElement;
 		ContextMenu.target.style.display = "block";
