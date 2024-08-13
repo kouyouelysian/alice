@@ -26,27 +26,32 @@ var Details = {
 			Details.guiGenerator.hr();
 			for (var optName in device.options)
 				Details.guiGenerator.option(optName, device.options[optName]);
+			Details.guiGenerator.button("apply", "Details.device.save()");
 			Details.guiGenerator.hr();
-			Details.guiGenerator.apply("Details.device.save()");
+			for (var action of Devices.defaultActions)
+			{
+				var onclick = `window.sim.circuit.devices["${device.name}"].${action.method}()`;
+				Details.guiGenerator.button(action.name, onclick, true);
+			}
 		},
 
 		writeOption: function(device, input) {
 		var value = input.value;
 		switch (input.getAttribute("type"))
-		{
-			case "number":
-				value = parseInt(value);
-				break;
-			case "select":
-			case "text":
-				break;
+			{
+				case "number":
+					value = parseInt(value);
+					break;
+				case "select":
+				case "text":
+					break;
 
-			case "button":
-				return;
-		}
+				case "button":
+					return;
+			}
 		var oname = input.id.replace(Details.inputIdPrefix, "");
 		device.options[oname].value = value;
-	},
+		},
 
 		save: function(device) {
 			var dname = document.getElementById("detailsTitle").innerHTML;
@@ -82,7 +87,7 @@ var Details = {
 			Details.guiGenerator.hr();
 			Details.target.innerHTML += `<p><b>On net:</b> ${pin.net? pin.net.name : "none"}</p>`;
 			Details.guiGenerator.hr();
-			Details.guiGenerator.apply("Details.pin.save()");
+			Details.guiGenerator.button("save", "Details.pin.save()");
 		},
 
 		save: function() {
@@ -93,10 +98,12 @@ var Details = {
 
 	guiGenerator: {
 
-		apply: function(action) {
+		button: function(text, action, half=false) {
 			var apply = document.createElement("input");
 			apply.setAttribute("type", "button");
-			apply.value = "apply";
+			if (half)
+				apply.classList.add("half");
+			apply.value = text;
 			Details.setInputAvailability(apply);
 			apply.setAttribute("onclick", action);
 			Details.target.appendChild(apply);

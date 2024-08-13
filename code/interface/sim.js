@@ -134,7 +134,7 @@ class Sim {
 		var editable = point.findEditable(); 
 		if (!editable) // if we clicked a button of some kind on some device
 			return;
-		if (editable.data.isActuator)
+		if (editable.data.type == "actuator")
 			return editable.data.device.act(editable);
 		Details.show(editable);
 
@@ -200,7 +200,6 @@ class Sim {
 	}
 
 	_selectionMake(item) {
-
 		switch (item.data.type)
 		{
 			case "junction":
@@ -210,10 +209,13 @@ class Sim {
 				break;
 			case "body":
 			case "bodyPart":
+			case "actuator":
 				var p;
 				item.data.type=="body"? p=item.parent : p=item.parent.parent;
 				p.recolor(this.appearance.color.selected);
 				return p;
+			default:
+				return item;
 		}
 		return item;	
 	}

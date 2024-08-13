@@ -1,6 +1,6 @@
 class Pin extends Path {
 
-	constructor(circuit, pinData /*name, mode, side, offset, bulb*/, device) {
+	constructor(circuit, pinData /*name, mode, side, offset, bulb, initial*/, device) {
 
 		super();
 		
@@ -14,13 +14,14 @@ class Pin extends Path {
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
 		this.state = undefined;
-		this.initial = undefined;
+		this.initial = pinData.initial; // undefined OK
+		if (this.initial !== undefined)
+			this.set(this.initial);
 
 		var packageDimensions = JSON.parse(JSON.stringify(device.packageData.body.dimensions));
 		if (device.orientation % 2 != 0)
 			[packageDimensions.width, packageDimensions.height] = [packageDimensions.height, packageDimensions.width];
 
-		console.log(pinData.side, device.orientation, this.side);
 		// mathematical shenanigans to find the position of the pin
 		const hor = ((this.side+1)%2) * ((this.side>0)*-2+1);
 		const vert  =(this.side%2) * ((this.side>1)*2-1);
@@ -51,11 +52,13 @@ class Pin extends Path {
 
 	set(state, color=null) {
 		if (state == this.state)
-			return;
+			return state;
 		this.state = state;
 		if (color) // for fast recoloring on update
-			return this.strokeColor = color; 
-		this.autoColor();
+			this.strokeColor = color; 
+		else
+			this.autoColor();
+		return state;
 	}
 
 	autoColor() {

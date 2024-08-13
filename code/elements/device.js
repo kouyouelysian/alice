@@ -2,7 +2,6 @@ var Devices = {
 
 	defaultPackageData: {
 		"pins": [
-			{"name":"o", "mode":"out", "side":0, "offset":0}
 		],
 		"body": {
 			"origin": {
@@ -17,6 +16,11 @@ var Devices = {
 			"label": null
 		}
 	},
+
+	defaultActions: [
+		{"name":"rotate", "method":"reorient"},
+		{"name":"delete", "method":"remove"}
+	],
 
 	Templates: { /* templates added here later */ }
 
@@ -42,40 +46,14 @@ Devices.Device = class Device extends Group {
 
 		this.createChildren();
 		this.createPackage(point, circuit);
+		/*
+		
+		this.createBody(point, circuit);
 		this.createPins(circuit);
+		*/
 		this.reposition(point);
 
 	}	
-
-	createChildren() {
-		var body = new CompoundPath();
-		body.name = "body";
-		body.data.type = "body";
-		this.addChild(body);
-
-		var pins = new Group();
-		pins.name = "pins";
-		this.addChild(pins);
-
-		var bulbs = new CompoundPath();
-		bulbs.name = "bulbs";
-		bulbs.data.type = "body";
-		this.addChild(bulbs);
-
-		var labels = new Group();
-		labels.name = "labels";
-		this.addChild(labels);
-
-		body.sendToBack();
-		pins.sendToBack();
-		bulbs.bringToFront();
-		labels.bringToFront();
-
-		this.propagateVisualAttributes(body);
-		this.propagateVisualAttributes(pins);
-		this.propagateVisualAttributes(bulbs);
-		this.propagateVisualAttributes(labels);
-	}
 
 	static doNotIndex = false;
 
@@ -88,15 +66,48 @@ Devices.Device = class Device extends Group {
 	get originRelative() {
 		var x = this.packageData.body.origin.x;
 		var y = this.packageData.body.origin.y;
-		return new Point(x*window.sim.grid, y*window.sim.grid);
+		var w = this.packageData.body.dimensions.width;
+		var h = this.packageData.body.dimensions.height;
+		var a = [x, y, w-x, h-y, x];
+		return new Point(a[this.orientation]*window.sim.grid, a[this.orientation+1]*window.sim.grid);		
 	}
 
 	get originAbsolute() {
 		return this.position.add(this.originRelative);
 	}
 
+	get positionNext() {
+		var a = this.corner.topRight.subtract(this.originAbsolute);
+		return this.originAbsolute.add(new Point(a.y, a.x*-1));
+
+	}
+
+	get corner() {
+
+		// percepted width/height
+		var pw = this.packageData.body.dimensions.width;
+		var ph = this.packageData.body.dimensions.height;
+		if (this.orientation % 2 == 1)
+			[pw, ph] = [ph, pw] 
+
+		return {
+			"topRight": this.position.add(new Point(pw*window.sim.grid,0)),
+			"topLeft": this.position,
+			"bottomLeft": this.position.add(new Point(0,ph*window.sim.grid)),
+			"bottomRight": this.position.add(new Point(pw*window.sim.grid, ph.height*window.sim.grid))
+		}
+	}
+
 	get body() {
 		return this.children.body;
+	}
+
+	get actuators() {
+		return this.children.actuators.children;
+	}
+
+	get decorations() {
+		return this.children.decorations.children;
 	}
 
 	get pins() {
@@ -135,6 +146,33 @@ Devices.Device = class Device extends Group {
 		this.parent.freeIndex(this.name);
 		super.remove();
 	}
+
+	createChildren() {
+		var childDescriptions = [
+			["body", CompoundPath, true],
+			["pins", Group, false],
+			["bulbs", CompoundPath, true],
+			["labels", Group, false],
+			["decorations", Group, false],
+			["actuators", Group, false],
+		];
+		for (var cd of childDescriptions)
+		{
+			var child = new cd[1];
+			child.name = cd[0];
+			if (cd[2])
+				child.data.type = "body";
+			this.addChild(child);
+			this.propagateVisualAttributes(child);
+			child.bringToFront();
+		}
+	}
+
+	propagateVisualAttributes(obj) {
+		obj.setStrokeColor(window.sim.appearance.color.devices);
+		obj.setStrokeWidth(window.sim.appearance.size.device);
+		obj.setFillColor(window.sim.appearance.color.fill);
+	}
 	
 	place() {
 		for (var pin of this.pins) 
@@ -145,20 +183,35 @@ Devices.Device = class Device extends Group {
 		// for devices with options - apply options here
 	}
 
-	createPackage(point, circuit, rotation=0) {
+	createPackage(point=this.originAbsolute, circuit=this.circuit) {
+		this.createBody(point, circuit);
+		this.createPins(point);
+	}
+
+	deletePackage() {
+		this.deleteBody();
+		this.deletePins();
+		this.deleteActuators();
+		this.deleteDecorations();
+	}
+
+	recreatePackage() {
+		this.deletePackage();
+		this.createPackage();
+	}
+
+	createBody(point, circuit=this.circuit) {
 		if (!this.packageData.body.symbol) // if package has no symbol information - draw a rectangle
 			this.fillBodyDefault();
 		else // else we have custom package information, then process it
 			this.fillBodyCustom();
 	}
 
-	propagateVisualAttributes(obj) {
-		obj.setStrokeColor(window.sim.appearance.color.devices);
-		obj.setStrokeWidth(window.sim.appearance.size.device);
-		obj.setFillColor(window.sim.appearance.color.fill);
+	deleteBody() {
+		this.children.body.removeChildren();
 	}
 
-	createPins(circuit) {
+	createPins(circuit=this.circuit) {
 		for (const pinData of this.packageData.pins)
 		{
 			this.children.pins.addChild(new Pin(circuit, pinData, this));
@@ -173,10 +226,18 @@ Devices.Device = class Device extends Group {
 		}
 	}
 
-	recreatePins() {
+	deletePins() {
 		this.children.pins.removeChildren();
-		this.children.bulbs.removeChildren();
-		this.createPins(this.circuit);
+		this.children.bulbs.removeChildren();	
+		this.children.labels.removeChildren();
+	}
+
+	deleteActuators() {
+		this.children.actuators.removeChildren();
+	}
+
+	deleteDecorations() {
+		this.children.decorations.removeChildren();
 	}
 
 	fillBodyDefault() {
@@ -215,24 +276,9 @@ Devices.Device = class Device extends Group {
 		}
 	}
 
-	deletePackage() {
-		this.deleteBody();
-		this.deletePins();
-	}
-
-	deletePins() {
-		this.children.pins.removeChildren();
-		this.children.pins.remove();	
-	}
-
-	deleteBody() {
-		this.children.body.removeChildren();
-	}
-
 	pointFromPackageNotation(pdn) {
 		var p = new Point(pdn[0], pdn[1]).multiply(window.sim.grid);
 		return p;
-
 	}
 
 	mode(pinName, mode) {
@@ -245,10 +291,11 @@ Devices.Device = class Device extends Group {
 	label(pinName, label=null) {
 		return this.pins[pinName].label = label;
 	}
-
+	/* ????
 	setState(pinName, state) {
 		return this.pins[pinName].state = state;
 	}
+	*/
 
 	read(pinName) {
 		return this.pins[pinName].get();
@@ -264,11 +311,11 @@ Devices.Device = class Device extends Group {
  		this.pins[pinName].set(!this.pins[pinName].get());
  	}
 
- 	act(actuator) { // fires when the item's actuator has been pressed
+ 	act(actuator) { // template, fires when the item's actuator has been pressed
  		return;
  	}
 
-	update() { // updates the device's outputs based on its inputs
+	update() { // template, updates the device's outputs based on its inputs
 		return;
 	}
 
@@ -281,15 +328,33 @@ Devices.Device = class Device extends Group {
 		this.strokeColor = color;
 	}
 
-	reorient(newOrientation = (this.orientation+1)%4) {
-		for (var x = this.orientation; x != newOrientation; x = (x+1)%4)
-			this.body.rotate(-90, this.originAbsolute);
-		this.orientation = newOrientation;
-		this.recreatePins();
+	reorientTo(newOrientation) {
+		while (this.orientation != newOrientation)
+			this.reorient();		
 	}
 
 	reposition(newPoint) {
 		this.setPosition(newPoint.subtract(this.originRelative));
 	}
 
+	reorient() {
+		var newOrientation = (this.orientation + 1) % 4;
+		this.position = this.positionNext;
+		var shift = newOrientation % 2 == 0? 
+			this.packageData.body.dimensions.height : this.packageData.body.dimensions.width; 
+		this.rotateChild(this.body, shift);
+		this.rotateChild(this.children.actuators, shift);
+		this.rotateChild(this.children.decorations, shift);
+		this.orientation = newOrientation;
+		this.deletePins();
+		this.createPins();
+	}
+
+	rotateChild(child, shift) {
+		child.rotate(-90, this.corner.topRight);
+		child.setPosition(child.position.subtract(
+			new Point(shift*window.sim.grid,0)
+		));
+		
+	}y
 }

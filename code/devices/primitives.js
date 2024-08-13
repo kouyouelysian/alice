@@ -15,9 +15,7 @@ Devices.Primitives.IntegratedCircuit = class PullDown extends Devices.Device {
 
 Devices.Primitives.PullUp = class PullUp extends Devices.Device {
 
-	constructor(circuit, point) {
-
-		const packageData = {
+	static packageData = {
 			pins: [{"name":"leg", "mode":"hi-z", "side":3, "offset":0}],
 			body: {
 				"origin": {
@@ -65,7 +63,8 @@ Devices.Primitives.PullUp = class PullUp extends Devices.Device {
 			}
 		};
 
-		super(circuit, point, packageData);
+	constructor(circuit, point) {
+		super(circuit, point);
 	}
 
 	update() {
@@ -98,11 +97,9 @@ Devices.Primitives.PullUp = class PullUp extends Devices.Device {
 
 };
 
-Devices.Primitives.PullDown = class extends Devices.Device {
+Devices.Primitives.PullDown = class PullDown extends Devices.Device {
 
-	constructor(circuit, point) {
-
-		const packageData = {
+	static packageData = {
 			pins: [{"name":"leg", "mode":"hi-z", "side":1, "offset":0}],
 			body: {
 				"origin": {
@@ -144,8 +141,8 @@ Devices.Primitives.PullDown = class extends Devices.Device {
 			}
 		};
 
-		super(circuit, point, packageData);
-
+	constructor(circuit, point) {
+		super(circuit, point);
 	}
 
 	update() {
@@ -181,9 +178,7 @@ Devices.Primitives.PullDown = class extends Devices.Device {
 
 Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
 
-	constructor(circuit, point) {
-
-		const packageData = {
+	static packageData = {
 			pins: [{"name":"io", "mode":"hi-z", "side":0, "offset":0, "label":"iopin"}],
 			body: {
 				"origin": {
@@ -199,7 +194,9 @@ Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
 			}
 		};
 
-		super(circuit, point, packageData);
+	constructor(circuit, point) {
+
+		super(circuit, point);
 
 		this.nameInput = "inbound";
 		this.nameOutput = "outbound";

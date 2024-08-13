@@ -32,4 +32,20 @@
 
 #details input[type="button"] {
 	cursor: pointer;
+	display: inline-block;
+	transition: background-color 0.1s, color 0.1s;
+}
+
+#details input[type="button"]:hover {
+	background-color: var(--c-accent);
+	color: var(--c-bg);
+}
+
+#details input[type="button"].half {
+	width: calc(50% - var(--sizing) / 4);
+}
+
+#details input[type="button"].half:nth-child(even) {
+	
+	margin-left: calc(var(--sizing) / 2);
 }
