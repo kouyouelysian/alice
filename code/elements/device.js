@@ -36,11 +36,15 @@ Devices.Device = class Device extends Group {
 			/* option": {"type":"int", "value":"1"} */
 		};
 
-		this.position = point;
+		this.position = new Point(0,0);
+		this.pivot = new Point(0,0)
 		this.orientation = 0; // direction. "rotation" is taken by paperjs
+
 		this.createChildren();
-		console.log(this, this.children);
 		this.createPackage(point, circuit);
+		this.createPins(circuit);
+		this.reposition(point);
+
 	}	
 
 	createChildren() {
@@ -53,20 +57,24 @@ Devices.Device = class Device extends Group {
 		pins.name = "pins";
 		this.addChild(pins);
 
-		const bulbs = new Group();
+		var bulbs = new CompoundPath();
 		bulbs.name = "bulbs";
 		bulbs.data.type = "body";
 		this.addChild(bulbs);
 
-		const labels = new Group();
+		var labels = new Group();
 		labels.name = "labels";
 		this.addChild(labels);
 
-		
 		body.sendToBack();
 		pins.sendToBack();
 		bulbs.bringToFront();
 		labels.bringToFront();
+
+		this.propagateVisualAttributes(body);
+		this.propagateVisualAttributes(pins);
+		this.propagateVisualAttributes(bulbs);
+		this.propagateVisualAttributes(labels);
 	}
 
 	static doNotIndex = false;
@@ -74,8 +82,17 @@ Devices.Device = class Device extends Group {
 	static category = {"name":null, "object":null};
 
 	get packageData() {
-		console.log(this.fullClass);
 		return eval(`Devices.${this.fullClass}.packageData`);
+	}
+
+	get originRelative() {
+		var x = this.packageData.body.origin.x;
+		var y = this.packageData.body.origin.y;
+		return new Point(x*window.sim.grid, y*window.sim.grid);
+	}
+
+	get originAbsolute() {
+		return this.position.add(this.originRelative);
 	}
 
 	get body() {
@@ -129,67 +146,62 @@ Devices.Device = class Device extends Group {
 	}
 
 	createPackage(point, circuit, rotation=0) {
-
-		var gridSize = window.sim.appearance.size.grid;
-
-		var origin = new Point(
-			point.x - this.packageData.body.origin.x*gridSize, 
-			point.y - this.packageData.body.origin.y*gridSize
-		);
-		
 		if (!this.packageData.body.symbol) // if package has no symbol information - draw a rectangle
-			this.fillBodyDefault(this.body, origin, gridSize, rotation);
+			this.fillBodyDefault();
 		else // else we have custom package information, then process it
-			this.fillBodyCustom(this.body, origin, gridSize,rotation);
-		
-		const bodyDimensions = this.packageData.body.dimensions;
+			this.fillBodyCustom();
+	}
 
+	propagateVisualAttributes(obj) {
+		obj.setStrokeColor(window.sim.appearance.color.devices);
+		obj.setStrokeWidth(window.sim.appearance.size.device);
+		obj.setFillColor(window.sim.appearance.color.fill);
+	}
+
+	createPins(circuit) {
 		for (const pinData of this.packageData.pins)
 		{
-			pinData.side = (pinData.side + rotation) % 4;
-			this.children.pins.addChild(new Pin(circuit, pinData, bodyDimensions, origin, gridSize));
-			this.lastChild
+			this.children.pins.addChild(new Pin(circuit, pinData, this));
 			if (pinData.bulb)
 			{
 				var bulb = this.children.pins.lastChild.getInversionBulb();
-				this.body.addChild(bulb);
+				this.children.bulbs.addChild(bulb);
 				bulb.bringToFront();
 			}
 			if (pinData.label)
 				this.children.labels.addChild(this.children.pins.lastChild.getLabel());
 		}
-
-
-		this.body.setStrokeColor(window.sim.appearance.color.devices);
-		this.body.setStrokeWidth(window.sim.appearance.size.device);
-		this.body.setFillColor(window.sim.appearance.color.fill);
 	}
 
+	recreatePins() {
+		this.children.pins.removeChildren();
+		this.children.bulbs.removeChildren();
+		this.createPins(this.circuit);
+	}
 
-	fillBodyDefault(body, origin, gridSize, rotation) {
+	fillBodyDefault() {
 		var outline = new Path.Rectangle(
-			origin.x,
-			origin.y,
-			this.packageData.body.dimensions.width*gridSize,
-			this.packageData.body.dimensions.height*gridSize
+			this.position.x,
+			this.position.y,
+			this.packageData.body.dimensions.width*window.sim.grid,
+			this.packageData.body.dimensions.height*window.sim.grid
 			);
 		outline.data.type = "bodyPart";
-		body.addChild(outline);
+		this.body.addChild(outline);
 	}
 
-	fillBodyCustom(body, origin, gridSize, rotation) {
-		console.log("asdf", origin);
+	fillBodyCustom() {
 		for (var pieceData of this.packageData.body.symbol)
 		{
 			var piece = new Path();
 			for (var segment of pieceData.segmentData)
 			{
-				var point = this.pointFromPackageNotation(segment.point, gridSize, rotation);
-				piece.add(origin.add(point));
+				var point = this.pointFromPackageNotation(segment.point);
+				piece.add(this.position.add(point));
 				if (segment.handles)
 				{
-					piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in, gridSize, rotation, point);
-					piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out, gridSize, rotation, point);
+					piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in);
+					piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out);
 				}
 			}
 			if (pieceData.closed)
@@ -199,7 +211,7 @@ Devices.Device = class Device extends Group {
 			else
 				piece.fillColor = "transparent";
 			piece.data.type = "bodyPart";
-			body.addChild(piece);
+			this.body.addChild(piece);
 		}
 	}
 
@@ -217,10 +229,8 @@ Devices.Device = class Device extends Group {
 		this.children.body.removeChildren();
 	}
 
-	pointFromPackageNotation(pdn, gridSize, rotation, rotationOrigin=new Point(0,0)) {
-		var p = new Point(pdn[0], pdn[1]).multiply(gridSize);
-		if (rotation !== null)
-			p = p.rotate(rotation*-90, rotationOrigin);
+	pointFromPackageNotation(pdn) {
+		var p = new Point(pdn[0], pdn[1]).multiply(window.sim.grid);
 		return p;
 
 	}
@@ -271,9 +281,15 @@ Devices.Device = class Device extends Group {
 		this.strokeColor = color;
 	}
 
-	reorient(orientation = (this.orientation+1)%4) {
-		this.orientation = orientation;
+	reorient(newOrientation = (this.orientation+1)%4) {
+		for (var x = this.orientation; x != newOrientation; x = (x+1)%4)
+			this.body.rotate(-90, this.originAbsolute);
+		this.orientation = newOrientation;
+		this.recreatePins();
 	}
 
+	reposition(newPoint) {
+		this.setPosition(newPoint.subtract(this.originRelative));
+	}
 
 }

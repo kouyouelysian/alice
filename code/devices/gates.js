@@ -50,7 +50,7 @@ Devices.Templates.Gate = class Gate extends Devices.Device { // general construc
 		"body": {
 			"origin": {
 				x:1,
-				y:1
+				y:2
 			},
 			"dimensions": {
 				"width": 3,

@@ -381,7 +381,7 @@ class Sim {
 				case "wiring":
 					return window.sim.editedElement.lastSegment.point = event.point;
 				case "adding device":
-					return window.sim.editedElement.position = quantizedPoint;
+					return window.sim.editedElement.reposition(quantizedPoint);
 			}
 		}
 

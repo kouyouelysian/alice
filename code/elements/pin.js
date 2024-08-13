@@ -1,33 +1,42 @@
 class Pin extends Path {
 
-	constructor(circuit, pinData /*name, mode, side, offset, bulb*/, packageDimensions, origin, sizing=window.sim.appearance.size.grid) {
-
-		// mathematical shenanigans to find the position of the pin
-		const hor = ((pinData.side+1)%2) * ((pinData.side>0)*-2+1);
-		const vert  =(pinData.side%2) * ((pinData.side>1)*2-1);
-		// offset by 1 cell left if top/bottom pin, offset by body width if pin is on the right
-		var pinx = (pinData.side%2) + ((pinData.side==0) * packageDimensions.width);
-		// offset by 1 cell down if left/right pin, offset by body height if pin is on the bottom
-		var piny = ((pinData.side+1)%2) + ((pinData.side==3) * packageDimensions.height);
-		// add offset vertically/horizontally to a horizontal/vertical pin respectively
-		pinData.side%2==0? piny += pinData.offset : pinx += pinData.offset;
-			 
-		var start = new Point(origin.x+pinx*sizing, origin.y+piny*sizing);
-		var end = start.add(new Point(hor*sizing, vert*sizing));
+	constructor(circuit, pinData /*name, mode, side, offset, bulb*/, device) {
 
 		super();
-		this.add(start);
-		this.add(end);
+		
 		this.setStrokeColor(window.sim.appearance.color.undefined);
 		this.setStrokeWidth(window.sim.appearance.size.wire);
+		
 		this.circuit = circuit;
 		this.net = null;
-		this.side = pinData.side;
+		this.side = (pinData.side + device.orientation) % 4;
 		this.data.type = "pin";
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
 		this.state = undefined;
 		this.initial = undefined;
+
+		var packageDimensions = JSON.parse(JSON.stringify(device.packageData.body.dimensions));
+		if (device.orientation % 2 != 0)
+			[packageDimensions.width, packageDimensions.height] = [packageDimensions.height, packageDimensions.width];
+
+		console.log(pinData.side, device.orientation, this.side);
+		// mathematical shenanigans to find the position of the pin
+		const hor = ((this.side+1)%2) * ((this.side>0)*-2+1);
+		const vert  =(this.side%2) * ((this.side>1)*2-1);
+		// offset by 1 cell left if top/bottom pin, offset by body width if pin is on the right
+		var pinx = (this.side%2) + ((this.side==0) * packageDimensions.width);
+		// offset by 1 cell down if left/right pin, offset by body height if pin is on the bottom
+		var piny = ((this.side+1)%2) + ((this.side==3) * packageDimensions.height);
+		// add offset vertically/horizontally to a horizontal/vertical pin respectively
+		this.side%2==0? piny += pinData.offset : pinx += pinData.offset;
+			 
+		var start = new Point(device.position.x+pinx*window.sim.grid, device.position.y+piny*window.sim.grid);
+		var end = start.add(new Point(hor*window.sim.grid, vert*window.sim.grid));
+
+		this.add(start);
+		this.add(end);
+
 	}
 
 	get device() {
