@@ -1,6 +1,6 @@
 const GLOBAL_sizing = 25;
 
-function debugCircle(point, color=Color.random(), radius=10)
+function debugCircle(point, radius=10, color=Color.random())
 {
 	var c = new Path.Circle(point, radius);
 	c.strokeColor = color;

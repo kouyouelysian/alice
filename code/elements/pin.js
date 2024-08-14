@@ -9,7 +9,7 @@ class Pin extends Path {
 		
 		this.circuit = circuit;
 		this.net = null;
-		this.side = (pinData.side + device.orientation) % 4;
+		this.side = pinData.side;
 		this.data.type = "pin";
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
@@ -18,26 +18,15 @@ class Pin extends Path {
 		if (this.initial !== undefined)
 			this.set(this.initial);
 
-		var packageDimensions = JSON.parse(JSON.stringify(device.packageData.body.dimensions));
-		if (device.orientation % 2 != 0)
-			[packageDimensions.width, packageDimensions.height] = [packageDimensions.height, packageDimensions.width];
-
-		// mathematical shenanigans to find the position of the pin
-		const hor = ((this.side+1)%2) * ((this.side>0)*-2+1);
-		const vert  =(this.side%2) * ((this.side>1)*2-1);
-		// offset by 1 cell left if top/bottom pin, offset by body width if pin is on the right
-		var pinx = (this.side%2) + ((this.side==0) * packageDimensions.width);
-		// offset by 1 cell down if left/right pin, offset by body height if pin is on the bottom
-		var piny = ((this.side+1)%2) + ((this.side==3) * packageDimensions.height);
-		// add offset vertically/horizontally to a horizontal/vertical pin respectively
-		this.side%2==0? piny += pinData.offset : pinx += pinData.offset;
-			 
-		var start = new Point(device.position.x+pinx*window.sim.grid, device.position.y+piny*window.sim.grid);
-		var end = start.add(new Point(hor*window.sim.grid, vert*window.sim.grid));
-
-		this.add(start);
-		this.add(end);
-
+		var pOrigin = device.corner[Devices.cornerNames[(device.orientation+1)%4]];;
+		this.add(pOrigin);
+		this.add(pOrigin.add(new Point(window.sim.grid, 0)));
+		this.rotate(-90*((this.side + device.orientation)%4), pOrigin);
+		var shift_x = (this.side % 2 == 1) * 1 + (this.side == 0) * device.packageData.body.dimensions.width;
+		var shift_y = (this.side % 2 == 0) * 1 + (this.side == 3) * device.packageData.body.dimensions.height;
+		this.side % 2 == 0? shift_y += pinData.offset : shift_x += pinData.offset;
+		var shift = new Point(shift_x*window.sim.grid, shift_y*window.sim.grid);
+		this.setPosition(this.position.add(shift.rotate(device.orientation*-90, new Point(0,0))))
 	}
 
 	get device() {

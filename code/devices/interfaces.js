@@ -107,12 +107,8 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 
 Devices.Interfaces.Light = class Light extends Devices.Device {
 
-	constructor(circuit, point) {
-
-		const packageData = {
-			"pins": [
-				{"name":"i", "mode":"in", "side":2, "offset":0,}
-			],
+	static packageData = {
+			"pins": [],
 			"body": {
 				"origin": {
 					x:1,
@@ -125,13 +121,10 @@ Devices.Interfaces.Light = class Light extends Devices.Device {
 				"symbol": [
 					{
 						"segmentData": [ 
-							{"point":[1,0.25]},
-							{"point":[1.75,1]},
-							{"point":[1,1.75]},
-							{"point":[0.25,1]} 
+							{"arc":[[0.25,1],[1,0.25],[1.75,1]]},
+							{"arc":[[1.75,1],[1,1.75],[0.25,1]]},
 						],
-						"closed": true,
-						"smooth": true
+						"closed": true
 					}, {
 						"segmentData": [
 							{"point":[0,1]},
@@ -142,40 +135,97 @@ Devices.Interfaces.Light = class Light extends Devices.Device {
 				],
 				"label": null
 			}	
-		}
+		};
 
-		super(circuit, point, packageData);
-		this.createLight(point);
-		this.state = this.read("i");
+	constructor(circuit, point) {
+		super(circuit, point);
+		this.options = {
+			lights: {"type":"qty", "value":1},
+			style: {"type":"choice", "choices":["full","compact"], "value":"full"}
+		};	
+		this.createAllLights(point);
+	}
+
+	get packageData() {
+		var pd = JSON.parse(JSON.stringify(Devices.Interfaces.Light.packageData));
+		pd.pins = [this.makePinData(0)];
+		
+		if (this.options.lights)
+		{
+			var step = this.options.style.value=="compact"? 1 : 2;
+			var height = (this.options.lights.value - 1) * step + 2;
+			pd.body.dimensions.height = height; 
+			var secondArc = pd.body.symbol[0].segmentData[1].arc;
+			for (var saPoint of secondArc)
+				saPoint[1] += height-2;
+			for (var y = 1; y < this.options.lights.value; y++)
+			{
+				pd.pins.push(this.makePinData(y, step));
+				var tsd = JSON.parse(JSON.stringify(pd.body.symbol[1]));
+				for (var p of tsd.segmentData)
+					p.point[1] += y*step;
+				pd.body.symbol.push(tsd);
+			}
+		}
+		return pd;
+	}
+	
+	get lights() {
+		return this.children.decorations.children;
+	}
+
+	makePinData(n,step=2) {
+		return {"name":`i${n}`, "mode":"in", "side":2, "offset":n*step,}
+	}
+
+	createAllLights(point=this.originAbsolute, step = 2) {
+		var qty = 1;
+		if (this.options)
+			qty = this.options.lights.value;
+
+		for (var x = 0; x < qty; x++)
+		{
+			var a = this.originAbsolute.clone();
+			a.y += window.sim.grid * x * step;
+			this.createLight(a);
+		}
 	}
 
 	createLight(point) {
-
 		var light = new Path.Circle(point, window.sim.appearance.size.grid * 0.45);
 		light.fillColor = window.sim.appearance.color.undefined;
+		light.strokeColor = window.sim.appearance.color.devices;
 		light.name = "light";
-		light.data.type = "body";
-		this.addChild(light);
+		light.data.type = "bodyPart";
+		this.children.decorations.addChild(light);
 	}
 
-	light() {
-		if (this.state === true)
-			return this.children["light"].fillColor = window.sim.appearance.color.true;
-		else if (this.state === false)
-			return this.children["light"].fillColor = window.sim.appearance.color.false;
-		return this.children["light"].fillColor = window.sim.appearance.color.undefined;
+	light(n, state) {
+		if (state === true)
+			return this.lights[n].fillColor = window.sim.appearance.color.true;
+		else if (state === false)
+			return this.lights[n].fillColor = window.sim.appearance.color.false;
+		return this.lights[n].fillColor = window.sim.appearance.color.undefined;
 	}
 
 	update() {
-		if (this.read("i") === this.state)
-			return;
-		this.state = this.read("i");
-		this.light();
+		for (var x = 0; x < this.pins.length; x++)
+			this.light(x, this.read(`i${x}`));	
 	}
+
+	reload() {
+		var step = this.options.style.value=="compact"? 1 : 2;
+		var o = this.orientation.valueOf();
+		this.reorientTo(0)
+		this.recreatePackage();
+		this.createAllLights(this.originAbsolute, step);
+		this.reorientTo(o);
+	}
+
 }
 
 
-Devices.Interfaces.SevenSegment = class SevenSegment extends Devices.Device {
+Devices.Interfaces.HexDigit = class HexDigit extends Devices.Device {
 
 	static packageData = {
 			"pins": [
@@ -204,11 +254,8 @@ Devices.Interfaces.SevenSegment = class SevenSegment extends Devices.Device {
 				"C","D","E","F"];
 
 	constructor(circuit, point) {
-
 		super(circuit, point);
 		this.createDigit(point);
-		console.log(this.digit, "!!!");
-		
 	}
 
 	get digit() {
@@ -223,7 +270,7 @@ Devices.Interfaces.SevenSegment = class SevenSegment extends Devices.Device {
 		var digit = new PointText(point.add(digitOffset));
 		digit.fontSize = window.sim.appearance.size.grid * 3;
 		digit.justification = 'center';
-		digit.content = '0';
+		digit.content = '?';
 		digit.leading = 0;
 		digit.name = "digit";
 		digit.data.type = "bodyPart";
@@ -237,11 +284,14 @@ Devices.Interfaces.SevenSegment = class SevenSegment extends Devices.Device {
 		var order = 1;
 		for (var x = 0; x < 4; x++)
 		{
+			if (this.read(`bit${x}`) === undefined)
+				return this.digit.content = "?";
+
 			if (this.read(`bit${x}`) === true)
 				number += order;
 			order *= 2;
 		}
-		this.digit.content = Devices.Interfaces.SevenSegment.hexDict[number];
+		this.digit.content = Devices.Interfaces.HexDigit.hexDict[number];
 	}
 
 	recolor(color) {

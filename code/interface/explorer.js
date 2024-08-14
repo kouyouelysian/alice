@@ -168,7 +168,7 @@ var Explorer = {
 		var allDevicesXmlNode  = bmco.xml.nodeGetByAttributeValue(xmldoc, "directory", "name", "Devices");
 		for (const categoryName in Devices) {
 
-			if (bmco.arrayHas(["defaultPackageData", "Device", "Templates"], categoryName))
+			if (bmco.arrayHas(Devices.explorerExcludes, categoryName))
 				continue;
 
 			var categoryXmlNode = xmldoc.createElement("directory");

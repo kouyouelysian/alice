@@ -1,5 +1,16 @@
 var Devices = {
 
+	explorerExcludes: [
+		"defaultPackageData",
+		"Device",
+		"Templates",
+		"cornerNames",
+		"defaultActions",
+		"explorerExcludes"
+	], // use doNotIndex static if you also don't want a category included
+
+	cornerNames: ["topRight", "topLeft", "bottomLeft", "bottomRight"],
+
 	defaultPackageData: {
 		"pins": [
 		],
@@ -41,8 +52,9 @@ Devices.Device = class Device extends Group {
 		};
 
 		this.position = new Point(0,0);
-		this.pivot = new Point(0,0)
+		this.pivot = new Point(0,0);
 		this.orientation = 0; // direction. "rotation" is taken by paperjs
+		this.reposition(point);
 
 		this.createChildren();
 		this.createPackage(point, circuit);
@@ -51,7 +63,7 @@ Devices.Device = class Device extends Group {
 		this.createBody(point, circuit);
 		this.createPins(circuit);
 		*/
-		this.reposition(point);
+		
 
 	}	
 
@@ -94,9 +106,10 @@ Devices.Device = class Device extends Group {
 			"topRight": this.position.add(new Point(pw*window.sim.grid,0)),
 			"topLeft": this.position,
 			"bottomLeft": this.position.add(new Point(0,ph*window.sim.grid)),
-			"bottomRight": this.position.add(new Point(pw*window.sim.grid, ph.height*window.sim.grid))
+			"bottomRight": this.position.add(new Point(pw*window.sim.grid, ph*window.sim.grid))
 		}
 	}
+
 
 	get body() {
 		return this.children.body;
@@ -149,8 +162,8 @@ Devices.Device = class Device extends Group {
 
 	createChildren() {
 		var childDescriptions = [
-			["body", CompoundPath, true],
 			["pins", Group, false],
+			["body", CompoundPath, true],
 			["bulbs", CompoundPath, true],
 			["labels", Group, false],
 			["decorations", Group, false],
@@ -255,25 +268,49 @@ Devices.Device = class Device extends Group {
 		for (var pieceData of this.packageData.body.symbol)
 		{
 			var piece = new Path();
-			for (var segment of pieceData.segmentData)
+			piece.data.type = "bodyPart";
+
+			for (var partData of pieceData.segmentData)
 			{
-				var point = this.pointFromPackageNotation(segment.point);
-				piece.add(this.position.add(point));
-				if (segment.handles)
+				switch (Object.keys(partData)[0])
 				{
-					piece.lastSegment.handleIn = this.pointFromPackageNotation(segment.handles.in);
-					piece.lastSegment.handleOut = this.pointFromPackageNotation(segment.handles.out);
+					case "arc":
+						var arc = this.makePartArc(partData);
+						piece.segments = piece.segments.concat(arc.segments);
+						arc.remove();
+						break;
+					case undefined:
+					default:
+						this.makePartPoint(partData, piece);
 				}
 			}
+
 			if (pieceData.closed)
 				piece.closed = true;
 			if (pieceData.smooth)
 				piece.smooth("continuous");
-			else
-				piece.fillColor = "transparent";
-			piece.data.type = "bodyPart";
 			this.body.addChild(piece);
 		}
+	}
+
+	makePartPoint(partData, piece) {
+		var point = this.pointFromPackageNotation(partData.point);
+		piece.add(this.position.add(point));
+		if (partData.handles)
+		{
+			piece.lastSegment.handleIn = this.pointFromPackageNotation(partData.handles.in);
+			piece.lastSegment.handleOut = this.pointFromPackageNotation(partData.handles.out);
+		}
+	}
+
+	makePartArc(partData, piece) {
+		var arc = Path.Arc(
+			this.pointFromPackageNotation(partData.arc[0]).add(this.position),
+			this.pointFromPackageNotation(partData.arc[1]).add(this.position),
+			this.pointFromPackageNotation(partData.arc[2]).add(this.position));
+		this.propagateVisualAttributes(arc);
+		arc.closed = false;
+		return arc;
 	}
 
 	pointFromPackageNotation(pdn) {
