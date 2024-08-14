@@ -24,10 +24,13 @@ var Details = {
 		show: function(device) {
 			Details.target.innerHTML = `<h3 id="detailsTitle">${device.name}</h3>`;
 			Details.guiGenerator.hr();
-			for (var optName in device.options)
-				Details.guiGenerator.option(optName, device.options[optName]);
-			Details.guiGenerator.button("apply", "Details.device.save()");
-			Details.guiGenerator.hr();
+			if (Object.keys(device.options).length != 0)
+			{
+				for (var optName in device.options)
+					Details.guiGenerator.option(optName, device.options[optName]);
+				Details.guiGenerator.button("apply", "Details.device.save()");
+				Details.guiGenerator.hr();
+			}
 			for (var action of Devices.defaultActions)
 			{
 				var onclick = `window.sim.circuit.devices["${device.name}"].${action.method}()`;

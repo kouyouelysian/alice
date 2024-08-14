@@ -80,12 +80,13 @@ var ContextMenu = {
 				var imageHTML = `<img src='./gfx/icon/ico16/${option.icon}'>`
 				item.innerHTML = `${imageHTML}${item.innerHTML}`
 			}
-
 			ContextMenu.target.appendChild(item);
 		}
 	}, 
 	
 	show: function(event, preset="default") {
+		event.preventDefault();
+		event.stopPropagation();
 		ContextMenu.optionsFill(preset);
 		ContextMenu.caller = event.target || event.srcElement;
 		ContextMenu.target.style.display = "block";
