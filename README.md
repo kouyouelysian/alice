@@ -11,4 +11,7 @@ ALICE uses paper.js for GUI stuff. It has an object-oriented architecture, and t
 Because why the hell not and who's going to stop me
 
 ## Project state & licensing
-This is a GNU-GPL licensed project meaning you can't make money off of it and should piss off if it explodes in your face. The project is in pre-alpha, meaning it's not fully working as intended just yet. Still, if you think you have some useful idea, feel free to share.
+This is an augmented(!) GNU-GPL licensed project meaning you can't make money off of it and should piss off if it explodes in your face. The project is in pre-alpha, meaning it's not fully working as intended just yet. Still, if you think you have some useful idea, feel free to share.
+
+*An impmortant limiting augmentation is imposed on top of the GNU-GPL license!* ALICE in its entirety, that is - anything from this repository and any of its snapshots, versions and reuploads, **may not** be used for training A"I", machine learning, language models and whatever-else-crap-like-that in any way or form. Screw off! Thank you. 
+
