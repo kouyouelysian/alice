@@ -1,5 +1,7 @@
 class Pin extends Path {
 
+	static inversionBulbRatio = 0.25
+
 	constructor(circuit, pinData /*name, mode, side, offset, bulb, initial*/, device) {
 
 		super();
@@ -13,6 +15,7 @@ class Pin extends Path {
 		this.data.type = "pin";
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
+		this.label = pinData.label;
 		this.state = undefined;
 		this.initial = pinData.initial; // undefined OK
 		if (this.initial !== undefined)
@@ -26,7 +29,9 @@ class Pin extends Path {
 		var shift_y = (this.side % 2 == 0) * 1 + (this.side == 3) * device.packageData.body.dimensions.height;
 		this.side % 2 == 0? shift_y += pinData.offset : shift_x += pinData.offset;
 		var shift = new Point(shift_x*window.sim.grid, shift_y*window.sim.grid);
-		this.setPosition(this.position.add(shift.rotate(device.orientation*-90, new Point(0,0))))
+		this.setPosition(this.position.add(shift.rotate(device.orientation*-90, new Point(0,0))));
+
+		this.place();
 	}
 
 	get device() {
@@ -37,6 +42,49 @@ class Pin extends Path {
 
 	get sideName() {
 		return Pin.sideDict[this.side];
+	}
+
+	get labelText() {
+		
+		var textOrientation = (this.side + this.device.orientation) % 4;
+
+		var shift;
+		switch (textOrientation)
+		{
+			case 0: shift = new Point(window.sim.grid*-0.3, window.sim.grid*0.2); break;
+			case 1: shift = new Point(window.sim.grid* 0.2, window.sim.grid*0.3); break;
+			case 2: shift = new Point(window.sim.grid* 0.3, window.sim.grid*0.2); break;
+			case 3: 
+			default: shift = new Point(window.sim.grid*0.2, window.sim.grid*-0.3); break;
+		}
+		var point = this.firstSegment.point.add(shift);
+		
+
+		var label = new PointText(point);
+		if (textOrientation % 2 == 1)
+			label.rotate(-90, point);
+
+		label.setStrokeColor("transparent");
+		label.setStrokeWidth(0);
+		label.setFillColor("black");
+		label.fontWeight = "normal";
+		label.fontSize = window.sim.grid * 0.8;
+
+		textOrientation >= 2?
+			label.justification = "left" : 
+			label.justification = "right";
+		
+		label.content = this.label? this.label : "text";
+		return label; 
+	}
+
+	get inversionBulb() { // returns a circle path to be used by device body constructor
+
+		var pinLength = this.firstSegment.point.getDistance(this.lastSegment.point);
+		var radius = pinLength * Pin.inversionBulbRatio;
+		var center = this.firstSegment.point;
+		var offset = this.firstSegment.point.subtract(this.lastSegment.point);
+		return Path.Circle(center.subtract(offset.multiply(Pin.inversionBulbRatio)), radius);
 	}
 
 	set(state, color=null) {
@@ -70,6 +118,11 @@ class Pin extends Path {
 	connect(net) {
 		net.connectionAdd(this);
 		this.net = net;
+	}
+
+	remove() {
+		this.disconnect();
+		super.remove();
 	}
 
 	disconnect() {
@@ -107,25 +160,8 @@ class Pin extends Path {
 		}
 	}
 
-	getInversionBulb(ratio=0.25) { // returns a circle path to be used by device body constructor
-		var pinLength = this.firstSegment.point.getDistance(this.lastSegment.point);
-		var radius = pinLength * ratio;
-		var center = this.firstSegment.point;
-		var offset = this.firstSegment.point.subtract(this.lastSegment.point);
-		return Path.Circle(center.subtract(offset.multiply(ratio)), radius);
-	}
+	
 
-	getLabel(text) {
-		var point = this.firstSegment.point.add(new Point(window.sim.grid*-0.5, window.sim.grid*0.2))
-		var label = new PointText(point);
-		label.setStrokeColor("transparent");
-		label.setStrokeWidth(0);
-		label.setFillColor("black");
-		label.fontWeight = "normal";
-		label.fontSize = window.sim.grid * 0.8;
-		label.justification = "right";
-		label.content = "text";
-		return label; 
-	}
+	
 
 }

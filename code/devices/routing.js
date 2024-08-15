@@ -3,61 +3,55 @@ Devices.Routing = {}
 Devices.Routing.TriState = class TriState extends Devices.Device { // general constructor for 3-pin gates. not to be used directly in circuits.
 	
 	static packageData = {
-		"pins": [
-			{"name":"control", "mode":"in", "side":3, "offset": 0}
+		pins: [
+			{name:"control", mode:"in", side:3, offset: 0}
 		],
-		"body": {
-			"origin": {
+		body: {
+			origin: {
 				x:1,
 				y:1
 			},
-			"dimensions": {
-				"width": 2,
-				"height": 2
+			dimensions: {
+				width: 2,
+				height: 2
 			},
-			"symbol": [
+			symbol: [
 				{
-					"segmentData": [
-						{"point":[1,1.5]},
-						{"point":[1,2]}
+					segmentData: [
+						{point:[1,1.5]},
+						{point:[1,2]}
 					]
 				},
 				{
-					"segmentData": [ 
-						{"point":[0,0]},
-						{"point":[2,1]},
-						{"point":[0,2]} 
+					segmentData: [ 
+						{point:[0,0]},
+						{point:[2,1]},
+						{point:[0,2]} 
 					],
-					"closed": true
+					closed: true
 				}
 			],
-			"label": null
+			label: null
 		}	
 	}
 
 	constructor(circuit, point) {
 
-		super(circuit, point, Devices.Routing.TriState.packageData);
-
-		this.options = {
-			buffers: {"type":"qty", "value":1},
-			style: {"type":"choice", "choices":["full","compact"], "value":"full"}
+		var opts = {
+			buffers: {type:"qty", value:1},
+			style: {type:"choice", choices:["full","compact"], value:"full"}
 		};
-
+		super(circuit, point, opts);
 		this.transparent = undefined;
-
 	}
 
 	get packageData() {
 
-		var step = 2;
-		if (this.options.style)
-			step = this.options.style.value=="full"? 2 : 1;
+		
+		var step = this.options.style.value=="full"? 2 : 1;
+		var qty = this.options.buffers.value;
 
 		var pd = bmco.clone(Devices.Routing.TriState.packageData);
-		var qty = 1;
-		if (this.options.buffers)
-			qty = this.options.buffers.value;
 		
 		pd.pins.push.apply(pd.pins, this.makePinPairData(0,step));
 

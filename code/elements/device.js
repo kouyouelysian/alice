@@ -6,13 +6,17 @@ var Devices = {
 		"Templates",
 		"cornerNames",
 		"defaultActions",
+		"BinaryTable",
 		"explorerExcludes"
 	], // use doNotIndex static if you also don't want a category included
 
 	cornerNames: ["topRight", "topLeft", "bottomLeft", "bottomRight"],
 
+	BinaryTable: [1,2,4,8,16,32,64,128],
+
 	defaultPackageData: {
 		"pins": [
+			/* {name:"pinname", mode:"in" (out, hi-z) , side:2, offset:0}, */
 		],
 		"body": {
 			"origin": {
@@ -42,14 +46,17 @@ Devices.Device = class Device extends Group {
 
 	static packageData = Devices.defaultPackageData;
 
-	constructor(circuit, point) {
+	constructor(circuit, point, options=undefined) {
 		super();
 		this.name = window.sim.circuit.rollByPrefix("name", (this.constructor.name || "dev"));
 		circuit.children.devices.addChild(this);
 		this.data.type = "device"; 
-		this.options = {
-			/* option": {"type":"int", "value":"1"} */
-		};
+		if (options === undefined)
+			this.options = {
+				/* option": {"type":"int", "value":"1"} */
+			};
+		else
+			this.options = options;
 
 		this.position = new Point(0,0);
 		this.pivot = new Point(0,0);
@@ -134,10 +141,11 @@ Devices.Device = class Device extends Group {
 		var json = {
 			"name": this.name,
 			"class": this.fullClass,
-			"position": {
-				"x": this.position.x,
-				"y": this.position.y
-			}
+			"origin": {
+				"x": this.originAbsolute.x,
+				"y": this.originAbsolute.y
+			},
+			"orientation": this.orientation
 		};
 		if (this.options != {})
 			json.options = this.options;
@@ -145,8 +153,7 @@ Devices.Device = class Device extends Group {
 	}	
 
 	remove() {
-		for (var pin of this.pins)
-			pin.disconnect();
+		this.deletePins();
 		this.parent.freeIndex(this.name);
 		super.remove();
 	}
@@ -218,19 +225,25 @@ Devices.Device = class Device extends Group {
 	createPins(circuit=this.circuit) {
 		for (const pinData of this.packageData.pins)
 		{
-			this.children.pins.addChild(new Pin(circuit, pinData, this));
+			var c = this.children.pins.addChild(new Pin(circuit, pinData, this));
 			if (pinData.bulb)
 			{
-				var bulb = this.children.pins.lastChild.getInversionBulb();
+				var bulb = c.inversionBulb;
 				this.children.bulbs.addChild(bulb);
 				bulb.bringToFront();
 			}
 			if (pinData.label)
-				this.children.labels.addChild(this.children.pins.lastChild.getLabel());
+				this.children.labels.addChild(c.labelText);
 		}
 	}
 
+	disconnectPins() {
+		for (var pin of this.pins)
+			pin.disconnect(); // because removechildren doesn't call each child's remove apparently
+	}
+
 	deletePins() {
+		this.disconnectPins();
 		this.children.pins.removeChildren();
 		this.children.bulbs.removeChildren();	
 		this.children.labels.removeChildren();

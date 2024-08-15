@@ -107,8 +107,9 @@ class Circuit extends Group {
 			var category = parts[0];
 			var device = parts[1];
 			var dev = new Devices[category][device](this,
-				new Point(deviceRecord.position.x, deviceRecord.position.y));
+				new Point(deviceRecord.origin.x, deviceRecord.origin.y));
 			dev.name = deviceRecord.name;
+			dev.reorientTo(deviceRecord.orientation);
 			if (deviceRecord.options)
 			{
 				dev.options = deviceRecord.options;

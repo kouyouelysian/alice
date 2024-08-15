@@ -119,7 +119,8 @@ var Details = {
 		option: function(optName, optData) {
 			var l = document.createElement("label");
 			l.setAttribute("for", `${Details.inputIdPrefix}${optName}`);
-			l.innerHTML = optName;
+
+			l.innerHTML = optData.description? optData.description : optName;
 			Details.target.appendChild(l);
 
 			var o = Details.guiGenerator._opt[optData.type](optName, optData);
@@ -146,8 +147,13 @@ var Details = {
 				for (var c of data.choices)
 				{
 					var o = document.createElement("option");
-					o.setAttribute("value", c);
-					o.innerHTML = c;
+					var val = c;
+					var text = c;
+					if (c.constructor.name == "Array")
+						[val, text] = c;
+					
+					o.innerHTML = text;
+					o.setAttribute("value", val);
 					sel.appendChild(o);
 					if (c == data.value)
 						o.setAttribute("selected", "selected");
@@ -160,6 +166,15 @@ var Details = {
 				i.setAttribute("type", "text");
 				i.setAttribute("min", "2");
 				i.setAttribute("max", "24");
+				i.value = data.value;
+				return i;
+			},
+
+			int: function(name, data) {
+				var i = document.createElement("input");
+				i.setAttribute("type", "number");
+				i.setAttribute("min", data.min);
+				i.setAttribute("max", data.max);
 				i.value = data.value;
 				return i;
 			}

@@ -5,24 +5,27 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 	static packageData = JSON.parse(JSON.stringify(Devices.defaultPackageData));
 
 	constructor(circuit, point) {
-		super(circuit, point);
-		this.options = {
+
+		var opts = {
 			buttons: {"type":"qty", "value":1},
 			style: {"type":"choice", "choices":["full","compact"], "value":"full"}
-		};		
+		};	
+
+		super(circuit, point, opts);
+			
 		this.createButtons(point);
 	}
 
 	get packageData() {
-		var pd = JSON.parse(JSON.stringify(Devices.Interfaces.Source.packageData));
-		pd.pins = [this.makePinData(0)];
-		if (this.options.buttons && this.options.style)
-		{
-			var step = this.options.style.value=="compact"? 1 : 2;
-			pd.body.dimensions.height = 2 + (this.options.buttons.value - 1) * step;
-			for (var x = 1; x < this.options.buttons.value; x++)
-				pd.pins.push(this.makePinData(x, step));
-		}
+		
+		var pd = bmco.clone(Devices.Interfaces.Source.packageData);
+		
+		var step = this.options.style.value=="compact"? 1 : 2;
+		pd.body.dimensions.height = 2 + (this.options.buttons.value - 1) * step;
+		
+		for (var x = 0; x < this.options.buttons.value; x++)
+			pd.pins.push(this.makePinData(x, step));
+	
 		return pd;
 	}
 
@@ -138,35 +141,35 @@ Devices.Interfaces.Light = class Light extends Devices.Device {
 		};
 
 	constructor(circuit, point) {
-		super(circuit, point);
-		this.options = {
-			lights: {"type":"qty", "value":1},
-			style: {"type":"choice", "choices":["full","compact"], "value":"full"}
+
+		var opts = {
+			lights: {type:"qty", value:1},
+			style: {type:"choice", choices:["full","compact"], value:"full"}
 		};	
+
+		super(circuit, point, opts);
+		
 		this.createAllLights(point);
 	}
 
 	get packageData() {
-		var pd = JSON.parse(JSON.stringify(Devices.Interfaces.Light.packageData));
-		pd.pins = [this.makePinData(0)];
 		
-		if (this.options.lights)
+		var pd = JSON.parse(JSON.stringify(Devices.Interfaces.Light.packageData));
+		var step = this.options.style.value=="compact"? 1 : 2;
+		var height = 2 + (this.options.lights.value - 1) * step;
+		pd.body.dimensions.height = height; 
+		var secondArc = pd.body.symbol[0].segmentData[1].arc;
+		for (var saPoint of secondArc)
+			saPoint[1] += height-2;
+		for (var y = 0; y < this.options.lights.value; y++)
 		{
-			var step = this.options.style.value=="compact"? 1 : 2;
-			var height = (this.options.lights.value - 1) * step + 2;
-			pd.body.dimensions.height = height; 
-			var secondArc = pd.body.symbol[0].segmentData[1].arc;
-			for (var saPoint of secondArc)
-				saPoint[1] += height-2;
-			for (var y = 1; y < this.options.lights.value; y++)
-			{
-				pd.pins.push(this.makePinData(y, step));
-				var tsd = JSON.parse(JSON.stringify(pd.body.symbol[1]));
-				for (var p of tsd.segmentData)
-					p.point[1] += y*step;
-				pd.body.symbol.push(tsd);
-			}
+			pd.pins.push(this.makePinData(y, step));
+			var tsd = JSON.parse(JSON.stringify(pd.body.symbol[1]));
+			for (var p of tsd.segmentData)
+				p.point[1] += y*step;
+			pd.body.symbol.push(tsd);
 		}
+		
 		return pd;
 	}
 	

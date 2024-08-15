@@ -170,3 +170,17 @@ Devices.Gates.Xnor = class Xnor extends Devices.Gates.Xor {
 	}	
 }
 Devices.Gates.Xnor.packageData.pins[2].bulb = true;
+
+Devices.Gates.Buffer = class Buffer extends Devices.Device {
+
+	static packageData = bmco.clone(Devices.Gates.Not.packageData);
+
+	constructor(circuit, point) {
+		super(circuit, point);
+	}
+
+	update() {
+		this.write("o", this.read("i"));
+	}	
+}
+Devices.Gates.Buffer.packageData.pins[1].bulb = false;
