@@ -55,16 +55,8 @@ Devices.Device = class Device extends Group {
 		this.pivot = new Point(0,0);
 		this.orientation = 0; // direction. "rotation" is taken by paperjs
 		this.reposition(point);
-
 		this.createChildren();
-		this.createPackage(point, circuit);
-		/*
-		
-		this.createBody(point, circuit);
-		this.createPins(circuit);
-		*/
-		
-
+		this.createPackage(point, circuit);		
 	}	
 
 	static doNotIndex = false;
@@ -80,7 +72,7 @@ Devices.Device = class Device extends Group {
 		var y = this.packageData.body.origin.y;
 		var w = this.packageData.body.dimensions.width;
 		var h = this.packageData.body.dimensions.height;
-		var a = [x, y, w-x, h-y, x];
+		var a = [x, y, w-x, h-y, x]; // trust me it works
 		return new Point(a[this.orientation]*window.sim.grid, a[this.orientation+1]*window.sim.grid);		
 	}
 
@@ -100,7 +92,7 @@ Devices.Device = class Device extends Group {
 		var pw = this.packageData.body.dimensions.width;
 		var ph = this.packageData.body.dimensions.height;
 		if (this.orientation % 2 == 1)
-			[pw, ph] = [ph, pw] 
+			[pw, ph] = [ph, pw];
 
 		return {
 			"topRight": this.position.add(new Point(pw*window.sim.grid,0)),
@@ -109,7 +101,6 @@ Devices.Device = class Device extends Group {
 			"bottomRight": this.position.add(new Point(pw*window.sim.grid, ph*window.sim.grid))
 		}
 	}
-
 
 	get body() {
 		return this.children.body;
@@ -328,11 +319,6 @@ Devices.Device = class Device extends Group {
 	label(pinName, label=null) {
 		return this.pins[pinName].label = label;
 	}
-	/* ????
-	setState(pinName, state) {
-		return this.pins[pinName].state = state;
-	}
-	*/
 
 	read(pinName) {
 		return this.pins[pinName].get();
@@ -344,8 +330,8 @@ Devices.Device = class Device extends Group {
 
  	toggle(pinName) {
  		if (this.pins[pinName].state == undefined)
- 			return;
- 		this.pins[pinName].set(!this.pins[pinName].get());
+ 			return undefined;
+ 		return this.pins[pinName].set(!this.pins[pinName].get());
  	}
 
  	act(actuator) { // template, fires when the item's actuator has been pressed
@@ -391,7 +377,6 @@ Devices.Device = class Device extends Group {
 		child.rotate(-90, this.corner.topRight);
 		child.setPosition(child.position.subtract(
 			new Point(shift*window.sim.grid,0)
-		));
-		
-	}y
+		));	
+	}
 }

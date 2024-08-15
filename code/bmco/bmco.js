@@ -770,8 +770,12 @@ randomColor: function(steps=2, low=0, high=15, opts={})
 	if (opts.noWhite && !opts.noGrayscale)
 		colors.splice(colors.length-1, 1);
 	return colors[Math.floor(Math.random()*colors.length)];
-}
+},
 
+clone: function(ref)
+{
+	return JSON.parse(JSON.stringify(ref));
+}
 
 //==========================================================================//
 //=============================== LIBRARY END ==============================//
