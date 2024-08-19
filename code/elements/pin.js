@@ -51,11 +51,11 @@ class Pin extends Path {
 		var shift;
 		switch (textOrientation)
 		{
-			case 0: shift = new Point(window.sim.grid*-0.3, window.sim.grid*0.2); break;
-			case 1: shift = new Point(window.sim.grid* 0.2, window.sim.grid*0.3); break;
-			case 2: shift = new Point(window.sim.grid* 0.3, window.sim.grid*0.2); break;
+			case 0: shift = new Point(window.sim.grid*-0.3, window.sim.grid*0.3); break;
+			case 1: shift = new Point(window.sim.grid* 0.3, window.sim.grid*0.3); break;
+			case 2: shift = new Point(window.sim.grid* 0.3, window.sim.grid*0.3); break;
 			case 3: 
-			default: shift = new Point(window.sim.grid*0.2, window.sim.grid*-0.3); break;
+			default: shift = new Point(window.sim.grid*0.3, window.sim.grid*-0.3); break;
 		}
 		var point = this.firstSegment.point.add(shift);
 		

@@ -179,30 +179,39 @@ Devices.Primitives.PullDown = class PullDown extends Devices.Device {
 Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
 
 	static packageData = {
-			pins: [{"name":"io", "mode":"hi-z", "side":0, "offset":0, "label":"iopin"}],
-			body: {
-				"origin": {
-					x:1,
-					y:1
-				},
-				"dimensions": {
-					"width": 4,
-					"height": 2
-				},
-				"symbol": [],
-				"label": null
-			}
-		};
+		pins: [{"name":"io", "mode":"hi-z", "side":0, "offset":0, "label":null}],
+		body: {
+			"origin": {
+				x:1,
+				y:1
+			},
+			"dimensions": {
+				"width": 4,
+				"height": 2
+			},
+			"symbol": [],
+			"label": null
+		}
+	}
+
+	static dirs = ["inbound", "outbound"]
 
 	constructor(circuit, point) {
 
-		super(circuit, point);
+		var names = ["inbound", "outbound"];
+		var opts = {
+			"direction": {"type":"choice", "choices":Devices.Primitives.InOutPin.dirs, "value":Devices.Primitives.InOutPin.dirs[0]},
+			"label": {"type":"string", "value":null}
+		};
 
-		this.nameInput = "inbound";
-		this.nameOutput = "outbound";
+		super(circuit, point, opts);
+	}
 
-		this.swapSymbolData = {};
-		this.swapSymbolData[this.nameInput] = [{
+	get packageData() {
+		
+		var pd = bmco.clone(Devices.Primitives.InOutPin.packageData);
+		
+		var i = {
 			"segmentData": [ 
 				{"point":[0,0.5]},
 				{"point":[3.5,0.5]},
@@ -211,9 +220,9 @@ Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
 				{"point":[0,1.5]}
 			],
 			"closed": true
-		}];
-
-		this.swapSymbolData[this.nameOutput] = [{
+		};
+			
+		var o = {
 			"segmentData": [ 
 				{"point":[4,0.5]},
 				{"point":[0.5,0.5]},
@@ -222,36 +231,20 @@ Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
 				{"point":[4,1.5]}
 			],
 			"closed": true
-		}];
-			
-		this.options = {
-			"direction": {"type":"choice", "choices":[this.nameInput,this.nameOutput], "value":this.nameInput},
-			"label": {"type":"string", "value":this.name.replace("InOutPin", "io")}
-		}
-		this.direction = null;
-		this.directionSet(this.options.direction.value);
-		this.relabel();
-	}
+		};
 
-	relabel(text=this.options.label.value) {
-		this.labels[0].content = text; 
+		// outbound iopin - in-facing pin is input. and vice versa
+		pd.body.symbol.push(this.options.direction.value == Devices.Primitives.InOutPin.dirs[0]? i : o);
+		pd.pins[0].mode = (this.options.direction.value == Devices.Primitives.InOutPin.dirs[0]? "out" : "in");
+		if (this.options.label.value === null)
+			this.options.label.value = this.name.replace("InOutPin", "io");
+		pd.pins[0].label = this.options.label.value;
+
+		return pd;
+
 	}
 
 	reload() {
-		this.directionSet(this.options.direction.value);
-		this.relabel()
+		this.recreatePackage();
 	}
-
-	directionSet(mode) {
-
-		this.deleteBody();
-		var pd = Devices.defaultPackageData;
-		pd.body.symbol = mode==this.nameInput? this.swapSymbolData[this.nameInput] :  this.swapSymbolData[this.nameOutput];
-		var grid = window.sim.appearance.size.grid;
-		var o = this.position.add(new Point(grid*-1,grid*-1));
-		this.fillBodyCustom(this.children.body, pd, o, grid);
-	
-		this.mode("io", mode);
-	}
-
 }

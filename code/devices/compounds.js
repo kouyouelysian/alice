@@ -91,7 +91,7 @@ Devices.Compounds.Memory = class Memory extends Devices.Device {
 			body: {
 				origin: {
 					x: 2,
-					y: Math.floor(pheight*0.5)
+					y: 2
 				},
 				dimensions: {
 					width: 5,
