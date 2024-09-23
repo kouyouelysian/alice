@@ -1,29 +1,33 @@
 var IcDesigner = {
 
 	targets: {
-		table: document.getElementById("icTable")
+		//table: document.getElementById("icTable")
 	},
 
 	createFrom: function(circuit) {
-	
-		for (var iop of inOutPins)
-			IcDesigner.targets.table.appendChild(IcDesigner.createTableRow(iop));
+		
+		/*var ICPins = circuit.getDevicesByClass("Primitives.ICPin");
+		for (var icp of ICPins)
+			IcDesigner.targets.table.appendChild(IcDesigner.createTableRow(icp));*/
 
 	},
 
 	isEligible(circuit) {
-		var inOutPins = circuit.getDevicesByClass("Primitives.InOutPin");
-		if (inOutPins.length == 0)
-			window.sim.throwError("not a single in/out label found!");
+		var ICPins = circuit.getDevicesByClass("Primitives.ICPin");
+		if (ICPins.length == 0)
+		{
+			window.sim.throwError("not a single IC pin found!");
 			return false;
+		}
+		return true;
 
 	},
 
-	createTableRow(inOutPin) {
+	/*
+	createTableRow(ICPin) {
 		var tr = document.createElement("tr");
-		IcDesigner.createTableCell(tr, inOutPin.name);
-		IcDesigner.createTableCell(tr, inOutPin.options.label.value);
-		IcDesigner.createTableCell(tr, inOutPin.options.direction.value);
+		IcDesigner.createTableCell(tr, ICPin.name);
+		IcDesigner.createTableCell(tr, ICPin.options.label.value);
 		var side = IcDesigner.createTableCell(tr, "");
 		IcDesigner.createSelect(side, [["left",0],["top",1],["right",2],["bottom",3]]);
 		return tr;
@@ -37,7 +41,7 @@ var IcDesigner = {
 		return td;
 	},
 
-	createSelect(parentCell, options=[/*["name", "value"], ...*/])
+	createSelect(parentCell, options=[/*["name", "value"], ...*//*])
 	{
 		var sel = document.createElement("select");
 		for (var o of options)
@@ -49,6 +53,7 @@ var IcDesigner = {
 		}
 		parentCell.appendChild(sel);
 	},
+	*/
 
 	editPin: function(name) {
 		alert(name);

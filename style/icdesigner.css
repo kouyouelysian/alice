@@ -1,5 +1,6 @@
 #icDesigner {
 	padding: var(--sizing);
+	background-color: transparent;
 }
 
 #icDesigner table {
