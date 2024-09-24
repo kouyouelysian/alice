@@ -138,8 +138,8 @@ var HierarchyManager = {
 		},
 
 		integrate: function(name, caller=null) {
-			if (!IcDesigner.isEligible(sim.circuitActive))
-				return false;
+			//if (!IcDesigner.isEligible(sim.circuitActive))
+			//	return false;
 			var exi = Explorer.itemAdd("ic", name);
 			exi.click();
 			IcDesigner.createFrom(sim.circuitActive);

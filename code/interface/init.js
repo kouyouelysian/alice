@@ -6,15 +6,21 @@ function debugCircle(point, radius=10, color=Color.random())
 	c.strokeColor = color;
 }
 
-function initField(x, y) {
+function initField(x, y, id, name) {
 
-	clickbox=document.getElementById("simClickbox");
+	var parent = document.getElementById(id);
+	if (!parent)
+		return;
+
+	var clickbox=parent.getElementsByTagName("div")[0];
 	clickbox.style.width = String((x+1)*GLOBAL_sizing)+"px";
 	clickbox.style.height = String((y+1)*GLOBAL_sizing)+"px";
-	canvas=document.getElementById("simCanvas");
+	
+	var canvas=parent.getElementsByTagName("canvas")[0];
 	canvas.setAttribute("width", String(x*GLOBAL_sizing));
 	canvas.setAttribute("height", String(y*GLOBAL_sizing));
 
+	paper.setup(canvas);
 }
 
 function patchPaperPoint() {
@@ -60,10 +66,16 @@ function patchPaperPoint() {
 
 
 function init() {
-	initField(100, 75);
+
 	paper.install(window);
-	paper.setup('simCanvas');
 	patchPaperPoint();
+
+	
+	initField(100, 75, "simViewport");
+	initField(100, 75, "icDesigner");
+
+	paper.projects[0].activate();
+
 }
 
 
