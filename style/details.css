@@ -45,7 +45,7 @@
 	width: calc(50% - var(--sizing) / 4);
 }
 
-#details input[type="button"].half:nth-child(even) {
+#details input[type="button"].half:nth-of-type(even) {
 	
 	margin-left: calc(var(--sizing) / 2);
 }

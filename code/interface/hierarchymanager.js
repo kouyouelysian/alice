@@ -96,6 +96,7 @@ var HierarchyManager = {
 		},
 
 		show: function(name, caller=null) {
+			paper.projects[0].activate();
 			window.sim.circuitMakeVisible(name);
 			HierarchyManager.windowActivate("simViewport");
 			if (caller)
@@ -138,11 +139,32 @@ var HierarchyManager = {
 		},
 
 		integrate: function(name, caller=null) {
+	
 			//if (!IcDesigner.isEligible(sim.circuitActive))
 			//	return false;
-			var exi = Explorer.itemAdd("ic", name);
-			exi.click();
 			IcDesigner.createFrom(sim.circuitActive);
+
+			Explorer.isAvailable(false);		
+			var exi = Explorer.itemAdd("ic", name);
+			exi.click();	
+
+			paper.projects[1].activate();
+			
+
+			var center = new Point(
+				paper.project.view.size._width/2,
+				paper.project.view.size._height/2,
+			);
+			
+			var ic = new Devices.Primitives.IntegratedCircuit;
+			ic.place();
+			ic.reposition(center);
+			ic.load(sim.circuitActive);
+			window.sim.editedElement = ic;
+
+			Details.ic.show(sim.circuitActive);
+
+
 		}
 
 	},
@@ -154,6 +176,14 @@ var HierarchyManager = {
 		},
 
 		delete: function(name, caller=null) {
+
+		},
+
+		save: function(name, caller=null) {
+
+		},
+
+		cancel: function(name, caller=null) {
 
 		}
 

@@ -46,10 +46,13 @@ Devices.Device = class Device extends Group {
 
 	static packageData = Devices.defaultPackageData;
 
-	constructor(circuit, point, options=undefined) {
+	constructor(circuit=undefined, point=new Point(0,0), options=undefined) {
 		super();
+		
+		if (circuit)
+			circuit.children.devices.addChild(this);
+		
 		this.name = window.sim.circuit.rollByPrefix("name", (this.constructor.name || "dev"));
-		circuit.children.devices.addChild(this);
 		this.data.type = "device"; 
 		if (options === undefined)
 			this.options = {
@@ -131,6 +134,10 @@ Devices.Device = class Device extends Group {
 
 	get circuit() {
 		return this.parent.parent;
+	}
+
+	get class() {
+		return this.constructor.name;
 	}
 
 	get fullClass() {

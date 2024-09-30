@@ -4,15 +4,19 @@ var IcDesigner = {
 		//table: document.getElementById("icTable")
 	},
 
+	sourceCircuit: null,
+
 	createFrom: function(circuit) {
-		
+		IcDesigner.sourceCircuit = circuit;
+		circuit.integrationInit();	
+
 		/*var ICPins = circuit.getDevicesByClass("Primitives.ICPin");
 		for (var icp of ICPins)
 			IcDesigner.targets.table.appendChild(IcDesigner.createTableRow(icp));*/
 
 	},
 
-	isEligible(circuit) {
+	isEligible: function(circuit) {
 		var ICPins = circuit.getDevicesByClass("Primitives.ICPin");
 		if (ICPins.length == 0)
 		{
@@ -21,6 +25,58 @@ var IcDesigner = {
 		}
 		return true;
 
+	},
+
+	findPin: function(pinName){
+		for (var p of IcDesigner.sourceCircuit.integrationDetails.pins)
+		{
+			if (p.name == pinName)
+				return p;
+		}
+		return false;
+	},
+
+	side: function(pinName) {
+
+		var pin = IcDesigner.findPin(pinName);
+
+		pin.side += 1;
+
+		if (pin.side == 4)
+			pin.side = 0;
+
+		IcDesigner.limit(pin);
+
+		window.sim.editedElement.recreatePackage();
+	},
+
+	offset: function(pinName) {
+
+		var pin = IcDesigner.findPin(pinName);
+		pin.offset += 1;
+		IcDesigner.limit(pin);
+
+
+		window.sim.editedElement.recreatePackage();
+	},
+
+	limit: function(pin) {
+
+		var comp = pin.side%2==0?
+			IcDesigner.sourceCircuit.integrationDetails.body.dimensions.height :
+			IcDesigner.sourceCircuit.integrationDetails.body.dimensions.width;
+		comp -= 1;
+
+		if (pin.offset >= comp)
+			pin.offset = 0;
+	},
+
+	dimensions: function() {
+		var w = document.getElementById("deviceOptionWidth").value;
+		var h = document.getElementById("deviceOptionHeight").value;
+		IcDesigner.sourceCircuit.integrationDetails.body.dimensions.width = w;
+		IcDesigner.sourceCircuit.integrationDetails.body.dimensions.height = h;
+		window.sim.editedElement.recreatePackage();
 	},
 
 	/*

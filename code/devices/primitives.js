@@ -1,13 +1,43 @@
 Devices.Primitives = {};
 
-Devices.Primitives.IntegratedCircuit = class PullDown extends Devices.Device {
+Devices.Primitives.IntegratedCircuit = class IntegratedCircuit extends Devices.Device {
+
+	static packageData = {
+		
+		pins: [],
+		body: {
+			origin: {
+				x: 0,
+				y: 0
+			},
+			dimensions: {
+				width: 0,
+				height: 0,
+			},
+			symbol: [],
+			label: null
+		}
+	}
 
 	constructor(circuit, point, circuitName) {
 
 		super(circuit, point);
-		this.circuit = window.sim.circuits.children[circuitName];
-		if (!this.circuit || this.circuit.integrationDetails === {})
-			return;
+		//this.circuit = window.sim.circuits.children[circuitName];
+		//if (!this.circuit || this.circuit.integrationDetails === {})
+			//return;
+		this.emulatedCircuit = undefined;
+
+	}
+
+	get packageData() {
+		if (this.emulatedCircuit)
+			return this.emulatedCircuit.integrationDetails;
+		return Devices.Primitives.IntegratedCircuit.packageData;
+	}
+
+	load(circuit) {
+		this.emulatedCircuit = circuit;
+		this.recreatePackage();
 	}
 
 	static doNotIndex = true;

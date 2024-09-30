@@ -22,7 +22,7 @@ var Details = {
 	device: {
 		
 		show: function(device) {
-			Details.target.innerHTML = `<h3 id="detailsTitle">${device.name}</h3>`;
+			Details.guiGenerator.heading(`${device.name}`);
 			Details.guiGenerator.hr();
 			if (Object.keys(device.options).length != 0)
 			{
@@ -80,15 +80,15 @@ var Details = {
 		},
 
 		showInSim: function(pin) {
-			Details.target.innerHTML = `<h3 id="detailsTitle">${pin.name} @ ${pin.device.name}</h3>`;
+			Details.guiGenerator.heading(`${pin.name} @ ${pin.device.name}`);
 			Details.guiGenerator.hr();
-			Details.target.innerHTML += `<p><b>On net:</b> ${pin.net? pin.net.name : "none"}</p>`;
+			Details.guiGenerator.heading(` ${pin.net? pin.net.name : "none"}`);
 		},
 
 		showInDesigner: function() {
-			Details.target.innerHTML = `<h3 id="detailsTitle">${pin.name} @ ${pin.device.name}</h3>`;
+			Details.guiGenerator.heading(`${pin.name} @ ${pin.device.name}`);
 			Details.guiGenerator.hr();
-			Details.target.innerHTML += `<p><b>On net:</b> ${pin.net? pin.net.name : "none"}</p>`;
+			Details.guiGenerator.text(`<b>On net:</b> ${pin.net? pin.net.name : "none"}`);
 			Details.guiGenerator.hr();
 			Details.guiGenerator.button("save", "Details.pin.save()");
 		},
@@ -99,7 +99,43 @@ var Details = {
 
 	},
 
+	ic: {
+		show: function(circuit) {
+			Details.guiGenerator.heading(`Integrating "${circuit.name}"`);
+			Details.guiGenerator.hr();
+			Details.guiGenerator.heading("Body dimensions");
+			Details.guiGenerator.option("Width", {type: "int", value: circuit.integrationDetails.body.dimensions.width});
+			Details.guiGenerator.option("Height", {type: "int", value: circuit.integrationDetails.body.dimensions.height});
+			Details.guiGenerator.button("Apply", 'IcDesigner.dimensions()')
+			Details.guiGenerator.hr();
+			Details.guiGenerator.heading("Pins");
+			for (var p of circuit.integrationDetails.pins)
+			{
+				Details.guiGenerator.text(`${p.name}`);
+				Details.guiGenerator.button("Side", `IcDesigner.side("${p.name}")`, true);
+				Details.guiGenerator.button("Offset", `IcDesigner.offset("${p.name}")`, true);
+				//Details.guiGenerator.option("Side", {type: "int", value: p.side});
+				//Details.guiGenerator.option("Offset", {type: "int", value: p.offset});
+				//Details.guiGenerator.hr();
+			}
+
+		}
+	},
+
 	guiGenerator: {
+
+		heading: function(text) {
+			var h3 = document.createElement("h3");
+			h3.innerHTML = text;
+			h3.classList.add("detailsTitle");
+			Details.target.appendChild(h3);
+		},
+
+		text: function(text) {
+			var p = document.createElement("p");
+			p.innerHTML = text;
+			Details.target.appendChild(p);
+		},
 
 		button: function(text, action, half=false) {
 			var apply = document.createElement("input");

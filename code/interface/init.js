@@ -21,6 +21,15 @@ function initField(x, y, id, name) {
 	canvas.setAttribute("height", String(y*GLOBAL_sizing));
 
 	paper.setup(canvas);
+
+	
+	// paper.js stuff
+	project.addLayer(new Layer({ name:"editables" }));
+	project.addLayer(new Layer({ name:"above" }));
+	project.layers.editables.activate();
+	view.draw();
+	view.autoUpdate = true;
+
 }
 
 function patchPaperPoint() {
