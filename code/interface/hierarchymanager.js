@@ -102,6 +102,7 @@ var HierarchyManager = {
 			if (caller)
 				Explorer.highlight(caller);
 			window.sim.stop();
+			Details.circuit.show(window.sim.circuitActive);
 		},
 
 		showFirst: function() {
@@ -180,11 +181,14 @@ var HierarchyManager = {
 		},
 
 		save: function(name, caller=null) {
-
+			HierarchyManager.circuit.show(IcDesigner.sourceCircuit.name);
+			IcDesigner.reset();
+			Explorer.isAvailable(true);
 		},
 
 		cancel: function(name, caller=null) {
-
+			IcDesigner.sourceCircuit.integrationDetails = IcDesigner.previousIntegration;
+			HierarchyManager.ic.save(name, caller);
 		}
 
 	},

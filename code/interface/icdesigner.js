@@ -4,10 +4,12 @@ var IcDesigner = {
 		//table: document.getElementById("icTable")
 	},
 
-	sourceCircuit: null,
+	sourceCircuit: undefined,
+	previousIntegration: undefined,
 
 	createFrom: function(circuit) {
 		IcDesigner.sourceCircuit = circuit;
+		IcDesigner.previousIntegration = circuit.integrationDetails;
 		circuit.integrationInit();	
 
 		/*var ICPins = circuit.getDevicesByClass("Primitives.ICPin");
@@ -113,6 +115,15 @@ var IcDesigner = {
 
 	editPin: function(name) {
 		alert(name);
+	},
+
+	save: function() {
+
+	},
+
+	reset: function() {
+		IcDesigner.sourceCircuit = undefined;
+		IcDesigner.previousIntegration = undefined;
 	}
 
 }

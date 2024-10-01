@@ -43,11 +43,10 @@ class Circuit extends Group {
 
 		var counter = 0;
 		for (var dev of this.devices) {
-			console.log(dev.class);
 			if (dev.class != "ICPin")
 				continue;
 			this.integrationDetails.pins.push({
-				name: dev.name,
+				name: dev.options.label.value,
 				mode: "pass",
 				side: 2 - ((counter % 2) * 2),
 				offset: Math.floor(counter/2),
