@@ -145,9 +145,10 @@ var HierarchyManager = {
 			//	return false;
 			IcDesigner.createFrom(sim.circuitActive);
 
-			Explorer.isAvailable(false);		
 			var exi = Explorer.itemAdd("ic", name);
-			exi.click();	
+			exi.setAttribute("onclick", `window.sim.setTool("Primitives.IntegratedCircuit[${name}]")`);
+			Explorer.isAvailable(false);		
+			HierarchyManager.ic.show(name, caller);	
 
 			paper.projects[1].activate();
 			
