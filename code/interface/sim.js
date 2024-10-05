@@ -2,13 +2,6 @@ class Sim {
 
 	constructor(sizing) {
 
-		// paper.js stuff
-		project.addLayer(new Layer({ name:"editables" }));
-		project.addLayer(new Layer({ name:"above" }));
-		project.layers.editables.activate();
-		view.draw();
-		view.autoUpdate = true;
-
 		// project metadata
 
 		this.meta = {

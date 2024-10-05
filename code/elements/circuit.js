@@ -27,7 +27,7 @@ class Circuit extends Group {
 		this.devicePicked = null;
 
 		// other stuff
-		this.integrationDetails = {};		
+		this.integrationDetails = null;		
 	}
 
 	get devices() {
@@ -36,6 +36,33 @@ class Circuit extends Group {
 
 	get nets() {
 		return this.children.nets.children;
+	}
+
+	integrationInit() {
+		this.integrationDetails = Devices.defaultPackageData;
+
+		var counter = 0;
+		for (var dev of this.devices) {
+			if (dev.class != "ICPin")
+				continue;
+			this.integrationDetails.pins.push({
+				name: dev.options.label.value,
+				mode: "pass",
+				side: 2 - ((counter % 2) * 2),
+				offset: Math.floor(counter/2),
+				label: dev.options.label.value
+			});
+			counter += 1;
+		}
+		
+		this.integrationDetails.body.dimensions = {
+			width: 8,
+			height: 1+Math.ceil(counter/2)
+		}
+	}
+
+	integrationRemove() {
+		this.integrationDetails = null;
 	}
 
 	frame() {

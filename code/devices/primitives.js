@@ -1,17 +1,108 @@
 Devices.Primitives = {};
 
-Devices.Primitives.IntegratedCircuit = class PullDown extends Devices.Device {
+Devices.Primitives.IntegratedCircuit = class IntegratedCircuit extends Devices.Device {
+
+	static packageData = {
+		
+		pins: [],
+		body: {
+			origin: {
+				x: 0,
+				y: 0
+			},
+			dimensions: {
+				width: 0,
+				height: 0,
+			},
+			symbol: [],
+			label: null
+		}
+	}
 
 	constructor(circuit, point, circuitName) {
 
 		super(circuit, point);
-		this.circuit = window.sim.circuits.children[circuitName];
-		if (!this.circuit || this.circuit.integrationDetails === {})
-			return;
+		//this.circuit = window.sim.circuits.children[circuitName];
+		//if (!this.circuit || this.circuit.integrationDetails === {})
+			//return;
+		this.emulatedCircuit = undefined;
+
+	}
+
+	get packageData() {
+		if (this.emulatedCircuit)
+			return this.emulatedCircuit.integrationDetails;
+		return Devices.Primitives.IntegratedCircuit.packageData;
+	}
+
+	load(circuit) {
+		this.emulatedCircuit = circuit;
+		this.recreatePackage();
 	}
 
 	static doNotIndex = true;
 };
+
+Devices.Primitives.ICPin =  class ICPin extends Devices.Device {
+
+	static packageData = {
+		pins: [{"name":"io", "mode":"hi-z", "side":0, "offset":0, "label":null}],
+		body: {
+			"origin": {
+				x:1,
+				y:1
+			},
+			"dimensions": {
+				"width": 4,
+				"height": 2
+			},
+			"symbol": [],
+			"label": null
+		}
+	}
+
+	//static dirs = ["inbound", "outbound", "pass"]
+
+	constructor(circuit, point) {
+
+		var opts = {
+			//"direction": {"type":"choice", "choices":Devices.Primitives.ICPin.dirs, "value":Devices.Primitives.ICPin.dirs[0]},
+			"label": {"type":"string", "value":null}
+		};
+
+		super(circuit, point, opts);
+	}
+
+	get packageData() {
+		
+		var pd = bmco.clone(Devices.Primitives.ICPin.packageData);
+
+		pd.body.symbol = [{
+			"segmentData": [ 
+				{"point":[4,1]},
+				{"point":[3.5,0.5]},
+				{"point":[0.5,0.5]},
+				{"point":[0,1]},
+				{"point":[0.5,1.5]},
+				{"point":[3.5,1.5]}
+			],
+			"closed": true
+		}];
+
+
+		pd.pins[0].mode = "hi-z";
+
+		if (this.options.label.value === null)
+			this.options.label.value = this.name.replace("InOutPin", "io");
+		pd.pins[0].label = this.options.label.value;
+		return pd;
+
+	}
+
+	reload() {
+		this.recreatePackage();
+	}
+}
 
 Devices.Primitives.PullUp = class PullUp extends Devices.Device {
 
@@ -174,77 +265,3 @@ Devices.Primitives.PullDown = class PullDown extends Devices.Device {
 	}
 
 };
-
-
-Devices.Primitives.InOutPin =  class InOutPin extends Devices.Device {
-
-	static packageData = {
-		pins: [{"name":"io", "mode":"hi-z", "side":0, "offset":0, "label":null}],
-		body: {
-			"origin": {
-				x:1,
-				y:1
-			},
-			"dimensions": {
-				"width": 4,
-				"height": 2
-			},
-			"symbol": [],
-			"label": null
-		}
-	}
-
-	static dirs = ["inbound", "outbound"]
-
-	constructor(circuit, point) {
-
-		var names = ["inbound", "outbound"];
-		var opts = {
-			"direction": {"type":"choice", "choices":Devices.Primitives.InOutPin.dirs, "value":Devices.Primitives.InOutPin.dirs[0]},
-			"label": {"type":"string", "value":null}
-		};
-
-		super(circuit, point, opts);
-	}
-
-	get packageData() {
-		
-		var pd = bmco.clone(Devices.Primitives.InOutPin.packageData);
-		
-		var i = {
-			"segmentData": [ 
-				{"point":[0,0.5]},
-				{"point":[3.5,0.5]},
-				{"point":[4,1]},
-				{"point":[3.5,1.5]},
-				{"point":[0,1.5]}
-			],
-			"closed": true
-		};
-			
-		var o = {
-			"segmentData": [ 
-				{"point":[4,0.5]},
-				{"point":[0.5,0.5]},
-				{"point":[0,1]},
-				{"point":[0.5,1.5]},
-				{"point":[4,1.5]}
-			],
-			"closed": true
-		};
-
-		// outbound iopin - in-facing pin is input. and vice versa
-		pd.body.symbol.push(this.options.direction.value == Devices.Primitives.InOutPin.dirs[0]? i : o);
-		pd.pins[0].mode = (this.options.direction.value == Devices.Primitives.InOutPin.dirs[0]? "out" : "in");
-		if (this.options.label.value === null)
-			this.options.label.value = this.name.replace("InOutPin", "io");
-		pd.pins[0].label = this.options.label.value;
-
-		return pd;
-
-	}
-
-	reload() {
-		this.recreatePackage();
-	}
-}

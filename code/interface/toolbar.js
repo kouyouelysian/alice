@@ -19,7 +19,8 @@ var ToolBar = {
 			{"text":"Update As Plaintext", "onclick":"HierarchyManager.note.save('plaintext')"}
 		],
 		"icDesigner": [
-			{"text":"Update", "onclick":"HierarchyManager.ic.save()"}
+			{"text":"Save", "onclick":"HierarchyManager.ic.save()"},
+			{"text":"Cancel", "onclick":"HierarchyManager.ic.cancel()"}
 		]
 	},
 

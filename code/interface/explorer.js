@@ -1,7 +1,7 @@
 
 var Explorer = {
 
-	target: "explorer",
+	target: document.getElementById("explorer"),
 	iconDir: "../gfx/icon/ico16/",
 
 	getElementChildUl: function(elem)
@@ -34,10 +34,9 @@ var Explorer = {
 
 	tabsWidthUpdate: function()
 	{
-		var sb = document.getElementById(Explorer.target);
-		sb.style.width = "auto";
-		var w = sb.offsetWidth + 16;
-		sb.style.width = String(w)+"px";
+		Explorer.target.style.width = "auto";
+		var w = Explorer.target.offsetWidth + 16;
+		Explorer.target.style.width = String(w)+"px";
 		document.getElementById("window").style.width = "calc(100% - "+String(w+1)+"px)";
 		document.getElementById("window").style.left = String(w)+"px";
 	},
@@ -192,7 +191,7 @@ var Explorer = {
 	
 		xmldoc = await bmco.xml.awaitXmlFromFile(xmlPath);
 		Explorer.fillDevices(xmldoc);// custom addition
-		var target = document.getElementById(Explorer.target);
+		var target = Explorer.target
 		var ul = document.createElement("ul");
 		ul.id = "sitemap";
 		var tree = Explorer.buildDirectory(bmco.xml.nodeGetFirstOfTag(xmldoc, "sitemap"), "root");
@@ -203,7 +202,7 @@ var Explorer = {
 
 	closeFolders: function()
 	{
-		var lis = document.getElementById(Explorer.target).getElementsByTagName("li");
+		var lis = Explorer.target.getElementsByTagName("li");
 		for (var j = 0; j < lis.length; j++)
 		{
 			if (lis[j].getAttribute("noclose") == "noclose")
@@ -250,5 +249,20 @@ var Explorer = {
 		target.appendChild(li);
 		return li;
 	},
+
+	isAvailable: function(available)
+	{
+		if (available)
+		{
+			Explorer.target.removeAttribute("style");
+			Details.target.removeAttribute("style");
+		}
+		else
+		{
+			Explorer.target.style.display = "none";
+			Details.target.style.height = "100%";
+			Details.target.style.top = 0;
+		}
+	}
 
 }

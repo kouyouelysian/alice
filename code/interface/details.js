@@ -18,11 +18,23 @@ var Details = {
 		
 	},
 
+	circuit: {
+		show: function(circuit) {
+			Details.guiGenerator.reset();
+			Details.guiGenerator.heading(circuit.name);
+			Details.guiGenerator.hr();
+			Details.guiGenerator.text(`Devices: ${circuit.devices.length}`);
+			Details.guiGenerator.text(`Nets: ${circuit.nets.length}`);
+			Details.guiGenerator.text(`Integration: ${circuit.integrationDetails? "present" : "absent"}`);
+
+		}
+	},
 
 	device: {
 		
 		show: function(device) {
-			Details.target.innerHTML = `<h3 id="detailsTitle">${device.name}</h3>`;
+			Details.guiGenerator.reset();
+			Details.guiGenerator.heading(device.name);
 			Details.guiGenerator.hr();
 			if (Object.keys(device.options).length != 0)
 			{
@@ -74,21 +86,22 @@ var Details = {
 	pin: {
 
 		show: function(pin, letEdit = true) {
+			Details.guiGenerator.reset();
 			if (HierarchyManager.windowActive == "icDesigner")
 				return Details.pin.showInDesigner(pin);
 			return Details.pin.showInSim(pin);
 		},
 
 		showInSim: function(pin) {
-			Details.target.innerHTML = `<h3 id="detailsTitle">${pin.name} @ ${pin.device.name}</h3>`;
+			Details.guiGenerator.heading(`${pin.name} @ ${pin.device.name}`);
 			Details.guiGenerator.hr();
-			Details.target.innerHTML += `<p><b>On net:</b> ${pin.net? pin.net.name : "none"}</p>`;
+			Details.guiGenerator.heading(` ${pin.net? pin.net.name : "none"}`);
 		},
 
 		showInDesigner: function() {
-			Details.target.innerHTML = `<h3 id="detailsTitle">${pin.name} @ ${pin.device.name}</h3>`;
+			Details.guiGenerator.heading(`${pin.name} @ ${pin.device.name}`);
 			Details.guiGenerator.hr();
-			Details.target.innerHTML += `<p><b>On net:</b> ${pin.net? pin.net.name : "none"}</p>`;
+			Details.guiGenerator.text(`<b>On net:</b> ${pin.net? pin.net.name : "none"}`);
 			Details.guiGenerator.hr();
 			Details.guiGenerator.button("save", "Details.pin.save()");
 		},
@@ -99,7 +112,44 @@ var Details = {
 
 	},
 
+	ic: {
+		show: function(circuit) {
+			Details.guiGenerator.reset();
+			Details.guiGenerator.heading(`Integrating "${circuit.name}"`);
+			Details.guiGenerator.hr();
+			Details.guiGenerator.heading("Body dimensions");
+			Details.guiGenerator.option("Width", {type: "int", value: circuit.integrationDetails.body.dimensions.width, onchange: "IcDesigner.dimensions()"});
+			Details.guiGenerator.option("Height", {type: "int", value: circuit.integrationDetails.body.dimensions.height, onchange: "IcDesigner.dimensions()"});
+			Details.guiGenerator.hr();
+			Details.guiGenerator.heading("Pins");
+			for (var p of circuit.integrationDetails.pins)
+			{
+				Details.guiGenerator.text(`${p.name}`);
+				Details.guiGenerator.button("Offset", `IcDesigner.offset("${p.name}")`, true);
+				Details.guiGenerator.button("Side", `IcDesigner.side("${p.name}")`, true);
+			}
+
+		}
+	},
+
 	guiGenerator: {
+
+		reset: function() {
+			Details.target.innerHTML = "";
+		},
+
+		heading: function(text) {
+			var h3 = document.createElement("h3");
+			h3.innerHTML = text;
+			h3.classList.add("detailsTitle");
+			Details.target.appendChild(h3);
+		},
+
+		text: function(text) {
+			var p = document.createElement("p");
+			p.innerHTML = text;
+			Details.target.appendChild(p);
+		},
 
 		button: function(text, action, half=false) {
 			var apply = document.createElement("input");
@@ -126,6 +176,10 @@ var Details = {
 			var o = Details.guiGenerator._opt[optData.type](optName, optData);
 			o.id = `${Details.inputIdPrefix}${optName}`;
 			o.name = `${Details.inputIdPrefix}${optName}`;
+
+			if (optData.onchange)
+				o.setAttribute("onchange", optData.onchange);
+
 			Details.setInputAvailability(o);
 			Details.target.appendChild(o);
 		},

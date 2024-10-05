@@ -96,11 +96,13 @@ var HierarchyManager = {
 		},
 
 		show: function(name, caller=null) {
+			paper.projects[0].activate();
 			window.sim.circuitMakeVisible(name);
 			HierarchyManager.windowActivate("simViewport");
 			if (caller)
 				Explorer.highlight(caller);
 			window.sim.stop();
+			Details.circuit.show(window.sim.circuitActive);
 		},
 
 		showFirst: function() {
@@ -138,11 +140,33 @@ var HierarchyManager = {
 		},
 
 		integrate: function(name, caller=null) {
-			if (!IcDesigner.isEligible(sim.circuitActive))
-				return false;
-			var exi = Explorer.itemAdd("ic", name);
-			exi.click();
+	
+			//if (!IcDesigner.isEligible(sim.circuitActive))
+			//	return false;
 			IcDesigner.createFrom(sim.circuitActive);
+
+			var exi = Explorer.itemAdd("ic", name);
+			exi.setAttribute("onclick", `window.sim.setTool("Primitives.IntegratedCircuit[${name}]")`);
+			Explorer.isAvailable(false);		
+			HierarchyManager.ic.show(name, caller);	
+
+			paper.projects[1].activate();
+			
+
+			var center = new Point(
+				paper.project.view.size._width/2,
+				paper.project.view.size._height/2,
+			);
+			
+			var ic = new Devices.Primitives.IntegratedCircuit;
+			ic.place();
+			ic.reposition(center);
+			ic.load(sim.circuitActive);
+			window.sim.editedElement = ic;
+
+			Details.ic.show(sim.circuitActive);
+
+
 		}
 
 	},
@@ -155,6 +179,17 @@ var HierarchyManager = {
 
 		delete: function(name, caller=null) {
 
+		},
+
+		save: function(name, caller=null) {
+			HierarchyManager.circuit.show(IcDesigner.sourceCircuit.name);
+			IcDesigner.reset();
+			Explorer.isAvailable(true);
+		},
+
+		cancel: function(name, caller=null) {
+			IcDesigner.sourceCircuit.integrationDetails = IcDesigner.previousIntegration;
+			HierarchyManager.ic.save(name, caller);
 		}
 
 	},

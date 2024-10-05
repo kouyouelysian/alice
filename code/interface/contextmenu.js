@@ -5,11 +5,13 @@ var ContextMenu = {
 	caller: null,
 
 	presets: {
+
 		"default": [
 			{
 				"text": "(no menu actions available)"
 			}
 		],
+
 		"circuitNew": [
 			{
 				"text": "Create new",
@@ -22,6 +24,7 @@ var ContextMenu = {
 				"icon": "open.png"
 			}
 		],
+
 		"circuitEdit": [
 			{
 				"text": "Rename",
@@ -40,6 +43,7 @@ var ContextMenu = {
 				"onclick": "HierarchyManager.circuit.integrate(ContextMenu.caller.innerHTML, ContextMenu.caller)"
 			}
 		],
+
 		"noteNew": [
 			{
 				"text": "Create new",
@@ -47,6 +51,7 @@ var ContextMenu = {
 				"icon": "desktop.png"
 			}
 		],
+
 		"noteEdit": [
 			{
 				"text": "Rename",
@@ -55,6 +60,13 @@ var ContextMenu = {
 			{
 				"text": "Delete",
 				"onclick": "HierarchyManager.note.delete(ContextMenu.caller.innerHTML, ContextMenu.caller)"
+			}
+		],
+
+		"icEdit": [
+			{
+				"text": "Edit Package",
+				"onclick": "HierarchyManager.circuit.integrate(ContextMenu.caller.innerHTML, ContextMenu.caller)"
 			}
 		],
 	},
