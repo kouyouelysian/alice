@@ -7,7 +7,14 @@ var IcDesigner = {
 	sourceCircuit: undefined,
 	previousIntegration: undefined,
 
+	addExplorerEntry: function(circuit) {
+		var exi = Explorer.itemAdd("ic", circuit.name);
+		exi.setAttribute("onclick", `window.sim.setTool("IntegratedCircuit.${circuit.name}")`);
+		return exi;
+	},
+
 	createFrom: function(circuit) {
+		IcDesigner.addExplorerEntry(circuit);
 		IcDesigner.sourceCircuit = circuit;
 		IcDesigner.previousIntegration = circuit.integrationDetails;
 		circuit.integrationInit();	

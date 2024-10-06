@@ -31,16 +31,46 @@ class Net extends Group {
 		return this.parent.parent;
 	}
 
+	get outputPin() {
+		for (const pin of this.connections) {
+			if (pin.mode == "out")
+				return pin;
+		}
+		return false;
+	}
+
 	export() {
 		var record =  {
 			"name": this.name,
-			"wires": []
+			"wires": [],
+			"connections": []
 		};
 
 		for (var w of this.children.wires.children)
 			record.wires.push(w.export());
 		
+		for (var c of this.connections)
+			record.connections.push(`${c.device.name}.${c.name}`);
+
 		return record;
+	}
+
+	import(netRecord, gui=true) {
+		gui? this.importGui(netRecord)
+			: this.importNoGui(netRecord);
+	}
+
+	importGui(netRecord) {
+
+	}
+
+	importNoGui(netRecord) {
+		for (var nc of netRecord.connections) {
+			var [dName, pName] = nc.split(".");
+			var device = this.circuit.children.devices.children[dName];
+			var pin = device.children.pins.children[pName];
+			pin.connect(this);
+		}
 	}
 
 	remove() {
@@ -60,7 +90,7 @@ class Net extends Group {
 				{
 					debugCircle(pin.lastSegment.point);
 					this.recolor(window.sim.appearance.color.highlighted);
-					return window.sim.throwError("short circuit!");
+					return window.sim.throwError(`SHORT CIRCUIT on net ${this.name} in circuit ${this.circuit.name}: pin ${pin.name} of ${pin.device.name} is not the only output on net!`);
 				}
 				stateUpdated = true;
 				if (this.state == pin.state)
@@ -78,6 +108,8 @@ class Net extends Group {
 		}
 		return true;
 	}
+
+	
 
 	mergeWith(otherNet) {
 		this.children["junctions"].children = this.children["junctions"].children.concat(otherNet.children["junctions"].children); 

@@ -1,48 +1,5 @@
 Devices.Primitives = {};
 
-Devices.Primitives.IntegratedCircuit = class IntegratedCircuit extends Devices.Device {
-
-	static packageData = {
-		
-		pins: [],
-		body: {
-			origin: {
-				x: 0,
-				y: 0
-			},
-			dimensions: {
-				width: 0,
-				height: 0,
-			},
-			symbol: [],
-			label: null
-		}
-	}
-
-	constructor(circuit, point, circuitName) {
-
-		super(circuit, point);
-		//this.circuit = window.sim.circuits.children[circuitName];
-		//if (!this.circuit || this.circuit.integrationDetails === {})
-			//return;
-		this.emulatedCircuit = undefined;
-
-	}
-
-	get packageData() {
-		if (this.emulatedCircuit)
-			return this.emulatedCircuit.integrationDetails;
-		return Devices.Primitives.IntegratedCircuit.packageData;
-	}
-
-	load(circuit) {
-		this.emulatedCircuit = circuit;
-		this.recreatePackage();
-	}
-
-	static doNotIndex = true;
-};
-
 Devices.Primitives.ICPin =  class ICPin extends Devices.Device {
 
 	static packageData = {
@@ -73,6 +30,22 @@ Devices.Primitives.ICPin =  class ICPin extends Devices.Device {
 		super(circuit, point, opts);
 	}
 
+	get pin() {
+		return this.pins[0];
+	}
+
+	get mode() {
+		return this.pins[0].mode;
+	}
+
+	set mode(m) {
+		this.pins[0].mode = m;
+	}
+
+	get net() {
+		return this.pins[0].net;
+	}
+
 	get packageData() {
 		
 		var pd = bmco.clone(Devices.Primitives.ICPin.packageData);
@@ -101,6 +74,14 @@ Devices.Primitives.ICPin =  class ICPin extends Devices.Device {
 
 	reload() {
 		this.recreatePackage();
+	}
+
+	set(val) {
+		return this.pins[0].set(val);
+	}
+
+	get() {
+		return this.pins[0].get();
 	}
 }
 

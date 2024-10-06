@@ -7,7 +7,8 @@ var Devices = {
 		"cornerNames",
 		"defaultActions",
 		"BinaryTable",
-		"explorerExcludes"
+		"explorerExcludes",
+		"IntegratedCircuit"
 	], // use doNotIndex static if you also don't want a category included
 
 	cornerNames: ["topRight", "topLeft", "bottomLeft", "bottomRight"],
@@ -158,6 +159,16 @@ Devices.Device = class Device extends Group {
 			json.options = this.options;
 		return json;
 	}	
+
+	import(deviceRecord) {
+		this.name = deviceRecord.name;
+		this.reorientTo(deviceRecord.orientation);
+		if (deviceRecord.options)
+		{
+			this.options = deviceRecord.options;
+			this.reload();
+		}
+	}
 
 	remove() {
 		this.deletePins();
@@ -364,7 +375,7 @@ Devices.Device = class Device extends Group {
 
 	reset() {
 		for (var p of this.pins)
-				p.set(p.initial);
+			p.set(p.initial);
 	}
 
 	recolor(color) {

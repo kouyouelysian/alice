@@ -144,9 +144,6 @@ var HierarchyManager = {
 			//if (!IcDesigner.isEligible(sim.circuitActive))
 			//	return false;
 			IcDesigner.createFrom(sim.circuitActive);
-
-			var exi = Explorer.itemAdd("ic", name);
-			exi.setAttribute("onclick", `window.sim.setTool("Primitives.IntegratedCircuit[${name}]")`);
 			Explorer.isAvailable(false);		
 			HierarchyManager.ic.show(name, caller);	
 
@@ -158,15 +155,13 @@ var HierarchyManager = {
 				paper.project.view.size._height/2,
 			);
 			
-			var ic = new Devices.Primitives.IntegratedCircuit;
+			var ic = new Devices.IntegratedCircuit.IC;
 			ic.place();
 			ic.reposition(center);
 			ic.load(sim.circuitActive);
 			window.sim.editedElement = ic;
 
 			Details.ic.show(sim.circuitActive);
-
-
 		}
 
 	},

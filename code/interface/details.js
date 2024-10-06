@@ -34,7 +34,7 @@ var Details = {
 		
 		show: function(device) {
 			Details.guiGenerator.reset();
-			Details.guiGenerator.heading(device.name);
+			Details.guiGenerator.heading(device.name, "detailsTitle");
 			Details.guiGenerator.hr();
 			if (Object.keys(device.options).length != 0)
 			{
@@ -138,10 +138,12 @@ var Details = {
 			Details.target.innerHTML = "";
 		},
 
-		heading: function(text) {
+		heading: function(text, id=null) {
 			var h3 = document.createElement("h3");
 			h3.innerHTML = text;
 			h3.classList.add("detailsTitle");
+			if (id)
+				h3.id = id;
 			Details.target.appendChild(h3);
 		},
 

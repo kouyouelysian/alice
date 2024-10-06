@@ -5,7 +5,9 @@ class Sim {
 		// project metadata
 
 		this.meta = {
-			"name":"project"
+			name: "project",
+			fps: 30,
+			tpf: 10
 		}
 
 		// circuit system
@@ -31,8 +33,8 @@ class Sim {
 		this.editedElement = null;
 		this.selection = null;
 		this.updateInterval = null;
-		this.frameRate = 20; // ms
-		this.ticksPerFrame = 1; // ticks
+		this.frameRate = null;
+		this.ticksPerFrame = null;
 
 		// notes system
 		this.notes = {};
@@ -153,16 +155,28 @@ class Sim {
 				return this.circuit.netHighlighted = editable.net;
 		}
 
-		// if not - check if this is a device that exists
+		// if not a core action, then a device is being added
+		this._setStatus("adding device");
+
+		// check if it's an integrated circuit
+		if (this.tool.indexOf("IntegratedCircuit") != -1)
+		{
+			return this.editedElement = new Devices.IntegratedCircuit.IC(
+				this.circuit,
+				point,
+				this.tool.split(".")[1]
+				);
+		}
+
+		// usual device from a library then 
 		var deviceGroup = Devices[this.tool.split(".")[0]];
 		if (!deviceGroup)
 			return;
-
+		
 		var deviceClass = deviceGroup[this.tool.split(".")[1]];
 		if (!deviceClass)
 			return;
-
-		this._setStatus("adding device");
+		
 		return this.editedElement = new deviceClass(this.circuit, point);
 	}
 
@@ -253,40 +267,46 @@ class Sim {
 	}
 
 	run() {
+
 		if (HierarchyManager.windowActive != "simViewport")
 			return;
+		
 		this.reset();
 		this._setStatus("running");
 		this.setTool("pointer");
-		view.autoUpdate = false;
+		Details.setReadOnly(true);
+		paper.view.autoUpdate = false;
+		this.frameRate = 1000*(1/this.meta.fps);
+		this.ticksPerFrame = this.meta.tpf;
+
 		if (!this.updateInterval)
 		{
 			this.updateInterval = window.setInterval(function() 
 			{
-				window.sim.circuitActive.frame();
+				var ticks = window.sim.ticksPerFrame;
+				for (var x = 0; x < ticks; x++)
+					window.sim.circuitActive.frame();
+				paper.view.update();
+
 			}, this.frameRate);
 		}
-		Details.setReadOnly(true);
+		
 	}
 
 	stop() {
 		this._setStatus("idle");
 		clearInterval(this.updateInterval);
 		this.updateInterval = null;
-		view.autoUpdate = true;
+		paper.view.autoUpdate = true;
 		this.ticks = 0;
 		Details.setReadOnly(false);
 	}
 
 	reset() {
-		for (var d of this.circuit.children["devices"].children) {
-			d.reset();
-		}
-		
-		for (var n of this.circuit.children["nets"].children) {
-			n.state = undefined;
-			n.colorByState();
-		}
+
+		if (this.status != "idle")
+			return;
+		this.circuit.reset();
 	}
 
 	point(raw, quantized) {

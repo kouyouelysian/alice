@@ -65,6 +65,23 @@ class Circuit extends Group {
 		this.integrationDetails = null;
 	}
 
+	clone() {
+		var json = this.export();
+		var out = new Circuit();
+		out.import(json);
+		return out;
+	}
+
+	reset() {
+		for (var d of this.devices)
+			d.reset();
+		
+		for (var n of this.nets) {
+			n.state = undefined;
+			n.colorByState();
+		}
+	}
+
 	frame() {
 		//for (var x = 0; x < this.ticksPerFrame; x++)
 		{
@@ -133,15 +150,11 @@ class Circuit extends Group {
 			var parts = deviceRecord.class.split(".");
 			var category = parts[0];
 			var device = parts[1];
+			
 			var dev = new Devices[category][device](this,
 				new Point(deviceRecord.origin.x, deviceRecord.origin.y));
-			dev.name = deviceRecord.name;
-			dev.reorientTo(deviceRecord.orientation);
-			if (deviceRecord.options)
-			{
-				dev.options = deviceRecord.options;
-				dev.reload();
-			}
+			
+			dev.import(deviceRecord);
 		}
 
 		for (const netRecord of json.nets) 
@@ -157,6 +170,10 @@ class Circuit extends Group {
 				w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y));
 			}
 		}
+
+		this.integrationDetails = json.integration;
+		if (this.integrationDetails)
+			IcDesigner.addExplorerEntry(this);
 	}
 
 	export() {
@@ -164,7 +181,8 @@ class Circuit extends Group {
 		var json = {
 			"name": this.name,
 			"devices": [],
-			"nets": []
+			"nets": [],
+			"integration": this.integrationDetails
 		}
 
 		for (var d of this.children.devices.children)
