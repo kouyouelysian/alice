@@ -2,7 +2,7 @@ var Details = {
 
 	target: document.getElementById("details"),
 
-	inputIdPrefix: "deviceOption",
+	inputIdPrefix: "option",
 
 	show: function(object) {
 		
@@ -16,6 +16,37 @@ var Details = {
 				return Details.pin.show(object);
 		}
 		
+	},
+
+	project: {
+		show: function() {
+			Details.inputIdPrefix = "projectOption";
+			Details.guiGenerator.reset();
+			Details.guiGenerator.heading("Project Settings");
+			Details.guiGenerator.hr();
+			var opts = {
+				"Name": {
+					type:"string",
+					value:window.sim.meta.name,
+					description:"Project name",
+					onchange:`window.sim.meta.name  = document.getElementById("projectOptionName").value`
+				},
+				"FPS":  {
+					type:"int",
+					value:window.sim.meta.fps,
+					description:"Frames per second",
+					onchange:`window.sim.meta.fps  = document.getElementById("projectOptionFPS").value`
+				},
+				"TPF":  {
+					type:"int",
+					value:window.sim.meta.tpf,
+					description:"Ticks per frame",
+					onchange:`window.sim.meta.tpf  = document.getElementById("projectOptionTPF").value`
+				}
+			}
+			for (var name in opts)
+				Details.guiGenerator.option(name, opts[name]);
+		}
 	},
 
 	circuit: {
@@ -33,6 +64,7 @@ var Details = {
 	device: {
 		
 		show: function(device) {
+			Details.inputIdPrefix = "deviceOption";
 			Details.guiGenerator.reset();
 			Details.guiGenerator.heading(device.name, "detailsTitle");
 			Details.guiGenerator.hr();
@@ -114,6 +146,7 @@ var Details = {
 
 	ic: {
 		show: function(circuit) {
+			Details.inputIdPrefix = "icOption";
 			Details.guiGenerator.reset();
 			Details.guiGenerator.heading(`Integrating "${circuit.name}"`);
 			Details.guiGenerator.hr();

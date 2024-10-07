@@ -81,8 +81,8 @@ var IcDesigner = {
 	},
 
 	dimensions: function() {
-		var w = document.getElementById("deviceOptionWidth").value;
-		var h = document.getElementById("deviceOptionHeight").value;
+		var w = document.getElementById("icOptionWidth").value;
+		var h = document.getElementById("icOptionHeight").value;
 		IcDesigner.sourceCircuit.integrationDetails.body.dimensions.width = w;
 		IcDesigner.sourceCircuit.integrationDetails.body.dimensions.height = h;
 		window.sim.editedElement.recreatePackage();

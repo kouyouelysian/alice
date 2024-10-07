@@ -8,7 +8,7 @@
 			<directory name="Integrated Circuits" id="explorerIcs"></directory>
 		</directory>
 	</directory>
-	<item name="Project Settings" onclick="alert('todo')" icon="gears.png"></item>
+	<item name="Project Settings" onclick="HierarchyManager.project.show()" icon="gears.png"></item>
 	<item name="Load Project" onclick="HierarchyManager.project.upload()" icon="open.png"></item>
 	<item name="Save Project" onclick="HierarchyManager.project.download()" icon="save.png"></item>
 

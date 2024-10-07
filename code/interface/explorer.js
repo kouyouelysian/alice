@@ -3,6 +3,23 @@ var Explorer = {
 
 	target: document.getElementById("explorer"),
 	iconDir: "../gfx/icon/ico16/",
+	available: true,
+
+	makeAvailable: function(newAvailable)
+	{
+		Explorer.available = newAvailable;
+		if (Explorer.available)
+		{
+			Explorer.target.removeAttribute("style");
+			Details.target.removeAttribute("style");
+		}
+		else
+		{
+			Explorer.target.style.display = "none";
+			Details.target.style.height = "100%";
+			Details.target.style.top = 0;
+		}
+	},
 
 	getElementChildUl: function(elem)
 	{
@@ -250,19 +267,6 @@ var Explorer = {
 		return li;
 	},
 
-	isAvailable: function(available)
-	{
-		if (available)
-		{
-			Explorer.target.removeAttribute("style");
-			Details.target.removeAttribute("style");
-		}
-		else
-		{
-			Explorer.target.style.display = "none";
-			Details.target.style.height = "100%";
-			Details.target.style.top = 0;
-		}
-	}
+	
 
 }

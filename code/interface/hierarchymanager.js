@@ -144,7 +144,7 @@ var HierarchyManager = {
 			//if (!IcDesigner.isEligible(sim.circuitActive))
 			//	return false;
 			IcDesigner.createFrom(sim.circuitActive);
-			Explorer.isAvailable(false);		
+			Explorer.makeAvailable(false);		
 			HierarchyManager.ic.show(name, caller);	
 
 			paper.projects[1].activate();
@@ -179,7 +179,7 @@ var HierarchyManager = {
 		save: function(name, caller=null) {
 			HierarchyManager.circuit.show(IcDesigner.sourceCircuit.name);
 			IcDesigner.reset();
-			Explorer.isAvailable(true);
+			Explorer.makeAvailable(true);
 		},
 
 		cancel: function(name, caller=null) {
@@ -270,6 +270,14 @@ var HierarchyManager = {
 			var json = JSON.parse(text);
 			window.sim.import(json);
 			HierarchyManager.circuit.showFirst();
+		},
+
+		show: function() {
+			if (window.sim.status != "idle")
+				return;
+			if (!Explorer.available)
+				return;
+			Details.project.show();
 		}
 
 	},
