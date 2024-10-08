@@ -52,6 +52,7 @@ Devices.IntegratedCircuit.IC = class IntegratedCircuit extends Devices.Device {
 	build() {
 		this.runningCircuit = new Circuit(`${this.name}-${this.sourceCircuitReference.name}`, -1);
 		this.runningCircuit.visible = false;
+		this.runningCircuit.isAnIC = true;
 		for (var d of this.sourceCircuitReference.devices)
 		{
 			var dclass = eval(`Devices.${d.fullClass}`);

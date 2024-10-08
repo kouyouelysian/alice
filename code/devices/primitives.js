@@ -73,6 +73,15 @@ Devices.Primitives.ICPin =  class ICPin extends Devices.Device {
 	}
 
 	reload() {
+	
+		for (var icp of this.circuit.getDevicesByClass("Primitives.ICPin"))
+		{
+			if ((this.options.label.value != icp.options.label.value) || (this == icp))
+				continue;
+
+			this.options.label.value = this.name;
+			window.sim.throwError("An IC pin with this name already exists! Please, pick another.");
+		}
 		this.recreatePackage();
 	}
 

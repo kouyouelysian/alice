@@ -47,6 +47,8 @@ Devices.Device = class Device extends Group {
 
 	static packageData = Devices.defaultPackageData;
 
+	static memo = undefined;
+
 	constructor(circuit=undefined, point=new Point(0,0), options=undefined) {
 		super();
 		
@@ -145,6 +147,10 @@ Devices.Device = class Device extends Group {
 		return `${this.constructor.category.name}.${this.constructor.name}`
 	}
 
+	get memo() {
+		return this.constructor.memo;
+	}
+
 	export() {
 		var json = {
 			"name": this.name,
@@ -210,10 +216,12 @@ Devices.Device = class Device extends Group {
 
 	reload() {
 		// for devices with options - apply options here
+		this.recreatePackage();
 	}
 
 	createPackage(point=this.originAbsolute, circuit=this.circuit) {
-		this.createBody(point, circuit);
+		if (this.circuit && !this.circuit.isAnIC)
+			this.createBody(point, circuit);
 		this.createPins(point);
 	}
 

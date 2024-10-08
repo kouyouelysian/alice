@@ -28,6 +28,7 @@ class Circuit extends Group {
 
 		// other stuff
 		this.integrationDetails = null;		
+		this.isAnIC = false; // true if ran inside a chip
 	}
 
 	get devices() {
@@ -152,7 +153,7 @@ class Circuit extends Group {
 		{
 			//var net = new Net(this);
 			//net.name = netRecord.name;
-			for (const wireRecord of netRecord.wires)
+			/*for (const wireRecord of netRecord.wires)
 			{
 				var w = new Wire(
 					new Point(wireRecord.start.x, wireRecord.start.y),
@@ -161,6 +162,9 @@ class Circuit extends Group {
 				w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y));
 				sim.circuit.children.nets.lastChild.name = netRecord.name;
 			}
+			*/
+			var net = new Net(this);
+			net.import(netRecord);
 		}
 
 		this.integrationDetails = json.integration;

@@ -74,14 +74,24 @@ var Details = {
 			if (Object.keys(device.options).length != 0)
 			{
 				for (var optName in device.options)
+				{
+					var options = device.options[optName];
+					if (!options.onchange)
+						options.onchange = "Details.device.save()";
 					Details.guiGenerator.option(optName, device.options[optName]);
-				Details.guiGenerator.button("apply", "Details.device.save()");
+				}
 				Details.guiGenerator.hr();
 			}
 			for (var action of Devices.defaultActions)
 			{
 				var onclick = `window.sim.circuit.devices["${device.name}"].${action.method}()`;
 				Details.guiGenerator.button(action.name, onclick, true);
+			}
+			
+			if (device.memo)
+			{
+				Details.guiGenerator.hr();
+				Details.guiGenerator.pre(device.memo);
 			}
 		},
 
@@ -189,6 +199,12 @@ var Details = {
 			Details.target.appendChild(p);
 		},
 
+		pre: function(text) {
+			var p = document.createElement("pre");
+			p.innerHTML = text;
+			Details.target.appendChild(p);
+		},
+
 		button: function(text, action, half=false) {
 			var apply = document.createElement("input");
 			apply.setAttribute("type", "button");
@@ -269,7 +285,7 @@ var Details = {
 				i.setAttribute("max", data.max);
 				i.value = data.value;
 				return i;
-			}
+			},
 		}
 	},
 

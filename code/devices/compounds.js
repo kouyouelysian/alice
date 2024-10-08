@@ -197,3 +197,87 @@ Devices.Compounds.Memory = class Memory extends Devices.Device {
 
 }
 
+
+
+
+Devices.Compounds.ALU = class ALU extends Devices.Device {
+
+	static memo = "ABC <- operation sel pins\n000 add\n001 sub\n010 and\n011 or\n100 xor\n101 lshift\n110 rshift\n111 pass a"
+
+	constructor(circuit, point,) {
+		const opts = {
+			width: {type:"int", min: 2, max: 8, value:4, description:"Data bus width"}
+		};
+
+		super(circuit, point, opts)
+	}
+
+	get packageData() {
+
+		var bw = this.options.width.value;
+		var w = 8;
+		var h = 8 + 2*this.options.width.value;
+
+		var pd = {
+			pins: [
+				{name:`opa`, mode:"in", side:3, offset:0, label:true},
+				{name:`opb`, mode:"in", side:3, offset:1, label:true},
+				{name:`opc`, mode:"in", side:3, offset:2, label:true},
+				{name:`inv`, mode:"in", side:3, offset:3, label:true},
+
+				{name:`ena`, mode:"in", side:3, offset:6, label:true},
+			],
+			body: {
+				dimensions: {
+					width: w,
+					height: h
+				},
+				origin: {
+					x: 4,
+					y: 1 + this.options.width.value
+				},
+				symbol: [
+					{
+						"segmentData": [ 
+							{"point":[0,0]},
+							{"point":[0,bw+1]},
+							{"point":[2,bw+2]},
+							{"point":[2,bw+3]},
+							{"point":[0,bw+4]},
+							{"point":[0,bw*2+5]},
+							{"point":[2,bw*2+5]},
+							{"point":[8,bw*2+3-Math.round(bw/2)]},
+							{"point":[8,Math.round(bw/2)+2]},
+							{"point":[2,0]}
+						],
+						"closed": true
+					},
+					{
+						"segmentData": [
+							{"point":[0,bw*2+6]},
+							{"point":[8,bw*2+6]},
+							{"point":[8,bw*2+8]},
+							{"point":[0,bw*2+8]}
+						],
+						"closed": true
+					},
+					{
+						"segmentData": [
+							{"point":[1,bw*2+5]},
+							{"point":[1,bw*2+6]},
+						],
+						"closed": false
+					}
+				]
+			}
+		}
+		for (var x = 0; x < bw; x++)
+		{
+			pd.pins.push({name:`a${x}`, mode:"in", side:2, offset:x, label:true});
+			pd.pins.push({name:`b${x}`, mode:"in", side:2, offset:x+bw+4, label:true});
+			pd.pins.push({name:`q${x}`, mode:"out", side:0, offset:x+2+Math.round(bw/2), label:true});
+		}
+
+		return pd;
+	}
+}

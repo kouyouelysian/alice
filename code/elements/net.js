@@ -55,22 +55,31 @@ class Net extends Group {
 		return record;
 	}
 
-	import(netRecord, gui=true) {
-		gui? this.importGui(netRecord)
-			: this.importNoGui(netRecord);
+	import(netRecord) {
+		this.circuit.isAnIC? this.importLogic(netRecord) : this.importGui(netRecord);	
 	}
 
-	importGui(netRecord) {
-
-	}
-
-	importNoGui(netRecord) {
-		for (var nc of netRecord.connections) {
-			var [dName, pName] = nc.split(".");
-			var device = this.circuit.children.devices.children[dName];
-			var pin = device.children.pins.children[pName];
+	importLogic(netRecord) {
+		for (var connRecord of netRecord.connections) {
+			var [nameDevice, namePin] = connRecord.split(".");
+			var dev = this.circuit.devices[nameDevice];
+			if (!dev)
+				return window.sim.throwError(`Import halted: cannot locate device ${nameDevice}`);
+			var pin = dev.pins[namePin];
+			if (!pin)
+				return window.sim.throwError(`import halted: cannot locate pin ${namePin} of ${nameDevice}`);
 			pin.connect(this);
 		}
+	} 
+
+	importGui(netRecord) {
+		for (var wireRecord of netRecord.wires) {
+			var w = new Wire(new Point(-100,-100), this.circuit, false);
+			w.renet(this);
+			w.start(new Point(wireRecord.start.x, wireRecord.start.y));
+			w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y));
+		}
+		this.name = netRecord.name;
 	}
 
 	remove() {

@@ -54,13 +54,14 @@ Devices.Interfaces.Source = class Source extends Devices.Device {
 		var button;
 
 		if (this.options.style.value == "full")
-			button = new Path.Circle(point, grid * 0.5);
+			button = new Path.Rectangle(
+				new Point(point.x - grid*0.5, point.y - grid*0.5),
+				new Point(point.x + grid*0.5, point.y + grid*0.5));
+			//button = new Path.Circle(point, grid * 0.5);
 		else if (this.options.style.value == "compact")
-		{
 			button = new Path.Rectangle(
 				new Point(point.x - grid*0.75, point.y - grid*0.3),
 				new Point(point.x + grid*0.75, point.y + grid*0.3));
-		}
 
 		button.fillColor = window.sim.appearance.color.false;
 		button.data.type = "actuator";

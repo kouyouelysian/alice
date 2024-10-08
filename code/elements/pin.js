@@ -15,7 +15,7 @@ class Pin extends Path {
 		this.data.type = "pin";
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
-		this.label = pinData.label;
+		this.label = (pinData.label === true)? pinData.name : pinData.label; // bool true -> make label same as name
 		this.state = undefined;
 		this.initial = pinData.initial; // undefined OK
 		if (this.initial !== undefined)
