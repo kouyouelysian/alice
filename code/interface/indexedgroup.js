@@ -11,7 +11,8 @@ class IndexedGroup extends Group {
 	}
 
 	freeIndex(id, stack) {
-		this.indexStack.push(parseInt(id.substr(3)));
+		var n = parseInt(id.substr(3));
+		this.indexStack.push(n);
 	}
 
 	clear() {

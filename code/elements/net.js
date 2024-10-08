@@ -78,36 +78,45 @@ class Net extends Group {
 		super.remove();
 	}
 
-	update() {
+	tick() {
 
-		var stateUpdated = false;
-		
+		this.state = undefined;
+		var ins = [];
+
 		for (const pin of this.connections) { // first find out this net's state
-
-			if (pin.mode == "out")
-			{		
-				if (stateUpdated)
-				{
-					debugCircle(pin.lastSegment.point);
-					this.recolor(window.sim.appearance.color.highlighted);
-					return window.sim.throwError(`SHORT CIRCUIT on net ${this.name} in circuit ${this.circuit.name}: pin ${pin.name} of ${pin.device.name} is not the only output on net!`);
-				}
-				stateUpdated = true;
-				if (this.state == pin.state)
-					continue;
-				this.setState(pin.state);
+	
+			switch (pin.mode)
+			{
+				case 'hi-z':
+					break;
+				case 'out':
+					if (this.state == undefined)
+						this.state = pin.state;
+					else
+					{
+						debugCircle(pin.lastSegment.point);
+						this.recolor(window.sim.appearance.color.highlighted);
+						return window.sim.throwError(`SHORT CIRCUIT on net ${this.name} in circuit ${this.circuit.name}:\
+							pin ${pin.name} of ${pin.device.name} is not the only output on net!`);
+					}
+					break;
+				case 'in':
+					ins.push(pin)
+					break;
 			}
 		}
 
-		if (!stateUpdated) // no outputs located
-			this.setState(undefined);
-
-		for (const pin of this.connections) { // then distribute it to all input pins
-			if (pin.mode == "in")
-				pin.set(this.state, this.strokeColor);
-		}
-		return true;
+		for (var inPin of ins)
+			inPin.set(this.state);
 	}
+
+	frame() {
+		this.autoColor();
+		for (const pin of this.connections) { // then distribute it to all input pins
+			pin.autoColor();
+		}
+	}
+
 
 	
 
@@ -124,9 +133,17 @@ class Net extends Group {
 		this.fillColor = color;
 	}
 
+	autoColor(state) {
+		if (state === false)
+			return this.recolor(window.sim.appearance.color.false);
+		else if (state === true)
+			return this.recolor(window.sim.appearance.color.true);
+		this.recolor(window.sim.appearance.color.undefined);
+	}
+
 	setState(state) {
 		this.state = state;
-		this.colorByState(state);
+		this.autoColor(state);
 	}
 
 	wireRemovalScan(wire) {
@@ -166,14 +183,7 @@ class Net extends Group {
 			this.connections.push(pin);
 	} 
 
-	colorByState(state) {
-		if (state === true)
-			this.recolor(window.sim.appearance.color.true);
-		else if (state === false)
-			this.recolor(window.sim.appearance.color.false);
-		else
-			this.recolor(window.sim.appearance.color.undefined);
-	}
+	
 
 	highlight() {
 		this.recolor(window.sim.appearance.color.highlighted);

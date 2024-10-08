@@ -78,7 +78,7 @@ class Circuit extends Group {
 		
 		for (var n of this.nets) {
 			n.state = undefined;
-			n.colorByState();
+			n.autoColor();
 		}
 	}
 
@@ -86,13 +86,15 @@ class Circuit extends Group {
 		var tpf = window.sim.meta.tpf;
 		for (var c = 1; c <= tpf; c++)
 		{
-			var fEnd = c==tpf;
 			for (var net of this.children["nets"].children) 
-				net.update(fEnd);
+				net.tick();
 			for (var dev of this.children["devices"].children) 
-				dev.update(fEnd);
+				dev.update();
 		}
+		for (var net of this.children["nets"].children) 
+				net.frame();
 	}
+
 
 	
 	rollByPrefix(property="name", prefix="dev") {
@@ -148,8 +150,8 @@ class Circuit extends Group {
 
 		for (const netRecord of json.nets) 
 		{
-			var net = new Net(this);
-			net.name = netRecord.name;
+			//var net = new Net(this);
+			//net.name = netRecord.name;
 			for (const wireRecord of netRecord.wires)
 			{
 				var w = new Wire(
@@ -157,6 +159,7 @@ class Circuit extends Group {
 					this
 					);
 				w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y));
+				sim.circuit.children.nets.lastChild.name = netRecord.name;
 			}
 		}
 

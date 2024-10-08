@@ -93,8 +93,8 @@ class Pin extends Path {
 		this.state = state;
 		if (color) // for fast recoloring on update
 			this.strokeColor = color; 
-		else
-			this.autoColor();
+		//else
+		//	this.autoColor();
 		return state;
 	}
 
