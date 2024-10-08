@@ -116,10 +116,7 @@ class Net extends Group {
 			pin.autoColor();
 		}
 	}
-
-
 	
-
 	mergeWith(otherNet) {
 		this.children["junctions"].children = this.children["junctions"].children.concat(otherNet.children["junctions"].children); 
 		this.children["wires"].children = this.children["wires"].children.concat(otherNet.children["wires"].children); 
@@ -133,10 +130,10 @@ class Net extends Group {
 		this.fillColor = color;
 	}
 
-	autoColor(state) {
-		if (state === false)
+	autoColor() {
+		if (this.state === false)
 			return this.recolor(window.sim.appearance.color.false);
-		else if (state === true)
+		else if (this.state === true)
 			return this.recolor(window.sim.appearance.color.true);
 		this.recolor(window.sim.appearance.color.undefined);
 	}
