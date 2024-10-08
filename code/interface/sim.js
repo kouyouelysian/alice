@@ -161,11 +161,12 @@ class Sim {
 		// check if it's an integrated circuit
 		if (this.tool.indexOf("IntegratedCircuit") != -1)
 		{
-			return this.editedElement = new Devices.IntegratedCircuit.IC(
+			this.editedElement = new Devices.IntegratedCircuit.IC(
 				this.circuit,
 				point,
 				this.tool.split(".")[1]
 				);
+			return Details.device.show(this.editedElement);
 		}
 
 		// usual device from a library then 
@@ -177,7 +178,8 @@ class Sim {
 		if (!deviceClass)
 			return;
 		
-		return this.editedElement = new deviceClass(this.circuit, point);
+		this.editedElement = new deviceClass(this.circuit, point);
+		return Details.device.show(this.editedElement);
 	}
 
 	_actionFinish(point) {
@@ -263,6 +265,7 @@ class Sim {
 				this.editedElement.remove();
 				break;
 		}
+		Details.circuit.show(this.circuit);
 		this._setStatus("idle");
 	}
 
@@ -283,15 +286,28 @@ class Sim {
 		{
 			this.updateInterval = window.setInterval(function() 
 			{
-				var ticks = window.sim.ticksPerFrame;
-				for (var x = 0; x < ticks; x++)
-					window.sim.circuitActive.frame();
+				window.sim.circuitActive.frame();
 				paper.view.update();
 
 			}, this.frameRate);
 		}
 		
 	}
+
+	benchmark(laps=15000)
+	{
+		var timeStack = 0;
+		for (var x = 0; x < laps; x++)
+		{		
+			var startTime = performance.now()
+			window.sim.circuitActive.frame();
+			paper.view.update();
+			var endTime = performance.now()
+			timeStack += endTime - startTime;
+		}
+		alert(`average of ${laps} circuit frame times: ${timeStack/laps*1000} us`);
+	}
+
 
 	stop() {
 		this._setStatus("idle");

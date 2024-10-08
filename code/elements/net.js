@@ -81,7 +81,7 @@ class Net extends Group {
 	update() {
 
 		var stateUpdated = false;
-
+		
 		for (const pin of this.connections) { // first find out this net's state
 
 			if (pin.mode == "out")

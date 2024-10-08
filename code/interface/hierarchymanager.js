@@ -320,10 +320,7 @@ var HierarchyManager = {
 	},
 
 	onload: async function() {
-
 		HierarchyManager.circuit.create();
-		HierarchyManager.circuit.showFirst();
-
 	},
 
 }

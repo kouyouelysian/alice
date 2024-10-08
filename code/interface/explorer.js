@@ -231,10 +231,14 @@ var Explorer = {
 	},
 
 	highlight(itemElement) {
-		var previousCaller = document.getElementsByClassName("loadedItem")[0];
-		if (previousCaller)
-			previousCaller.classList.remove("loadedItem");
+		Explorer.unhighlight();
 		itemElement.classList.add("loadedItem");
+	},
+
+	unhighlight(el=Explorer.getHighlighted(true)) {
+		if (!el)
+			return;
+		el.classList.remove("loadedItem");
 	},
 
 	getHighlighted(asElement=false) {

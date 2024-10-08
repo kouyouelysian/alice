@@ -83,29 +83,18 @@ class Circuit extends Group {
 	}
 
 	frame() {
-		//for (var x = 0; x < this.ticksPerFrame; x++)
+		var tpf = window.sim.meta.tpf;
+		for (var c = 1; c <= tpf; c++)
 		{
+			var fEnd = c==tpf;
 			for (var net of this.children["nets"].children) 
-				net.update();
+				net.update(fEnd);
 			for (var dev of this.children["devices"].children) 
-				dev.update();
+				dev.update(fEnd);
 		}
-		view.update();
 	}
 
-	benchmark(laps=1000*this.ticksPerFrame)
-	{
-		var timeStack = 0;
-		for (var x = 0; x < laps; x++)
-		{
-			var startTime = performance.now()
-			this.update()   // <---- measured code goes between startTime and endTime
-			var endTime = performance.now()
-			timeStack += endTime - startTime;
-		}
-		console.log("average of", laps, "circuit update times:", timeStack/laps, "milliseconds.")
-	}
-
+	
 	rollByPrefix(property="name", prefix="dev") {
 		var counter = -1;
 		var ok;

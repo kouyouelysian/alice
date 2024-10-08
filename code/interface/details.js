@@ -57,6 +57,9 @@ var Details = {
 			Details.guiGenerator.text(`Devices: ${circuit.devices.length}`);
 			Details.guiGenerator.text(`Nets: ${circuit.nets.length}`);
 			Details.guiGenerator.text(`Integration: ${circuit.integrationDetails? "present" : "absent"}`);
+			Details.guiGenerator.hr();
+			Details.guiGenerator.button(`Benchmark Circuit`, `window.sim.benchmark()`);
+
 
 		}
 	},
