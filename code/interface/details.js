@@ -71,14 +71,22 @@ var Details = {
 			Details.guiGenerator.reset();
 			Details.guiGenerator.heading(device.name, "detailsTitle");
 			Details.guiGenerator.hr();
-			if (Object.keys(device.options).length != 0)
+
+			var opts = bmco.clone(device.options);
+			for (var oname in opts)
+			{	// delete all hidden options to make them uneditables
+				if (opts[oname].type == "hidden")
+					delete opts[oname];
+			}
+
+			if (Object.keys(opts).length != 0)
 			{
-				for (var optName in device.options)
+				for (var optName in opts)
 				{
-					var options = device.options[optName];
+					var options = opts[optName];
 					if (!options.onchange)
 						options.onchange = "Details.device.save()";
-					Details.guiGenerator.option(optName, device.options[optName]);
+					Details.guiGenerator.option(optName, opts[optName]);
 				}
 				Details.guiGenerator.hr();
 			}
@@ -221,9 +229,12 @@ var Details = {
 		},
 
 		option: function(optName, optData) {
+
+			if (optData.type == "hidden")
+				return;
+
 			var l = document.createElement("label");
 			l.setAttribute("for", `${Details.inputIdPrefix}${optName}`);
-
 			l.innerHTML = optData.description? optData.description : optName;
 			Details.target.appendChild(l);
 
@@ -286,6 +297,13 @@ var Details = {
 				i.value = data.value;
 				return i;
 			},
+
+			hidden: function(name, data) {
+				var i = document.createElement("input");
+				i.setAttribute("type", "hidden");
+				i.value = data.value;
+				return i;
+			}
 		}
 	},
 

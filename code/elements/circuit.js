@@ -136,7 +136,20 @@ class Circuit extends Group {
 	import(json) {
 
 		this.name = json.name;
+		// verify dependencies
+		for (const deviceRecord of json.devices)
+		{
+			if (deviceRecord.class != "IntegratedCircuit.IC")
+				continue;
+			var emuCircName = deviceRecord.options.circuit.value;
+			if (!window.sim.circuits.children[emuCircName]) 
+			{
+				window.sim.throwError(`The imported circuit uses an IC "${emuCircName} that was not found. Please, import it first."`);
+				return HierarchyManager.circuit.delete(this.name);
+			}
+		}
 
+		// import devices
 		for (const deviceRecord of json.devices)
 		{
 			var parts = deviceRecord.class.split(".");
@@ -149,20 +162,9 @@ class Circuit extends Group {
 			dev.import(deviceRecord);
 		}
 
+		// import nets
 		for (const netRecord of json.nets) 
 		{
-			//var net = new Net(this);
-			//net.name = netRecord.name;
-			/*for (const wireRecord of netRecord.wires)
-			{
-				var w = new Wire(
-					new Point(wireRecord.start.x, wireRecord.start.y),
-					this
-					);
-				w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y));
-				sim.circuit.children.nets.lastChild.name = netRecord.name;
-			}
-			*/
 			var net = new Net(this);
 			net.import(netRecord);
 		}
@@ -191,3 +193,5 @@ class Circuit extends Group {
 	}
 
 }
+
+

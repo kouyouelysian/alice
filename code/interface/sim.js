@@ -24,6 +24,7 @@ class Sim {
 			tool: document.getElementById("displayTool")
 		}
 		this.activeWindow = null;
+		this.hotkeysActive = false;
 
 		// logic
 		this.status = undefined;
@@ -74,15 +75,17 @@ class Sim {
 		if (opts.name) // tool by name has prevalence
 			return setTool(opts.name);
 
-		switch (opts.key)
+		if (opts.key && this.hotkeysActive)
 		{
-			case "w": return this.setTool("wire");
-			case "d": return this.setTool("drag");
-			case "p": return this.setTool("pointer");
-			case "h": return this.setTool("highlight");
-
-			case "s": return this.setTool("Interfaces.Source");
-			case "l": return this.setTool("Interfaces.Light");
+			switch (opts.key)
+			{
+				case "w": return this.setTool("wire");
+				case "d": return this.setTool("drag");
+				case "p": return this.setTool("pointer");
+				case "h": return this.setTool("highlight");
+				case "s": return this.setTool("Interfaces.Source");
+				case "l": return this.setTool("Interfaces.Light");
+			}
 		}
 
 	}
@@ -294,7 +297,7 @@ class Sim {
 		
 	}
 
-	benchmark(laps=15000)
+	benchmark(laps=25000)
 	{
 		var timeStack = 0;
 		for (var x = 0; x < laps; x++)

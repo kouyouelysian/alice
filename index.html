@@ -25,7 +25,7 @@
 
 	<div id="simViewport" class="mainWindow">
 		<canvas id="simCanvas"></canvas>
-		<div id="simClickbox" onclick="window.sim.click(event)"></div>
+		<div id="simClickbox" onclick="window.sim.click(event)" onmouseenter="sim.hotkeysActive=true" onmouseleave="sim.hotkeysActive=false"></div>
 	</div>
 
 	<div id="icDesigner" class="mainWindow">

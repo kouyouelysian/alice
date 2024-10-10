@@ -1,7 +1,10 @@
 Devices.IntegratedCircuit = {}
 
 
-Devices.IntegratedCircuit.IC = class IntegratedCircuit extends Devices.Device {
+Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
+
+
+	static category = {name:"IntegratedCircuit", object:Devices.IntegratedCircuit};
 
 	static packageData = {
 		
@@ -22,20 +25,17 @@ Devices.IntegratedCircuit.IC = class IntegratedCircuit extends Devices.Device {
 
 	constructor(circuit, point, circuitName) {
 
-		super(circuit, point);
+		var opts = {
+			circuit: {type:"hidden", value:circuitName}
+		};
 
+		super(circuit, point, opts);
+	
 		this.runningCircuit = undefined;
 		this.sourceCircuitReference = undefined;
-		if (circuitName)
-		{
-			if (circuitName == circuit.name)
-				return window.sim.throwError("cannot put an IC of a circuit inside the circuit itself! Spare your CPU from such recursion!");
-			this.sourceCircuitReference = window.sim.circuits.children[circuitName];
-			if (!this.sourceCircuitReference.integrationDetails)
-				return window.sim.throwError("attempting to place an IC of a circuit that has not yet been integrated!");
-			this.recreatePackage();
-			this.build();
-		}
+
+		this.build();
+		
 	}
 
 	get packageData() {
@@ -44,12 +44,28 @@ Devices.IntegratedCircuit.IC = class IntegratedCircuit extends Devices.Device {
 		return Devices.IntegratedCircuit.IC.packageData;
 	}
 
-	load(circuit) {
-		this.sourceCircuitReference = circuit;
-		this.recreatePackage();
+	reload() {
+		this.build();
 	}
 
 	build() {
+
+		var circuitName = this.options.circuit.value;
+
+		if (!circuitName)
+			return;
+
+		if (circuitName == this.circuit.name)
+				return window.sim.throwError("cannot put an IC of a circuit inside the circuit itself! Spare your CPU from such recursion!");
+
+		this.sourceCircuitReference = window.sim.circuits.children[circuitName];
+		if (!this.sourceCircuitReference)
+			return window.sim.throwError(`Attempted to integrate circuit "${circuitName}"; no such circuit found`);
+		if (!this.sourceCircuitReference.integrationDetails)
+			return window.sim.throwError("attempting to place an IC of a circuit that has not yet been integrated!");
+
+		this.recreatePackage();
+
 		this.runningCircuit = new Circuit(`${this.name}-${this.sourceCircuitReference.name}`, -1);
 		this.runningCircuit.visible = false;
 		this.runningCircuit.isAnIC = true;

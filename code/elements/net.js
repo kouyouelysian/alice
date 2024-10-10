@@ -97,7 +97,7 @@ class Net extends Group {
 			switch (pin.mode)
 			{
 				case 'hi-z':
-					break;
+					continue;
 				case 'out':
 					if (this.state == undefined)
 						this.state = pin.state;
@@ -108,10 +108,10 @@ class Net extends Group {
 						return window.sim.throwError(`SHORT CIRCUIT on net ${this.name} in circuit ${this.circuit.name}:\
 							pin ${pin.name} of ${pin.device.name} is not the only output on net!`);
 					}
-					break;
+					continue;
 				case 'in':
 					ins.push(pin)
-					break;
+					continue;
 			}
 		}
 

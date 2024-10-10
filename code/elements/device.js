@@ -162,7 +162,7 @@ Devices.Device = class Device extends Group {
 			"orientation": this.orientation
 		};
 		if (this.options != {})
-			json.options = this.options;
+			json.options = bmco.clone(this.options);
 		return json;
 	}	
 

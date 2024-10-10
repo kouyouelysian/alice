@@ -190,7 +190,7 @@ var Explorer = {
 			var categoryXmlNode = xmldoc.createElement("directory");
 			categoryXmlNode.setAttribute("name", categoryName);
 			for (const deviceName in Devices[categoryName]) {
-				Devices[categoryName][deviceName].category = {"name":categoryName, "object":Devices[categoryName]};
+				Devices[categoryName][deviceName].category = {name:categoryName, object:Devices[categoryName]};
 				if (Devices[categoryName][deviceName].doNotIndex)
 					continue;
 				var deviceXmlNode = xmldoc.createElement("item");

@@ -28,6 +28,8 @@ Devices.Primitives.ICPin =  class ICPin extends Devices.Device {
 		};
 
 		super(circuit, point, opts);
+		
+		this.options.label.value = this.name;
 	}
 
 	get pin() {
@@ -62,12 +64,9 @@ Devices.Primitives.ICPin =  class ICPin extends Devices.Device {
 			"closed": true
 		}];
 
+		pd.pins[0].label = this.options.label.value? this.options.label.value : this.name.replace("InOutPin", "io");
 
-		pd.pins[0].mode = "hi-z";
 
-		if (this.options.label.value === null)
-			this.options.label.value = this.name.replace("InOutPin", "io");
-		pd.pins[0].label = this.options.label.value;
 		return pd;
 
 	}

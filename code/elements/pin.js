@@ -88,31 +88,16 @@ class Pin extends Path {
 	}
 
 	set(state, color=null) {
-		if (state == this.state)
-			return state;
 		this.state = state;
-		if (color) // for fast recoloring on update
-			this.strokeColor = color; 
-		//else
-		//	this.autoColor();
 		return state;
 	}
 
 	autoColor() {
-		this.strokeColor = this.colorByState(this.state);
+		this.strokeColor = sim.appearance.color[this.state];
 	}
 
 	get() {
 		return this.state;
-	}
-
-	colorByState(state) {
-		if (state === true)
-			return window.sim.appearance.color.true;
-		else if (state === false)
-			return window.sim.appearance.color.false;
-		else
-			return window.sim.appearance.color.undefined;
 	}
 
 	connect(net) {
@@ -159,9 +144,5 @@ class Pin extends Path {
 			wire.splitAt(end);
 		}
 	}
-
-	
-
-	
 
 }

@@ -56,6 +56,11 @@ Devices.Timing.Clock = class Clock extends Devices.Device {
 
 	}
 
+	createPackage(point=this.originAbsolute, circuit=this.circuit) {
+		super.createPackage(point, circuit);
+		this.createIndicator();
+	}
+
 	createIndicator() {
 		var ind = new Path.Circle(
 			this.originAbsolute.add(new Point(window.sim.grid,0)), 

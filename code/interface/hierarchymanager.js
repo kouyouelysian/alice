@@ -85,14 +85,26 @@ var HierarchyManager = {
 			window.sim.circuits.children[name].remove();
 			if (caller)
 				caller.parentElement.remove();
+			else if (HierarchyManager.circuit.findCaller(name))
+				HierarchyManager.circuit.findCaller(name).parentElement.remove();
 			if (HierarchyManager.windowActive != "simViewport")
 				return;
 			window.sim.stop();
 			if (window.sim.circuits.children.length == 0)
 				return HierarchyManager.windowActivate(null);
 			HierarchyManager.circuit.showFirst();
+		},
 
-
+		findCaller(name) {
+			var target = document.getElementById("explorerCircuits");
+			if (!target)
+				return;
+			for (var a of target.getElementsByTagName("a"))
+			{
+				if (a.innerHTML == name)
+					return a;
+			}
+			return false;
 		},
 
 		show: function(name, caller=null) {
