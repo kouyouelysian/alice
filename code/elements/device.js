@@ -143,6 +143,10 @@ Devices.Device = class Device extends Group {
 		return this.constructor.name;
 	}
 
+	get class() {
+		return this.constructor.name;
+	}
+
 	get fullClass() {
 		return `${this.constructor.category.name}.${this.constructor.name}`
 	}
@@ -209,6 +213,11 @@ Devices.Device = class Device extends Group {
 		obj.setFillColor(window.sim.appearance.color.fill);
 	}
 	
+	pick() {
+		for (var pin of this.pins)
+			pin.disconnect();
+	}
+
 	place() {
 		for (var pin of this.pins) 
 			pin.place();
@@ -220,8 +229,8 @@ Devices.Device = class Device extends Group {
 	}
 
 	createPackage(point=this.originAbsolute, circuit=this.circuit) {
-		if (this.circuit && !this.circuit.isAnIC)
-			this.createBody(point, circuit);
+		if ((this.circuit && !this.circuit.isAnIC) || (!this.circuit))
+			this.createBody(point, circuit); // if main window or ic editor
 		this.createPins(point);
 	}
 

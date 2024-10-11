@@ -39,6 +39,20 @@ class Circuit extends Group {
 		return this.children.nets.children;
 	}
 
+	get dependencies() {
+		var deps = [];
+		for (var d of this.devices)
+		{
+			if (d.fullClass != "IntegratedCircuit.IC")
+				continue;
+			var cir = d.options.circuit.value;
+			if (bmco.arrayHas(deps, cir))
+				continue;
+			deps.push(cir);
+		}
+		return deps;
+	}
+
 	integrationInit() {
 		this.integrationDetails = Devices.defaultPackageData;
 
@@ -61,6 +75,8 @@ class Circuit extends Group {
 			height: 1+Math.ceil(counter/2)
 		}
 	}
+
+	
 
 	integrationRemove() {
 		this.integrationDetails = null;

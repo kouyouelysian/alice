@@ -156,6 +156,22 @@ class Sim {
 					return;
 				editable.net.highlight();
 				return this.circuit.netHighlighted = editable.net;
+
+			case "drag":
+				var editable = point.findEditable();
+				if (!editable)
+					return;
+				var target = null;
+				if (editable.data.type == "bodyPart")
+					target = editable.parent.parent;
+				else if (editable.data.type == "body")
+					target = editable.parent;
+				else
+					return;
+
+			target.pick();
+			this.editedElement = target;
+
 		}
 
 		// if not a core action, then a device is being added

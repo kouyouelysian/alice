@@ -57,6 +57,14 @@ var Details = {
 			Details.guiGenerator.text(`Devices: ${circuit.devices.length}`);
 			Details.guiGenerator.text(`Nets: ${circuit.nets.length}`);
 			Details.guiGenerator.text(`Integration: ${circuit.integrationDetails? "present" : "absent"}`);
+			if (circuit.dependencies.length > 0)
+			{
+				var depText = `IC dependencies: `;
+				for (var d of circuit.dependencies)
+					depText += `${d}, `;
+				Details.guiGenerator.text(depText.slice(0, depText.length-2));
+				Details.guiGenerator.hr();	
+			}
 			Details.guiGenerator.hr();
 			Details.guiGenerator.button(`Benchmark Circuit`, `window.sim.benchmark()`);
 

@@ -167,10 +167,10 @@ var HierarchyManager = {
 				paper.project.view.size._height/2,
 			);
 			
-			var ic = new Devices.IntegratedCircuit.IC;
+			var ic = new Devices.IntegratedCircuit.IC(undefined, new Point(0,0), sim.circuitActive.name);
 			ic.place();
 			ic.reposition(center);
-			ic.load(sim.circuitActive);
+			//ic.load(sim.circuitActive);
 			window.sim.editedElement = ic;
 
 			Details.ic.show(sim.circuitActive);

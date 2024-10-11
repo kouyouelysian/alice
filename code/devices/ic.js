@@ -23,7 +23,7 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 		}
 	}
 
-	constructor(circuit, point, circuitName) {
+	constructor(circuit, point, circuitName=undefined) {
 
 		var opts = {
 			circuit: {type:"hidden", value:circuitName}
@@ -50,12 +50,14 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 
 	build() {
 
+		console.log(this.options.circuit.value);
+
 		var circuitName = this.options.circuit.value;
 
 		if (!circuitName)
 			return;
 
-		if (circuitName == this.circuit.name)
+		if (this.circuit && circuitName == this.circuit.name)
 				return window.sim.throwError("cannot put an IC of a circuit inside the circuit itself! Spare your CPU from such recursion!");
 
 		this.sourceCircuitReference = window.sim.circuits.children[circuitName];
