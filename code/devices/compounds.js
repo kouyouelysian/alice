@@ -36,6 +36,60 @@ Devices.Compounds.DLatch = class DLatch extends Devices.Device {
 		this.write("opos", this.read("data"));
 		this.write("oneg", !this.read("data"));
 	}
+}
+
+Devices.Compounds.MultiLatch = class MultiLatch extends Devices.Device {
+
+	static packageData = {
+		pins: [
+			{name:"clock", mode:"in", side:2, offset:0, label:"CK"},
+		],
+		body: {
+			dimensions: {
+				width: 4,
+				height: 3
+			}, 
+			origin: {
+				x: 2,
+				y: 1
+			}
+		}
+	}
+
+	constructor(circuit, point) {
+
+		var opts = {
+			latches: {type:"int", min:2, max:16, value:4, description:"Latches on chip"}
+		};
+		super(circuit, point, opts);
+		this.ckstate = undefined;
+	}
+
+	get packageData() {
+		var latches = this.options.latches.value;
+		var pd = bmco.clone(Devices.Compounds.MultiLatch.packageData);
+		pd.body.dimensions.height = latches + 2;
+		pd.pins[0].offset = latches;
+		for (var x = 0; x < latches; x++)
+		{
+			pd.pins.push({name:`in${x}`, mode:"in", side:2, offset:x, label:`D${x}`});
+			pd.pins.push({name:`out${x}`, mode:"out", side:0, offset:x, label:`Q${x}`});
+		}
+
+		return pd;
+	}
+
+	update()
+	{
+		var ck = this.read("clock");
+		if (ck == this.ckstate)
+			return; // skip frames with no clock shift
+		this.ckstate = ck;
+		if (!ck)
+			return; // skip negative transitions
+		for (var x = 0; x < this.options.latches.value; x++)
+			this.write(`out${x}`, this.read(`in${x}`))
+	}
 
 }
 

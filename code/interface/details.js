@@ -14,6 +14,8 @@ var Details = {
 				return Details.device.show(object.parent.parent);
 			case "pin":
 				return Details.pin.show(object);
+			case "circuit":
+				return Details.circuit.show(object);
 		}
 		
 	},

@@ -193,9 +193,13 @@ class Net extends Group {
 
 	highlight() {
 		this.recolor(window.sim.appearance.color.highlighted);
+		for (var c of this.connections)
+			c.strokeColor = window.sim.appearance.color.highlighted;
 	}
 
 	unhighlight() {
 		this.recolor(window.sim.appearance.color.undefined);
+		for (var c of this.connections)
+			c.autoColor();
 	}
 }

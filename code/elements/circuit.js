@@ -9,6 +9,7 @@ class Circuit extends Group {
 			this.name = "cir"+index.toString();
 
 		project.layers.editables.addChild(this);
+		this.data.type = "circuit";
 
 		// main subgroups
 		var nets = new IndexedGroup();
@@ -76,10 +77,21 @@ class Circuit extends Group {
 		}
 	}
 
-	
-
 	integrationRemove() {
 		this.integrationDetails = null;
+	}
+
+	dependencyCheck(cName) {
+
+		for (var dep of this.dependencies)
+		{
+			if (dep == cName)
+				return true; // check own deps
+			if (window.sim.circuits.children[dep].dependencyCheck(cName))
+				return true; // check subcircuit deps
+		}
+		return false;
+
 	}
 
 	clone() {

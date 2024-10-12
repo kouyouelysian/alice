@@ -48,23 +48,36 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 		this.build();
 	}
 
-	build() {
+	abort(message) {
+		window.sim.throwError(message);
+		this.place();
+		window.sim.editedElement = null;
+		return this.remove();
+	}
 
-		console.log(this.options.circuit.value);
+	build() {
 
 		var circuitName = this.options.circuit.value;
 
 		if (!circuitName)
 			return;
 
+		// cannot use ic in itself
 		if (this.circuit && circuitName == this.circuit.name)
-				return window.sim.throwError("cannot put an IC of a circuit inside the circuit itself! Spare your CPU from such recursion!");
-
+			return this.abort("cannot put an IC of a circuit inside the circuit itself! Spare your CPU from this much recursion!");
+		
 		this.sourceCircuitReference = window.sim.circuits.children[circuitName];
 		if (!this.sourceCircuitReference)
 			return window.sim.throwError(`Attempted to integrate circuit "${circuitName}"; no such circuit found`);
 		if (!this.sourceCircuitReference.integrationDetails)
 			return window.sim.throwError("attempting to place an IC of a circuit that has not yet been integrated!");
+
+		// cannot use in a circuit that this IC depends on
+		if (this.circuit && this.sourceCircuitReference.dependencyCheck(this.circuit.name))
+			return this.abort("cannot use an IC in a circuit that it uses as a dependency, as this will cause a dependency loop!");
+
+
+		
 
 		this.recreatePackage();
 

@@ -57,12 +57,10 @@ Devices.Device = class Device extends Group {
 		
 		this.name = window.sim.circuit.rollByPrefix("name", (this.constructor.name || "dev"));
 		this.data.type = "device"; 
-		if (options === undefined)
-			this.options = {
-				/* option": {"type":"int", "value":"1"} */
-			};
-		else
+		this.options = {};
+		if (options)
 			this.options = options;
+				/* {option: {type:"int", value:"1"}, ...} */
 
 		this.position = new Point(0,0);
 		this.pivot = new Point(0,0);
@@ -183,6 +181,13 @@ Devices.Device = class Device extends Group {
 	remove() {
 		this.deletePins();
 		this.parent.freeIndex(this.name);
+	
+		if (this.circuit)
+		{
+			console.log("AAA", this.circuit);
+			Details.circuit.show(this.circuit);
+		}
+
 		super.remove();
 	}
 
