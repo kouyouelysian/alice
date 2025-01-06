@@ -166,6 +166,8 @@ class Sim {
 					target = editable.parent.parent;
 				else if (editable.data.type == "body")
 					target = editable.parent;
+				else if (editable.data.type == "actuator")
+					target = editable.parent.parent;
 				else
 					return;
 

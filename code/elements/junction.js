@@ -40,12 +40,15 @@ class Junction extends Path {
 		var radius = window.sim.appearance.size.junction.normal;
 
 		var wiresAtJunction = point.findEditable({type:"wire", all:true, exclude:notCount});
-		
+		var pinsAtJunction = point.findEditable({type:"pin", all:true, exclude:notCount});
+
 		var count = 0;
 		if (wiresAtJunction)
-			count = wiresAtJunction.length;
-		if (point.findEditable({type:"pin", all:true}))
-			count += 1;
+			count += wiresAtJunction.length;
+		if (pinsAtJunction)
+			count += pinsAtJunction.length;
+		//if (point.findEditable({type:"pin", all:true}))
+		//	count += 1;
 
 		if (!wiresAtJunction)
 			this.remove(true); // if ran out of wires at this junction - remove self

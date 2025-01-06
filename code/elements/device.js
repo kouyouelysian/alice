@@ -183,10 +183,7 @@ Devices.Device = class Device extends Group {
 		this.parent.freeIndex(this.name);
 	
 		if (this.circuit)
-		{
-			console.log("AAA", this.circuit);
 			Details.circuit.show(this.circuit);
-		}
 
 		super.remove();
 	}
@@ -220,7 +217,7 @@ Devices.Device = class Device extends Group {
 	
 	pick() {
 		for (var pin of this.pins)
-			pin.disconnect();
+			pin.pick();
 	}
 
 	place() {
@@ -234,9 +231,9 @@ Devices.Device = class Device extends Group {
 	}
 
 	createPackage(point=this.originAbsolute, circuit=this.circuit) {
-		if ((this.circuit && !this.circuit.isAnIC) || (!this.circuit))
+		if ((circuit && !circuit.isAnIC) || (!circuit))
 			this.createBody(point, circuit); // if main window or ic editor
-		this.createPins(point);
+		this.createPins(circuit);
 	}
 
 	deletePackage() {

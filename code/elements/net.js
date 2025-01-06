@@ -4,6 +4,8 @@ class Net extends Group {
 		
 		super();
 	
+
+
 		this.name = "net"+circuit.children.nets.getIndex();
 		circuit.children.nets.addChild(this);
 		this.data.type = "net";
@@ -20,9 +22,7 @@ class Net extends Group {
 		const junctions = new Group();
 		junctions.name = "junctions";
 		this.addChild(junctions);
-
 		this.connections = [];
-
 		this.data.draggedWire = null;
 
 	}
@@ -37,6 +37,14 @@ class Net extends Group {
 				return pin;
 		}
 		return false;
+	}
+
+	get hasNoWires() {
+		if (this.children.wires.children.length > 0)
+			return false;
+		if (this.children.junctions.children.length > 0)
+			return false;
+		return true;
 	}
 
 	export() {
@@ -189,6 +197,16 @@ class Net extends Group {
 			this.connections.push(pin);
 	} 
 
+	connectionRemove(pin) {
+		var index = this.connections.indexOf(pin);
+		if (index == -1)
+			return false;
+		this.connections.splice(index, 1);
+		if (this.connections.length == 0 && this.hasNoWires)
+			this.remove();
+		console.log(this.connections);
+		return true;
+	}
 	
 
 	highlight() {

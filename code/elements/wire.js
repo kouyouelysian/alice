@@ -41,8 +41,8 @@ class Wire extends Path {
 	remove(bare=false) {
 		if (bare) // for inner functinos like merge; omits all the merging hussle
 			return super.remove();
-		// if this was the last wire - remove the entire net
-		if (this.net.children["wires"].children.length == 1)
+		// if this was the last wire and no pins remain - remove the entire net
+		if (this.net.children["wires"].children.length == 1 && this.net.connections.length == 0)
 			this.net.remove();
 		// update the device pins
 		
@@ -67,7 +67,7 @@ class Wire extends Path {
 			wiresAtStart[0].mergeAt(start); 
 		if (wiresAtFinish) 
 			wiresAtFinish[0].mergeAt(finish);
-		return super.remove();	
+		super.remove();	
 	}
 
 	start(point, circuit) {
@@ -88,8 +88,13 @@ class Wire extends Path {
 	place(point) {
 		var otherWire = point.findEditable({type:"wire", exclude:this}); 
 		// if at nowhere - make junction. otherwise contact other wire, junctions handled further
-		otherWire? this.contact(otherWire, point) : new Junction(point, this.net);
-		this.pinConnect(point); // will connect a pin at that point if there's any
+		if (otherWire)
+			this.contact(otherWire, point)
+		else
+		{
+			new Junction(point, this.net)
+			this.pinConnect(point); // will connect a pin at that point if there's any
+		}		
 	}
 
 	contact(otherWire, point, parallelOnly=true) {
@@ -105,6 +110,7 @@ class Wire extends Path {
 	mergeAt(midpoint) {
 
 		var otherWires = midpoint.findEditable({type:"wire", exclude:this, all:true});
+
 		if (!otherWires)
 			return false;
 		if (otherWires.length > 1)
@@ -119,7 +125,8 @@ class Wire extends Path {
 		midpoint.findEditable({type:"junction"}).remove(true); // remove junction in bare mode
 		this.firstSegment.point.isClose(midpoint,0)? this.firstSegment.remove() : this.lastSegment.remove();
 		this.add(otherWire.getOtherSide(midpoint));
-		return otherWire.remove(true) // remove the now unneeded wire in bare mode
+		otherWire.remove(true) // remove the now unneeded wire in bare mode
+		return true;
 	}
 
 	splitAt(splitpoint) {
@@ -137,9 +144,8 @@ class Wire extends Path {
 
 	pinConnect(point) {
 		var pin = point.findEditable({type:"pin"});
-		if (!pin)
-			return;
-		pin.connect(this.net);
+		if (pin && pin.net != this.net)
+			return this.net.mergeWith(pin.net);
 	}
 
 	pinConnectionCheck(point) {

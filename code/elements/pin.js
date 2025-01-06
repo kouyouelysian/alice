@@ -31,7 +31,7 @@ class Pin extends Path {
 		var shift = new Point(shift_x*window.sim.grid, shift_y*window.sim.grid);
 		this.setPosition(this.position.add(shift.rotate(device.orientation*-90, new Point(0,0))));
 
-		this.place();
+		//this.place();
 	}
 
 	get device() {
@@ -78,6 +78,14 @@ class Pin extends Path {
 		return label; 
 	}
 
+	get base() {
+		return this.segments[0].point;
+	}
+
+	get extent() {
+		return this.segments[1].point;
+	}
+
 	get inversionBulb() { // returns a circle path to be used by device body constructor
 
 		var pinLength = this.firstSegment.point.getDistance(this.lastSegment.point);
@@ -85,6 +93,12 @@ class Pin extends Path {
 		var center = this.firstSegment.point;
 		var offset = this.firstSegment.point.subtract(this.lastSegment.point);
 		return Path.Circle(center.subtract(offset.multiply(Pin.inversionBulbRatio)), radius);
+	}
+
+	get isConnected() {
+		if (this.net)
+			return true;
+		return false;
 	}
 
 	set(state, color=null) {
@@ -100,39 +114,61 @@ class Pin extends Path {
 		return this.state;
 	}
 
-	connect(net) {
-		net.connectionAdd(this);
-		this.net = net;
-	}
-
 	remove() {
 		this.disconnect();
 		super.remove();
 	}
 
+	connect(net) {
+		net.connectionAdd(this);
+		this.net = net;
+	}
+
 	disconnect() {
 		if (!this.net)
 			return false;
-		var index = this.net.connections.indexOf(this);
-		if (index == -1)
-			return false;
-		this.net.connections.splice(index, 1);
+		this.net.connectionRemove(this);
 		this.net = null;
-		return true;
 	}
 
 	renet(net) { // alias
 		connect(net);
 	}
 
+	pick() {
+		this.disconnect();
+		
+		var wires = this.extent.findEditable({type:"wire", all:true});
+		if (!wires)
+			return;
+		for (var w of wires)
+		{
+			if (w.mergeAt(this.extent))
+				return;
+		}
+	}
+
 	place() {
-		this.autoColor();
+
 		var end = this.lastSegment.point;
 		var junc = end.findEditable({type:"junction"});
 		var wire = end.findEditable({type:"wire"});
-		if (!(wire || junc)) // if neither found - no net to connect to
-			return;
+		var pin = end.findEditable({type:"pin", exclude:this});
 
+		// if neither found - no net to connect to; create new net and become part of it
+		if (!(wire || junc || pin) && !this.isConnected)
+		{
+			var net = new Net(this.circuit);
+			this.connect(net);
+			return;
+		}
+
+		// else connect to the existing net
+		if (this.net) // if we're placing a pin its net only contains the pin
+		{
+			this.disconnect();
+			this.net.remove();
+		}
 		if (junc)
 		{
 			this.connect(junc.net);
@@ -143,6 +179,15 @@ class Pin extends Path {
 			this.connect(wire.net);
 			wire.splitAt(end);
 		}
+
+		else if (pin) {
+
+			this.connect(pin.net);
+		}
+
+		this.autoColor();
 	}
+
+
 
 }

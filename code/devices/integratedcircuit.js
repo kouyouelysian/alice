@@ -30,11 +30,13 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 		};
 
 		super(circuit, point, opts);
-	
+		
+		console.log(this.packageData.body.origin);
+
 		this.runningCircuit = undefined;
 		this.sourceCircuitReference = undefined;
 
-		this.build();
+		this.build(true);
 		
 	}
 
@@ -55,7 +57,7 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 		return this.remove();
 	}
 
-	build() {
+	build(firstTime=false) {
 
 		var circuitName = this.options.circuit.value;
 
@@ -76,10 +78,11 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 		if (this.circuit && this.sourceCircuitReference.dependencyCheck(this.circuit.name))
 			return this.abort("cannot use an IC in a circuit that it uses as a dependency, as this will cause a dependency loop!");
 
-
-		
-
 		this.recreatePackage();
+
+		//console.log(this.packageData.body.origin);
+		if (firstTime)
+			this.reposition(this.position);
 
 		this.runningCircuit = new Circuit(`${this.name}-${this.sourceCircuitReference.name}`, -1);
 		this.runningCircuit.visible = false;

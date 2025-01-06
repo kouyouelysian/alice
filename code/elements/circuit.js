@@ -72,8 +72,13 @@ class Circuit extends Group {
 		}
 		
 		this.integrationDetails.body.dimensions = {
-			width: 8,
+			width: 6,
 			height: 1+Math.ceil(counter/2)
+		}
+
+		this.integrationDetails.body.origin = {
+			x: 3,
+			y: Math.floor(this.integrationDetails.body.dimensions.height * 0.5)
 		}
 	}
 
