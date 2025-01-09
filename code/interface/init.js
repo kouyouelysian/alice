@@ -49,6 +49,8 @@ function patchPaperPoint() {
 				return false;
 			if (options.exclude && hit.item == options.exclude)
 				return false;				
+			if (options.exclude && options.exclude.constructor.name == "Array" && options.exclude.includes(hit.item))
+				return false;
 			return true;
 		};
 

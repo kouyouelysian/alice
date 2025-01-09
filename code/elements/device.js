@@ -179,6 +179,7 @@ Devices.Device = class Device extends Group {
 	}
 
 	remove() {
+		this.pick();
 		this.deletePins();
 		this.parent.freeIndex(this.name);
 	

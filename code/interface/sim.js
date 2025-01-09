@@ -158,16 +158,26 @@ class Sim {
 				return this.circuit.netHighlighted = editable.net;
 
 			case "drag":
-				var editable = point.findEditable();
+				var editable = this.selection;
+				if (!editable)
+					editable = point.findEditable();
 				if (!editable)
 					return;
 				var target = null;
+
 				if (editable.data.type == "bodyPart")
 					target = editable.parent.parent;
 				else if (editable.data.type == "body")
 					target = editable.parent;
 				else if (editable.data.type == "actuator")
 					target = editable.parent.parent;
+				else if (editable.data.type == "junction")
+					target = editable;
+				else if (editable.data.type == "wire")
+				{
+					target = editable.splitAt(editable.middle);
+					target.reposition(point);
+				}
 				else
 					return;
 

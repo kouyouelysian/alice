@@ -115,7 +115,7 @@ class Pin extends Path {
 	}
 
 	remove() {
-		this.disconnect();
+		//this.disconnect();
 		super.remove();
 	}
 

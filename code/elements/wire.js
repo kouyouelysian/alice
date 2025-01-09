@@ -21,6 +21,14 @@ class Wire extends Path {
 		return this.parent.parent;
 	}
 
+	get middle() {
+		var point = new Point(
+			this.lastSegment.point.x - this.firstSegment.point.x,
+			this.lastSegment.point.y - this.firstSegment.point.y
+		);
+		return this.firstSegment.point.add(point.multiply(0.5));
+	}
+
 	export() {
 		return {
 			"start": {
@@ -139,7 +147,7 @@ class Wire extends Path {
 		this.lastSegment.remove();
 		this.add(splitpoint);
 		// create a junction because we just split
-		new Junction(splitpoint, this.net)
+		return new Junction(splitpoint, this.net)
 	}
 
 	pinConnect(point) {
@@ -158,11 +166,16 @@ class Wire extends Path {
 		pin.disconnect();
 	}
 
-	getOtherSide(point) {
-		var side = this.firstSegment.point;
-		if (point.isClose(side, 0))
-			return this.lastSegment.point;
-		return side;
+	getSide(point, asSegment=false) {
+		if (point.isClose(this.firstSegment.point, 0))
+			return asSegment? this.firstSegment : this.firstSegment.point;
+		return asSegment? this.lastSegment : this.lastSegment.point;
+	}
+
+	getOtherSide(point, asSegment=false) {
+		if (point.isClose(this.firstSegment.point, 0))
+			return asSegment? this.lastSegment : this.lastSegment.point;
+		return asSegment? this.firstSegment : this.firstSegment.point;
 	}
 
 	getAngle() {

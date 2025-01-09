@@ -22,6 +22,11 @@ class Junction extends Path {
 		return this.net.circuit;
 	}
 
+	get connectedWires() {
+		var wires = this.position.findEditable({type:"wire", net:this.net, all:true});
+		return wires? wires : [];
+	}
+
 	renet(newNet) {
 		newNet.children["junctions"].addChild(this);
 	}
@@ -29,10 +34,44 @@ class Junction extends Path {
 	remove(bare=false) {
 		if (bare)
 			return super.remove();
-
-		var wires = this.position.findEditable({type:"wire", net:this.net, all:true});
-		for (var w of wires)
+		for (var w of this.connectedWires)
 			w.remove();
+	}
+
+	pick() {
+		
+
+	}
+
+	reposition(point) {
+
+		for (var w of this.connectedWires)
+		{
+			var s = w.getSide(this.position, true);
+			s.point = point;
+		}
+		this.position = point;
+		
+	}
+
+	place() {
+
+		var j = this.position.findEditable({type:"junction", exclude: this});
+		var w = this.position.findEditable({type:"wire", exclude:this.connectedWires})
+
+		if (j)
+		{
+			this.net.mergeWith(j.net);
+			j.remove(true);
+			this.radiusUpdate();
+		}
+		else if (w)
+		{
+			this.net.mergeWith(w.net);
+			w.splitAt(this.position);
+			this.remove(true);
+		}
+
 	}
 
 	radiusUpdate(notCount=null, point = this.position) {
