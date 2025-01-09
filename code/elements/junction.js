@@ -40,7 +40,7 @@ class Junction extends Path {
 
 	pick() {
 		
-
+		return;
 	}
 
 	reposition(point) {
@@ -55,23 +55,19 @@ class Junction extends Path {
 	}
 
 	place() {
-
-		var j = this.position.findEditable({type:"junction", exclude: this});
-		var w = this.position.findEditable({type:"wire", exclude:this.connectedWires})
-
-		if (j)
+		
+		var otherWires = this.position.findEditable({type:"wire", exclude:this.connectedWires});
+		if (!otherWires || otherWires.length==0)
 		{
-			this.net.mergeWith(j.net);
-			j.remove(true);
-			this.radiusUpdate();
+			this.connectedWires[0].pinConnect(this.position); // try to find a pin with the first wire of the bunch
+			return this.radiusUpdate(); // if not contacting other wires - just leave things be
 		}
-		else if (w)
-		{
-			this.net.mergeWith(w.net);
-			w.splitAt(this.position);
-			this.remove(true);
-		}
-
+		// else basically emulate each wire being finished naturally
+		var wires = this.connectedWires;
+		var loc = new Point(this.position.x, this.position.y);
+		this.remove(true); // has to happen before wires get "finished"
+		for (var w of wires)
+			w.finish(loc, false); // false is to not update the wire end position
 	}
 
 	radiusUpdate(notCount=null, point = this.position) {
