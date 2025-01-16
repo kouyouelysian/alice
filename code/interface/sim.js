@@ -264,11 +264,12 @@ class Sim {
 				break;
 			case "body":
 			case "bodyPart":
-			case "actuator":
 				var p;
 				item.data.type=="body"? p=item.parent : p=item.parent.parent;
 				p.recolor(this.appearance.color.selected);
 				return p;
+			case "actuator":
+				return undefined;
 			default:
 				return item;
 		}
