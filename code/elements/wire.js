@@ -15,10 +15,18 @@ class Wire extends Path {
 			this.renet(net);
 			this.start(point, circuit);
 		}
+
 	}
 
 	get net() {
 		return this.parent.parent;
+	}
+
+	get side1() {
+		return new Point(
+			this.firstSegment.point.x,
+			this.firstSegment.point.y
+		);
 	}
 
 	get middle() {
@@ -27,6 +35,13 @@ class Wire extends Path {
 			this.lastSegment.point.y - this.firstSegment.point.y
 		);
 		return this.firstSegment.point.add(point.multiply(0.5));
+	}
+
+	get side2() {
+		return new Point(
+			this.lastSegment.point.x,
+			this.lastSegment.point.y
+		);
 	}
 
 	export() {
@@ -84,8 +99,9 @@ class Wire extends Path {
 		this.place(point); // and place the first junction automatically
 	}
 
-	finish(point) {
-		this.lastSegment.point = point; // place the last point firmly on the grid
+	finish(point, dragEnd=true) {
+		if (dragEnd)
+			this.lastSegment.point = point; // place the last point firmly on the grid
 		this.place(point);
 		// attempt merging at both sides
 		this.mergeAt(point); 
@@ -94,15 +110,18 @@ class Wire extends Path {
 	}
 
 	place(point) {
-		var otherWire = point.findEditable({type:"wire", exclude:this}); 
+		var otherWires = point.findEditable({type:"wire", exclude:this, all:true}); 
 		// if at nowhere - make junction. otherwise contact other wire, junctions handled further
-		if (otherWire)
-			this.contact(otherWire, point)
-		else
+		if (otherWires)
 		{
-			new Junction(point, this.net)
+			for (var w of otherWires)
+				this.contact(w, point);
+		}
+		else
+		{	
+			new Junction(point, this.net);
 			this.pinConnect(point); // will connect a pin at that point if there's any
-		}		
+		}
 	}
 
 	contact(otherWire, point, parallelOnly=true) {
@@ -138,6 +157,11 @@ class Wire extends Path {
 	}
 
 	splitAt(splitpoint) {
+		// fuck off if the split point is one of th wire's ends
+		console.log(splitpoint, this.side1, this.side2);
+		if (splitpoint.isClose(this.side1,0) || splitpoint.isClose(this.side2,0))
+			return;
+		console.log("pingas");
 		// make new wire from midpoint to finish
 		var newWire = new Wire(splitpoint, this.circuit, false);
 		newWire.renet(this.net);
@@ -152,8 +176,12 @@ class Wire extends Path {
 
 	pinConnect(point) {
 		var pin = point.findEditable({type:"pin"});
-		if (pin && pin.net != this.net)
-			return this.net.mergeWith(pin.net);
+		if (!pin)
+			return;
+		if (pin.net == this.net)
+			return;
+		
+		return this.net.mergeWith(pin.net);
 	}
 
 	pinConnectionCheck(point) {

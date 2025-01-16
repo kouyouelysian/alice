@@ -24,7 +24,6 @@ class Net extends Group {
 		this.addChild(junctions);
 		this.connections = [];
 		this.data.draggedWire = null;
-
 	}
 
 	get circuit() {
@@ -135,10 +134,13 @@ class Net extends Group {
 	}
 	
 	mergeWith(otherNet) {
+		
+		console.log("merge:",this, otherNet);
 		this.children["junctions"].children = this.children["junctions"].children.concat(otherNet.children["junctions"].children); 
 		this.children["wires"].children = this.children["wires"].children.concat(otherNet.children["wires"].children); 
 		this.connections = this.connections.concat(otherNet.connections);
 		otherNet.remove();
+		console.log(this);
 	}
 
 	recolor(color) {

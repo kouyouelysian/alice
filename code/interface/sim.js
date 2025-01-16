@@ -172,7 +172,10 @@ class Sim {
 				else if (editable.data.type == "actuator")
 					target = editable.parent.parent;
 				else if (editable.data.type == "junction")
+				{
+					console.log("REEE");
 					target = editable;
+				}
 				else if (editable.data.type == "wire")
 				{
 					target = editable.splitAt(editable.middle);
@@ -240,6 +243,7 @@ class Sim {
 	}
 
 	_selectionMake(item) {
+		console.log(item);
 		switch (item.data.type)
 		{
 			case "junction":
