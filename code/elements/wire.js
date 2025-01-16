@@ -158,10 +158,8 @@ class Wire extends Path {
 
 	splitAt(splitpoint) {
 		// fuck off if the split point is one of th wire's ends
-		console.log(splitpoint, this.side1, this.side2);
 		if (splitpoint.isClose(this.side1,0) || splitpoint.isClose(this.side2,0))
 			return;
-		console.log("pingas");
 		// make new wire from midpoint to finish
 		var newWire = new Wire(splitpoint, this.circuit, false);
 		newWire.renet(this.net);
@@ -180,7 +178,6 @@ class Wire extends Path {
 			return;
 		if (pin.net == this.net)
 			return;
-		
 		return this.net.mergeWith(pin.net);
 	}
 

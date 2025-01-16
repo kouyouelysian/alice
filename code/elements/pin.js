@@ -136,11 +136,18 @@ class Pin extends Path {
 	}
 
 	pick() {
-		this.disconnect();
 		
-		var wires = this.extent.findEditable({type:"wire", all:true});
+		
+		var wires = this.extent.findEditable({type:"wire", all:true, net:this.net});
 		if (!wires)
 			return;
+
+		this.disconnect();
+
+		var junc = this.extent.findEditable({type:"junction", net:this.net});
+		junc.radiusUpdate();
+		
+		
 		for (var w of wires)
 		{
 			if (w.mergeAt(this.extent))
@@ -150,25 +157,29 @@ class Pin extends Path {
 
 	place() {
 
-		var end = this.lastSegment.point;
-		var junc = end.findEditable({type:"junction"});
-		var wire = end.findEditable({type:"wire"});
-		var pin = end.findEditable({type:"pin", exclude:this});
+		var junc = this.extent.findEditable({type:"junction"});
+		var wire = this.extent.findEditable({type:"wire"});
+		var pin = this.extent.findEditable({type:"pin", exclude:this});
+
+		if (!this.circuit)
+			return; // fuck off if this is IC editor
+		
 
 		// if neither found - no net to connect to; create new net and become part of it
 		if (!(wire || junc || pin) && !this.isConnected)
 		{
+			console.log("asdfasdfasdf");
 			var net = new Net(this.circuit);
 			this.connect(net);
 			return;
 		}
 
 		// else connect to the existing net
-		if (this.net) // if we're placing a pin its net only contains the pin
+		/*if (this.net) // if we're placing a pin its net only contains the pin
 		{
 			this.disconnect();
 			this.net.remove();
-		}
+		}*/
 		if (junc)
 		{
 			this.connect(junc.net);

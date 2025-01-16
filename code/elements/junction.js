@@ -55,12 +55,12 @@ class Junction extends Path {
 	}
 
 	place() {
-		
-		var otherWires = this.position.findEditable({type:"wire", exclude:this.connectedWires});
+		var otherWires = this.position.findEditable({type:"wire", exclude:this.connectedWires, all:true});
 		if (!otherWires || otherWires.length==0)
 		{
-			this.connectedWires[0].pinConnect(this.position); // try to find a pin with the first wire of the bunch
-			return this.radiusUpdate(); // if not contacting other wires - just leave things be
+			this.connectedWires[0].pinConnect(this.position);
+			this.radiusUpdate(); // if not contacting other wires - just leave things be
+			return;
 		}
 		// else basically emulate each wire being finished naturally
 		var wires = this.connectedWires;
@@ -74,8 +74,8 @@ class Junction extends Path {
 
 		var radius = window.sim.appearance.size.junction.normal;
 
-		var wiresAtJunction = point.findEditable({type:"wire", all:true, exclude:notCount});
-		var pinsAtJunction = point.findEditable({type:"pin", all:true, exclude:notCount});
+		var wiresAtJunction = point.findEditable({type:"wire", all:true, exclude:notCount, net:this.net});
+		var pinsAtJunction = point.findEditable({type:"pin", all:true, net:this.net});
 
 		var count = 0;
 		if (wiresAtJunction)

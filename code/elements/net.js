@@ -134,13 +134,11 @@ class Net extends Group {
 	}
 	
 	mergeWith(otherNet) {
-		
-		console.log("merge:",this, otherNet);
 		this.children["junctions"].children = this.children["junctions"].children.concat(otherNet.children["junctions"].children); 
 		this.children["wires"].children = this.children["wires"].children.concat(otherNet.children["wires"].children); 
-		this.connections = this.connections.concat(otherNet.connections);
+		for (var pin of otherNet.connections)
+			pin.connect(this);
 		otherNet.remove();
-		console.log(this);
 	}
 
 	recolor(color) {
@@ -206,7 +204,6 @@ class Net extends Group {
 		this.connections.splice(index, 1);
 		if (this.connections.length == 0 && this.hasNoWires)
 			this.remove();
-		console.log(this.connections);
 		return true;
 	}
 	

@@ -191,8 +191,8 @@ class Circuit extends Group {
 			
 			var dev = new Devices[category][device](this,
 				new Point(deviceRecord.origin.x, deviceRecord.origin.y));
-			
 			dev.import(deviceRecord);
+			dev.place();
 		}
 
 		// import nets

@@ -143,12 +143,13 @@ class Sim {
 			this.circuit.netHighlighted.unhighlight();
 
 		switch (this.tool) { // first figure out if this is some core action
-			case "wire":
-				this._setStatus("wiring");
-				return this.editedElement = new Wire(point, this.circuit);
 
 			case "pointer":
 				return this._pointerClicked(point);
+
+			case "wire":
+				this._setStatus("wiring");
+				return this.editedElement = new Wire(point, this.circuit);
 
 			case "highlight":
 				var editable = point.findEditable();
@@ -158,35 +159,43 @@ class Sim {
 				return this.circuit.netHighlighted = editable.net;
 
 			case "drag":
+
 				var editable = this.selection;
 				if (!editable)
 					editable = point.findEditable();
 				if (!editable)
 					return;
+
 				var target = null;
-
-				if (editable.data.type == "bodyPart")
-					target = editable.parent.parent;
-				else if (editable.data.type == "body")
-					target = editable.parent;
-				else if (editable.data.type == "actuator")
-					target = editable.parent.parent;
-				else if (editable.data.type == "junction")
+				switch (editable.data.type)
 				{
-					console.log("REEE");
-					target = editable;
-				}
-				else if (editable.data.type == "wire")
-				{
-					target = editable.splitAt(editable.middle);
-					target.reposition(point);
-				}
-				else
-					return;
+					case "bodyPart":
+					case "actuator":
+						target = editable.parent.parent;
+						break;
+					case "pin":
+						target = editable.device;
+						break;
+					case "body":
+						target = editable.parent;
+						break;
+					case "junction":
+					case "device":
+						target = editable;
+						break;
+					case "wire":
+						target  =editable.splitAt(editable.middle);
+						target.reposition(point);
+						break;
+					default:
+						return;
 
-			target.pick();
-			this.editedElement = target;
-
+				}
+				
+				target.pick();
+				this._setStatus("dragging");
+				this.editedElement = target;
+				return;
 		}
 
 		// if not a core action, then a device is being added
@@ -214,6 +223,8 @@ class Sim {
 		
 		this.editedElement = new deviceClass(this.circuit, point);
 		return Details.device.show(this.editedElement);
+
+
 	}
 
 	_actionFinish(point) {
@@ -225,6 +236,7 @@ class Sim {
 				break;
 			
 			case "adding device":
+			case "dragging":
 				this.editedElement.place();
 				this.editedElement = null;
 				break;
@@ -243,7 +255,6 @@ class Sim {
 	}
 
 	_selectionMake(item) {
-		console.log(item);
 		switch (item.data.type)
 		{
 			case "junction":
@@ -298,6 +309,8 @@ class Sim {
 			case "wiring":
 			case "adding device":
 				this.editedElement.remove();
+				break;
+			case "dragging":
 				break;
 		}
 		Details.circuit.show(this.circuit);
@@ -447,6 +460,7 @@ class Sim {
 				case "wiring":
 					return window.sim.editedElement.lastSegment.point = event.point;
 				case "adding device":
+				case "dragging":
 					return window.sim.editedElement.reposition(quantizedPoint);
 			}
 		}
