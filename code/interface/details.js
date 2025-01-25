@@ -264,8 +264,8 @@ var Details = {
 			qty: function(name, data) {
 				var i = document.createElement("input");
 				i.setAttribute("type", "number");
-				i.setAttribute("min", "1");
-				i.setAttribute("max", "999");
+				i.setAttribute("min", data.min? data.min : "1");
+				i.setAttribute("max", data.max? data.max : "64");
 				i.value = data.value;
 				return i;
 			},
@@ -299,13 +299,9 @@ var Details = {
 				return i;
 			},
 
+			
 			int: function(name, data) {
-				var i = document.createElement("input");
-				i.setAttribute("type", "number");
-				i.setAttribute("min", data.min);
-				i.setAttribute("max", data.max);
-				i.value = data.value;
-				return i;
+				return Details.guiGenerator._opt.qty(name, data);
 			},
 
 			hidden: function(name, data) {

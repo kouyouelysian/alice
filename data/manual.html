@@ -13,15 +13,37 @@
 <body fullarticle>
 	<article>
 	<h1>ALICE instruction manual</h1>
-	<center><i>currently under construction!<span id="fullLink"> Click <a href="./data/manual.html" target="_blank">here</a> to open on a separate page.</span></i></center>
-	<p>The purpose of this tool is to build some logic circuits and have fun with them. For now, only the basic stuff like logic gates are available. You pick the device from the <b>Devices</b> folder in the project tree, and place them onto the simulator grid. Connect the inputs and outputs together to form circuits, and use sources and lights as input and output devices!</p>
-	<h2>Command list (press keys)</h2>
+	<center><i>Both the tool and the manual are currently/permanently under construction!<span id="fullLink"> Click <a href="./data/manual.html" target="_blank">here</a> to open on a separate page.</span></i></center>
+	<h2>Index</h2>
 	<ul>
-		<li><b>W</b>: route wire</li>
-		<li><b>H</b> - highlight</li>
-		<li>Hover + <b>Del</b>, <b>Backspace</b>: delete</li>
-		<li><b>S</b>: put source (basic signal generator)</li>
-		<li><b>L</b>: put light (basic signal indicator)</li>
+		<li><a href="#basics">Basics</a></li>
+		<li><a href="#saveload">Saving and Loading</a></li>
+		<li><a href="#list">Tools & Actions List</a></li>
+	</ul>
+	<h2 id="basics">Basics</h2>
+	<p>ALICE is a tool is to build some logic circuits and have fun with them. In ALICE, you build a logic circuit on a gridded board. Like with real circuit boards, the two main things you're going to use are Devices (think microchips, transistors, diodes...) and Wires that connect the devices. Like real-life ICs have small metallic pins that are used to expose the circuit hidden inside to the outside world, each Device has one or more Pins. When Devices are placed on the circuit, their Pins are connected with Wires. The collection of directly interconnected Wires and Pins is called a Net. When the circuit is ran, first all input Pins register the state of the Net they're on (True/False/Unknown), then the logic inside the Devices is ran, and finally, the output pins update the Nets they are on.</p>
+	<p>ALICE is a big nasty abstraction tailored for binary logic, so it will not emulalte exact voltages and real transistors that you may find inside real-life logic chips. Instead, it works only with binary True/False logic, however, a third Undefined state happens if no Pin outputs a signal to a Net. Like in real life, two or more output Pins driving the same net leads to a short citcuit and an undefined logic state! In reality, this may destroy the integrated circuits. In ALICE, you will simply receive an error.</p>
+	<h3>Exercise: your first ALICE circuit</h3>
+	<p>Access ALICE in your web browser. You will be presentedd with an empty circuit Cir0. Let's place our first Device by pressing the little plus icon next to "Gates" in the Devices folder in the explorer on the left. A drop-down menu appears, revealing the choices available in this Device group. Let's pick an AND gate by clicking on "And".</p>
+	<p>Notice how at the bottom of the screen, the <b>Tool</b> window now shows <code>gates.and</code> instead of <code>pointer</code>, and your cursor is a folded hand when hovered over the circuit; this means that currently you are "holding" the AND gate in your digital hand. Click once to invoke the AND gate, then choose a suitable position for it (anywhere on the circuit in this case) and click again. The gate was placed! You can add more gates like this if you keep clicking, but for now, hit "escape" to stop the action and set your tool back to Pointer.</p>
+	<p>The AND gate has two input pins on the left, and one output on the right. And as expected, its output produces True only if both of its inputs receive True. Right now nothing is going into the input pins, though. The <b>Interfaces</b> Device group has basic input and output elements. But for simplicity, picking the most basic Devices has been mapped to the keyboard as shortcuts. To add a <b>Source</b>, press "S" on the keyboard. You will notice the Tool line change to <code>interfaces.source</code>. Place two sources to the left of the AND gate. These are basic on-off buttons that produce a True or a False and can be interacted with using the Pointer tool. In a similar fashion, press "L" to invoke a Light - a basic LED-like indicator - and place it somewhere to the right of the AND gate.</p>
+	<p>Final step: the devices are there but the pins are all disconnected! Press "W" on your keyboard to switch to the <b>wire</b> tool. You will notice the cursor became a crosshair. Now simply click on the Source's pin, then start moving your mouse away. A Wire appears! Bring it over to one of the AND gate's inputs and click again to finish the wire. Do the same with the other source, connect AND's output pin to the light's input pin and hit "escape" to exit the wiring tool.</p>
+	<p>The circuit is finished! In the top bar, press the "Run" button. The Status line in the bottom changed from "Idle" to "Running", signifying that the circuit is now being actively processed. While the circuit is running, the only available tool is Pointer; you cannot add or remove elements while it is turned on. However, you can interact with whatever is interactable; in this case, try clicking on the Sources' buttons and see how the circuit reacts. Which combination of the Sources being on or off lights up the Light?</p> 
+	<h2 id="saveload">Saving and Loading</h2>
+	<p>The top-level project file of ALICE is a <b>Project</b>, associated with the <b>.alice</b> extension. A Project contains one or more Circuits, as well as the emulation settings and other important stuff. It is possible to save the project by hitting <b>Save Project</b> at the Explorer's bottom. <i>ALICE does not use cookies or site storage, so the moment you refresh the page, everything's gone!</i> Loading the entire project back up is done by opening up a new ALICE tab and hitting <b>LLoad Project</b> in the Explorer.</p>
+	<p>It is possible to save and load circuits separately from the project, e.g. to move them from one project to another. To save a circuit, right-click on its name in the Explorer and select <b>Download Circuit</b>. Circuit files are associated with .acirc (ALICE Circuit) format and can be loaded by right-clicking the Circuits folder and picking <b>Upload existing .acirc</b> and locating the local file. Circuit files contain information on their integration as well. Do note that if a circuit uses integrated circuits from some projects, those have to be downloaded as circuits as well and uploaded to the other project <i>before</i> uploading the circuit that uses them; otherwise, a dependency error occurs.</p>
+	<p>The</p>
+	<h2 id="list">Tools & Actions List</h2>
+	<ul>
+		<li><b>Escape</b>: stop whatever action and return to pointer</li>
+		<li><b>W</b>: start wiring. Click - start a wire, click again - finish wire, shift+click - finish and start a new wire</li>
+		<li><b>S</b>: pick Source device</li>
+		<li><b>L</b>: pick Light device</li>
+		<li><b>While tool is a device</b>: click to invoke and hold, click again to place</li>
+		<li><b>While holding an invoked device</b>: right-click to rotate</li>
+		<li><b>D</b>: drag. Point and click on a device to pick and drag it elsewhere. Point and click at a wire to break it and drag the resulting junction. Point and click at a junction to drag it around.</li>
+		<li><b>H</b>: highlight. Point and click on a pin, wire or junction to highlight the entire signal net it belongs to.</li>
+		<li><b>Del</b>: delete the device, wire or junction being pointed at.</li>
 	</ul>
 	</article>
 </body>
