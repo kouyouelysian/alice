@@ -9,8 +9,11 @@ class Pin extends Path {
 		this.setStrokeColor(window.sim.appearance.color.undefined);
 		this.setStrokeWidth(window.sim.appearance.size.wire);
 		
+		//console.log("creating pin for device",device.name,"in circuit",circuit.name," pindata=",pinData);
+
 		this.circuit = circuit;
 		this.net = null;
+		this.getInitialNet();
 		this.side = pinData.side;
 		this.data.type = "pin";
 		this.name = pinData.name;
@@ -131,8 +134,9 @@ class Pin extends Path {
 		this.net = null;
 	}
 
-	renet(net) { // alias
-		connect(net);
+	renet(net) {
+		this.disconnect();
+		this.connect(net);
 	}
 
 	pick() {
@@ -155,24 +159,29 @@ class Pin extends Path {
 		}
 	}
 
+	getInitialNet() {
+		if (!this.circuit)
+			return; // fuck off if this is IC editor
+		var net = new Net(this.circuit);
+		this.connect(net);
+		return;
+	}
+
 	place() {
 
 		var junc = this.extent.findEditable({type:"junction"});
 		var wire = this.extent.findEditable({type:"wire"});
 		var pin = this.extent.findEditable({type:"pin", exclude:this});
 
-		if (!this.circuit)
-			return; // fuck off if this is IC editor
-		
-
 		// if neither found - no net to connect to; create new net and become part of it
+		/*
 		if (!(wire || junc || pin) && !this.isConnected)
 		{
-			console.log("asdfasdfasdf");
 			var net = new Net(this.circuit);
 			this.connect(net);
 			return;
 		}
+		*/
 
 		// else connect to the existing net
 		/*if (this.net) // if we're placing a pin its net only contains the pin
@@ -180,20 +189,23 @@ class Pin extends Path {
 			this.disconnect();
 			this.net.remove();
 		}*/
+
+		console.log("pins found:", pin);
+
 		if (junc)
 		{
-			this.connect(junc.net);
+			this.renet(junc.net);
 			junc.radiusUpdate();
 		}
 		else if (wire)
 		{
-			this.connect(wire.net);
+			this.renet(wire.net);
 			wire.splitAt(end);
 		}
 
 		else if (pin) {
 
-			this.connect(pin.net);
+			this.renet(pin.net);
 		}
 
 		this.autoColor();

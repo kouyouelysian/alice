@@ -79,6 +79,9 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 			return this.abort("cannot use an IC in a circuit that it uses as a dependency, as this will cause a dependency loop!");
 
 		this.recreatePackage();
+		//this.place();
+
+		
 
 		//console.log(this.packageData.body.origin);
 		if (firstTime)
@@ -108,18 +111,21 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 			p.set(undefined);
 		}
 		this.runningCircuit.reset();
-		this.build();
+		//this.build();
 	}
 
 	update() {
-
+		
 		for (var icPinDevice of this.runningCircuit.getDevicesByClass("Primitives.ICPin"))
 		{
 			var insidePin = icPinDevice.pin;
 			var outsidePin = this.children.pins.children[icPinDevice.options.label.value];
 			
-			var rx = (outsidePin.net && outsidePin.net.outputPin && outsidePin.net.outputPin != outsidePin);
-			var tx = (insidePin.net && insidePin.net.outputPin && insidePin.net.outputPin != insidePin);
+			var outsideNetOutPin = outsidePin.net.outputPin;
+			var insideNetOutPin = insidePin.net.outputPin;
+
+			var rx = (outsidePin.net && outsideNetOutPin && outsideNetOutPin != outsidePin);
+			var tx = (insidePin.net && insideNetOutPin && insideNetOutPin != insidePin);
 
 			if (tx && rx)
 				return window.sim.throwError("IC attempts to output a signal while something attempts to input a signal to the IC => short circuit!");
@@ -142,18 +148,8 @@ Devices.IntegratedCircuit.IC = class IC extends Devices.Device {
 			}
 
 		}
-
+		
 		this.runningCircuit.frame();
 		
 	}
 };
-
-
-
-Devices.IntegratedCircuit.ICNode = class ICNode {
-
-}
-
-Devices.IntegratedCircuit.ICRatnest = class ICRatnest {
-
-}

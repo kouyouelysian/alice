@@ -188,7 +188,6 @@ class Circuit extends Group {
 			var parts = deviceRecord.class.split(".");
 			var category = parts[0];
 			var device = parts[1];
-			
 			var dev = new Devices[category][device](this,
 				new Point(deviceRecord.origin.x, deviceRecord.origin.y));
 			dev.import(deviceRecord);
