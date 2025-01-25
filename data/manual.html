@@ -19,6 +19,7 @@
 		<li><a href="#basics">Basics</a></li>
 		<li><a href="#saveload">Saving and Loading</a></li>
 		<li><a href="#list">Tools & Actions List</a></li>
+		<li><a href="#bugs">Bug Reporting</a></li>
 	</ul>
 	<h2 id="basics">Basics</h2>
 	<p>ALICE is a tool is to build some logic circuits and have fun with them. In ALICE, you build a logic circuit on a gridded board. Like with real circuit boards, the two main things you're going to use are Devices (think microchips, transistors, diodes...) and Wires that connect the devices. Like real-life ICs have small metallic pins that are used to expose the circuit hidden inside to the outside world, each Device has one or more Pins. When Devices are placed on the circuit, their Pins are connected with Wires. The collection of directly interconnected Wires and Pins is called a Net. When the circuit is ran, first all input Pins register the state of the Net they're on (True/False/Unknown), then the logic inside the Devices is ran, and finally, the output pins update the Nets they are on.</p>
@@ -45,6 +46,16 @@
 		<li><b>H</b>: highlight. Point and click on a pin, wire or junction to highlight the entire signal net it belongs to.</li>
 		<li><b>Del</b>: delete the device, wire or junction being pointed at.</li>
 	</ul>
+	<h2 id="bugs">Bug Reporting</h2>
+	<p>ALICE is admittedly explosive at the present moment. Although it works, it still misbehaves sometimes. Most of the bugs are related not to the logic, but to the GUI, in particular the graphic wire routing system. If you encounter a bug, please, write to auby [at] auberylis.moe with details. Please, include the following:</p>
+	<ul>
+		<li>A screenshot of your circuit</li>
+		<li>A save of the circuit. If saving after getting an error succeeds, that would be best</li>
+		<li>A description of what you were trying to achieve and what exactly happened</li>
+		<li>The date-time you encountered the bug at</li>
+		<li>Your browser (it better be firefox) and OS, both with versions, if possible</li>
+	</ul>
+	<p>Each bug report is greatly appreciated and taken into account! ALICE is a one-girl operation, so it may take time for everything to get resolved. Cheers!</p>
 	</article>
 </body>
 </html>
