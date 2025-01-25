@@ -108,7 +108,7 @@ Devices.Educational.TruthTable = class TruthTable extends Devices.Device {
 	}
 
 	lookupRowArgMarker(row, arg) {
-		var div = (this.options.arguments.value-arg);//1 + (this.options.arguments.value-arg);
+		var div = (2**((this.options.arguments.value-arg)-1));//1 + (this.options.arguments.value-arg);
 		return Math.floor(row/div) % 2 == 0? 0 : 1; // Math.ceil(row/div)%2==0? "0" : "1";
 	}
 

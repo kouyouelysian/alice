@@ -145,6 +145,10 @@ class Wire extends Path {
 			midpoint.findEditable({type:"junction"}).radiusUpdate();
 			return false; // don't merge if there are many wires out there
 		}
+
+		if (midpoint.findEditable({type:"pin"}))
+			return false; // no merging if the junction has a pin
+
 		var otherWire = otherWires[0]; // the first and only one is the one we merge with
 		if (!this.isParallel(otherWire))
 			return false; // don't merge if not parallel
