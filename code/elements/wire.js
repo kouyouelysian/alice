@@ -9,13 +9,10 @@ class Wire extends Path {
 		this.strokeColor = window.sim.appearance.color.undefined;
 		this.strokeWidth = window.sim.appearance.size.wire;
 
-		if (fromGui)
-		{
-			var net = new Net(circuit);
-			this.renet(net);
-			this.start(point, circuit);
-		}
+		this.renet(new Net(circuit));
 
+		if (fromGui)		
+			this.start(point, circuit);
 	}
 
 	get net() {
@@ -58,12 +55,35 @@ class Wire extends Path {
 	}	
 
 	renet(newNet) {
-		newNet.children.wires.addChild(this);
+		newNet.children["wires"].addChild(this);
 	}
 
 	remove(bare=false) {
+		console.log("removing wire", this);
 		if (bare) // for inner functinos like merge; omits all the merging hussle
 			return super.remove();
+
+		var sides = [
+			new Point(
+				this.side1.x,
+				this.side1.y
+			),
+			new Point(
+				this.side2.x,
+				this.side2.y
+			)
+		]
+
+		this.lastSegment.remove();
+		this.lastSegment.remove();
+
+		for (var p of sides) {
+			var junc = p.findEditable({type:"junction"});
+			if (junc)
+				junc.radiusUpdate();
+		}
+
+		/*
 		// if this was the last wire and no pins remain - remove the entire net
 		if (this.net.children["wires"].children.length == 1 && this.net.connections.length == 0)
 			this.net.remove();
@@ -90,38 +110,40 @@ class Wire extends Path {
 			wiresAtStart[0].mergeAt(start); 
 		if (wiresAtFinish) 
 			wiresAtFinish[0].mergeAt(finish);
+		*/
 		super.remove();	
 	}
 
 	start(point, circuit) {
-		this.add(point); // called if wire was created from the GUI -
-		this.add(point); // slam in two points, the latter dragged around on mouse drag
-		this.place(point); // and place the first junction automatically
+		this.add(point);
+		this.add(point);
+		this.place(point);
 	}
 
 	finish(point, dragEnd=true) {
-		if (dragEnd)
-			this.lastSegment.point = point; // place the last point firmly on the grid
+		this.lastSegment.point = point;
 		this.place(point);
-		// attempt merging at both sides
-		this.mergeAt(point); 
-		this.mergeAt(this.getOtherSide(point)); 
-		
 	}
 
 	place(point) {
-		var otherWires = point.findEditable({type:"wire", exclude:this, all:true}); 
-		// if at nowhere - make junction. otherwise contact other wire, junctions handled further
-		if (otherWires)
-		{
-			for (var w of otherWires)
-				this.contact(w, point);
+		new Junction(point, this.net);
+		/*
+		var junc = point.findEditable({type:"junction"});
+		var wire = point.findEditable({type:"wire", exclude:this});
+
+		if (junc) {
+			if (junc.net != this.net)
+				junc.net.mergeWith(this.net);
+			junc.radiusUpdate();
 		}
-		else
-		{	
-			new Junction(point, this.net);
-			this.pinConnect(point); // will connect a pin at that point if there's any
+		else if (wire) {
+
 		}
+		else {
+			
+		}
+		*/
+
 	}
 
 	contact(otherWire, point, parallelOnly=true) {
@@ -176,6 +198,7 @@ class Wire extends Path {
 		return new Junction(splitpoint, this.net)
 	}
 
+	/*
 	pinConnect(point) {
 		var pin = point.findEditable({type:"pin"});
 		if (!pin)
@@ -194,6 +217,7 @@ class Wire extends Path {
 			return; 
 		pin.disconnect();
 	}
+	*/
 
 	getSide(point, asSegment=false) {
 		if (point.isClose(this.firstSegment.point, 0))

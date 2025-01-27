@@ -5,8 +5,9 @@ class Net extends Group {
 		super();
 	
 
-
 		this.name = "net"+circuit.children.nets.getIndex();
+		console.log(`created net ${this.name}`);
+
 		circuit.children.nets.addChild(this);
 		this.data.type = "net";
 
@@ -28,6 +29,14 @@ class Net extends Group {
 
 	get circuit() {
 		return this.parent.parent;
+	}
+
+	get wires() {
+		return this.children.wires.children;
+	}
+
+	get junctions() {
+		return this.children.junctions.children;
 	}
 
 	get outputPin() {
@@ -90,6 +99,7 @@ class Net extends Group {
 	}
 
 	remove() {
+		console.log(`removing ${this.name}`);
 		this.parent.freeIndex(this.name);
 		super.remove();
 	}
@@ -126,18 +136,40 @@ class Net extends Group {
 			inPin.set(this.state);
 	}
 
+
+
 	frame() {
 		this.autoColor();
 		for (const pin of this.connections) { // then distribute it to all input pins
 			pin.autoColor();
 		}
 	}
+
+	removeIfEmpty() {
+		if (this.connections.length > 0)
+			return;
+		if (this.wires.length > 0)
+			return;
+		if (this.junctions.length > 0)
+			return;
+		console.log("empty!");
+		this.remove();
+	}
+
+	_steal(onet, aname) {
+		var src = onet.children[aname];
+		var dest = this.children[aname];
+		dest.children = dest.children.concat(src.children);
+	}
 	
 	mergeWith(otherNet) {
-		this.children["junctions"].children = this.children["junctions"].children.concat(otherNet.children["junctions"].children); 
-		this.children["wires"].children = this.children["wires"].children.concat(otherNet.children["wires"].children); 
+		
+		this._steal(otherNet, "junctions");
+		this._steal(otherNet, "wires");
+
 		for (var pin of otherNet.connections)
-			pin.connect(this);
+			pin.renet(this);
+
 		otherNet.remove();
 	}
 
@@ -192,21 +224,26 @@ class Net extends Group {
 		return false;
 	}
 
+	/*
 	connectionAdd(pin) {
+		console.log(`adding pin ${pin.name} to net ${this.name}`);
 		if (this.connections.indexOf(pin) == -1)
 			this.connections.push(pin);
+		pin.net = this;
 	} 
 
 	connectionRemove(pin) {
+		console.log(`removing pin ${pin.name} from net ${this.name}`);
 		var index = this.connections.indexOf(pin);
+		pin.net = new Net(this.circuit);
 		if (index == -1)
 			return false;
 		this.connections.splice(index, 1);
-		if (this.connections.length == 0 && this.hasNoWires)
-			this.remove();
+		console.log("asdf", this.connections, this.connections.length);
+		this._deleteIfEmpty();
 		return true;
 	}
-	
+	*/
 
 	highlight() {
 		this.recolor(window.sim.appearance.color.highlighted);

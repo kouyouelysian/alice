@@ -111,8 +111,7 @@ class Pin extends Path {
 	_getInitialNet() {
 		if (!this.circuit)
 			return; // fuck off if this is IC editor
-		var net = new Net(this.circuit);
-		this.connect(net);
+		this.connect(new Net(this.circuit));
 		return;
 	}
 
@@ -120,14 +119,20 @@ class Pin extends Path {
 		var junc = this.extent.findEditable({type:"junction"});
 		console.log("found junc:", junc);
 		if (junc) {
-			this.renet(junc.net);
+			if (this.net != junc.net)
+				this.renet(junc.net);
 			junc.radiusUpdate();
 			return true;
 		}
+		console.log(this.net.name, this.net);
 		junc = new Junction(this.extent, this.net);
 		return false;
 	}
 	
+	get() {
+		return this.state;
+	}
+
 	set(state, color=null) {
 		this.state = state;
 		return state;
@@ -137,50 +142,29 @@ class Pin extends Path {
 		this.strokeColor = sim.appearance.color[this.state];
 	}
 
-	get() {
-		return this.state;
-	}
-
 	remove() {
-		//this.disconnect();
+		this.disconnect();
 		super.remove();
 	}
 
 	connect(net) {
-		net.connectionAdd(this);
+		net.connections.push(this);
 		this.net = net;
 	}
 
 	disconnect() {
-		this.renet(new Net(this.circuit));
+		this.net.connections.splice(this.net.connections.indexOf(this), 1);
+		this.net.removeIfEmpty();
+		this.net = new Net(this.circuit);
 	}
 
 	renet(net) {
-		if (this.net)
-			this.net.connectionRemove(this);
+		console.log(`renetting pin: ${this.net.name} -> ${net.name}`);
+		this.disconnect();
 		this.connect(net);
 	}
 
 	pick() {
-		
-		/*
-		var wires = this.extent.findEditable({type:"wire", all:true, net:this.net});
-		var junc = this.extent.findEditable({type:"junction", net:this.net});
-		
-		if (!wires)
-			return;
-
-		this.disconnect();
-
-		junc.radiusUpdate();
-		
-		
-		for (var w of wires)
-		{
-			if (w.mergeAt(this.extent))
-				return;
-		}
-		*/
 		this.disconnect();
 		var junc = this.extent.findEditable({type:"junction"});
 		if (junc)
@@ -191,12 +175,13 @@ class Pin extends Path {
 
 	place() {
 
-		var junc = this.extent.findEditable({type:"junction"});
-		var wire = this.extent.findEditable({type:"wire"});
-		var pin = this.extent.findEditable({type:"pin", exclude:this});
+		new Junction(this.extent, this.net);
 
 		// if neither found - no net to connect to; create new net and become part of it
 		/*
+		var junc = this.extent.findEditable({type:"junction"});
+		var wire = this.extent.findEditable({type:"wire"});
+		var pin = this.extent.findEditable({type:"pin", exclude:this});
 		if (!(wire || junc || pin) && !this.isConnected)
 		{
 			var net = new Net(this.circuit);
@@ -211,7 +196,7 @@ class Pin extends Path {
 			this.disconnect();
 			this.net.remove();
 		}*/
-
+		/*
 		console.log("pins found:", pin);
 
 		if (this._checkExtentJunction())
@@ -222,7 +207,7 @@ class Pin extends Path {
 			this.renet(wire.net);
 			//wire.splitAt(end);
 		}
-
+		*/
 		/*else if (pin) {
 
 			this.renet(pin.net);

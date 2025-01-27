@@ -3,18 +3,16 @@ class Junction extends Path {
 	constructor(point, net) {
 
 		super();
-		console.log(net.children["junctions"]);
-		net.children["junctions"].addChild(this);
-		console.log(net.children["junctions"]);
-		//this.net = net;
+	
 		console.log("created new junction at", point, "at net", net.name);
 
 		this.data.type = "junction";
 		this.netElement = true;
 		this.closed = true;
 		this.fillColor = net.color; // this.layer.data.style.color.undefined;
-		this.add(point); // dummy segment at center until it gets circle'd
-		this.radiusUpdate(point);
+
+		net.children["junctions"].addChild(this);
+		this.place(point);
 
 	}
 
@@ -40,6 +38,8 @@ class Junction extends Path {
 			return super.remove();
 		for (var w of this.connectedWires)
 			w.remove();
+		this.net.removeIfEmpty();
+		super.remove();
 	}
 
 	pick() {
@@ -58,7 +58,22 @@ class Junction extends Path {
 		
 	}
 
-	place() {
+	place(point=this.position) {
+
+		var oj = point.findEditable({type:"junction", exclude:this});
+		if (oj)
+		{
+			console.log("found other junction");
+			var n = this.net;
+			oj.net.mergeWith(n);
+			oj.radiusUpdate();
+			return this.remove();
+		}
+
+
+		this.add(point); // dummy segment at center until it gets circle'd
+		this.radiusUpdate(point);
+
 		/*
 		var otherWires = this.position.findEditable({type:"wire", exclude:this.connectedWires, all:true});
 		if (!otherWires || otherWires.length==0)
