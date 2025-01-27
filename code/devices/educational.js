@@ -199,16 +199,16 @@ Devices.Educational.SimpleMemory = class SimpleMemory extends Devices.Device {
 				{
 					"name":"read",
 					"mode":"in",
-					"side":1,
+					"side":2,
 					"offset":0,
-					"label": "R"
+					"label": "Read"
 				},
 				{
 					"name":"write",
 					"mode":"in",
-					"side":1,
+					"side":2,
 					"offset":1,
-					"label": "W"
+					"label": "Write"
 				}
 			],
 			"body": {
@@ -244,10 +244,13 @@ Devices.Educational.SimpleMemory = class SimpleMemory extends Devices.Device {
 	}
 
 	get packageData() {
-		console.log("asdfasdf");
 		var pd = bmco.clone(Devices.Educational.SimpleMemory.packageData);
 		pd.body.dimensions.width = this.bits+4;
 		pd.body.dimensions.height = this.words+1;
+		pd.body.origin = {
+			x: Math.floor(0.5*pd.body.dimensions.width),
+			y: Math.floor(0.5*pd.body.dimensions.height)
+		};
 
 		for (var x = 0; x < this.bits; x++)
 			pd.pins.push({
@@ -286,7 +289,6 @@ Devices.Educational.SimpleMemory = class SimpleMemory extends Devices.Device {
 	}
 
 	setBusMode(arg) {
-		console.log(`bus mode ${arg}`);
 		for (var x = 0; x < this.bits; x++)
 			this.mode(`d${x}`, arg);
 	}

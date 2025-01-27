@@ -252,7 +252,274 @@ Devices.Compounds.Memory = class Memory extends Devices.Device {
 }
 
 
+Devices.Compounds.Register = class Register extends Devices.Device {
 
+	static packageData = {
+			"pins": [
+				{
+					"name":"read",
+					"mode":"in",
+					"side":1,
+					"offset":0,
+					"label": "RD"
+				},
+				{
+					"name":"write",
+					"mode":"in",
+					"side":1,
+					"offset":1,
+					"label": "WR"
+				}
+			],
+			"body": {
+				"origin": {
+					x:1,
+					y:1
+				},
+				"dimensions": {
+					"width": 2,
+					"height": 2
+				},
+				"symbol": null,
+				"label": null
+			}	
+		};
+
+	constructor(circuit, point) {
+
+		var opts = {
+			bits: {type:"qty", value:4, min:2, max:16},		
+		};	
+
+		super(circuit, point, opts);
+		this.memory = [];
+		this.r = false;
+		this.w = false;
+		this.memInit();
+		this.createDecorations();
+
+	}
+
+	get packageData() {
+		var pd = bmco.clone(Devices.Compounds.Register.packageData);
+		pd.body.dimensions.width = this.bits+4;
+		
+		for (var x = 0; x < this.bits; x++)
+			pd.pins.push({
+				name:`d${x}`,
+				mode:"hi-z",
+				side:1,
+				offset:x+3
+			});
+		return pd;
+	}
+
+	get bits() {
+		return this.options.bits.value;
+	}
+
+	memInit() {
+		this.memory = [];
+		for (var x = 0; x < this.bits; x++)
+			this.memory.push(false);
+	}
+
+	setBusMode(arg) {
+		for (var x = 0; x < this.bits; x++)
+			this.mode(`d${x}`, arg);
+	}
+
+	memWrite() {
+		
+		for (var x = 0; x < this.bits; x++) {
+			var v = this.read(`d${x}`)? true: false;
+			this.memory[x] = v; // emulate internal pulldown
+			this.decorations[`b${x}`].content = v? "1" : "0"; 
+		}
+	}
+
+	memRead() {
+		for (var x = 0; x < this.bits; x++)
+			this.write(`d${x}`, this.memory[x]);
+	}
+
+	reload() {
+		super.reload();
+		this.memInit();
+		this.createDecorations();
+	}
+
+	createText(content, name, x=0, y=0) {
+		var text = new PointText(new Point(this.position.x + (4+x)*window.sim.grid, this.position.y + (1.1+y)*window.sim.grid));
+		this.children.decorations.addChild(text);
+		text.fontWeight = window.sim.grid * 0.5;
+		text.justification = 'center';
+		text.content = content;
+		text.leading = 0;
+		text.name = name;
+		text.data.type = "bodyPart";
+		this.children.decorations.addChild(text);
+		
+	}
+
+	createBits() {
+		for (var bit = 0; bit < this.bits; bit++) {
+			this.createText(this.memory[bit]? "1" : "0", `b${bit}`,bit,0);
+		}
+	}
+
+	createDecorations() {
+		this.createBits();
+	}
+
+	update() {
+		
+		var r = this.read("read");
+		var w = this.read("write");
+		var nm = (this.r!=r || this.w!=w);
+
+		if (nm) {
+			this.r=r;
+			this.w=w;
+		}
+
+		if (r===w) // illegal or idle
+		{
+			if (!nm)
+				return;
+			return this.setBusMode("hi-z");
+		}
+
+		if (r)
+		{
+			if (!nm)
+				return;
+			this.setBusMode("out");
+			this.memRead();
+		}
+		else if (w)
+		{
+			if (nm)
+				this.setBusMode("in");
+			this.memWrite();
+		}
+	}
+
+}
+/*
+Devices.Compounds.Accumulator = class Accumulator extends Devices.Compounds.Register {
+
+	constructor() {
+		super();
+		this.a = undefined; //add
+		this.s = undefined; //subtract
+	}
+
+	get packageData() {
+
+
+		var pd = bmco.clone(Devices.Compounds.Register.packageData);
+		pd.body.dimensions.width = this.bits+6;
+		
+		pd.pins.push({
+			"name":"add",
+			"mode":"in",
+			"side":1,
+			"offset":2,
+			"label": "ADD"
+		});
+		pd.pins.push({
+			"name":"sub",
+			"mode":"in",
+			"side":1,
+			"offset":3,
+			"label": "SUB"
+		});
+					
+
+		for (var x = 0; x < this.bits; x++)
+			pd.pins.push({
+				name:`d${x}`,
+				mode:"hi-z",
+				side:1,
+				offset:x+5
+			});
+		return pd;
+	}
+
+
+	memAdd(sub=false) {
+		//var c = this.read("ci");
+		var s = false;
+
+		var numSt = 0;
+		for (var x = 0; x < this.bits; x++)
+			numSt += this.decorations(`b${x}`).content=="1"?1:0 * 2**x;
+
+		var numIn = 0;
+		for (var x = 0; x < this.bits; x++)
+			numSt += this.read(`d${x}`) * 2**x;
+		
+		var res = sub? numIn-numSt: numIn+numSt;
+
+		for (var x = this.bits-1; x <= 0; x--)
+		{
+			var o = 2**x;
+			var v = res-o >= 0;
+			if (v)
+				res-=o;
+			this.memory[x] = res-o<0? false : true;
+			this.decorations[`b${x}`].content = v? "1" : "0"; 
+		}
+
+	}
+
+	memSub() {
+		return this.memAdd(true);
+	}
+
+	createText(content, name, x=0, y=0) {
+		return super.createText(content, name, x+2, y);
+	}
+
+	update() {
+		var r = this.read("read");
+		var w = this.read("write");
+		var a = this.read("add");
+		var s = this.read("sub");
+		var din = w||a||s; // detects any operation taking data from the bus
+		var nm = (this.r!=r || this.w!=w || this.a!=a || this.s!=s);		
+
+		if (r===din) // illegal
+		{
+			if (!nm)
+				return;
+			return this.setBusMode("hi-z");
+		}
+		if (r)
+		{
+			if (!nm)
+				return;
+			this.setBusMode("out");
+			this.memRead();
+		}
+		else if (din)
+		{
+			if (!nm) 
+				return;
+			this.setBusMode("in");
+			if (a)
+				this.memAdd();
+			else if (s)
+				this.memSub();
+			else
+				this.memWrite();
+		}
+
+	}
+
+}
+*/
 
 Devices.Compounds.ALU = class ALU extends Devices.Device {
 
