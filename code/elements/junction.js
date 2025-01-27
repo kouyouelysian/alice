@@ -3,15 +3,19 @@ class Junction extends Path {
 	constructor(point, net) {
 
 		super();
+		console.log(net.children["junctions"]);
 		net.children["junctions"].addChild(this);
-		
+		console.log(net.children["junctions"]);
 		//this.net = net;
+		console.log("created new junction at", point, "at net", net.name);
+
 		this.data.type = "junction";
 		this.netElement = true;
 		this.closed = true;
 		this.fillColor = net.color; // this.layer.data.style.color.undefined;
 		this.add(point); // dummy segment at center until it gets circle'd
 		this.radiusUpdate(point);
+
 	}
 
 	get net() {
@@ -55,6 +59,7 @@ class Junction extends Path {
 	}
 
 	place() {
+		/*
 		var otherWires = this.position.findEditable({type:"wire", exclude:this.connectedWires, all:true});
 		if (!otherWires || otherWires.length==0)
 		{
@@ -68,6 +73,7 @@ class Junction extends Path {
 		this.remove(true); // has to happen before wires get "finished"
 		for (var w of wires)
 			w.finish(loc, false); // false is to not update the wire end position
+		*/
 	}
 
 	radiusUpdate(notCount=null, point = this.position) {
@@ -84,11 +90,11 @@ class Junction extends Path {
 			count += pinsAtJunction.length;
 		//if (point.findEditable({type:"pin", all:true}))
 		//	count += 1;
-
-		if (!wiresAtJunction)
+		console.log("count =", count);
+		if (count==0)
 			this.remove(true); // if ran out of wires at this junction - remove self
 
-		if (count >= 3)
+		if (count > 2)
 			var radius = window.sim.appearance.size.junction.big;
 
 		function __segmentsGenerate(p,r) {

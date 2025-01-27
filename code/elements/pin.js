@@ -1,47 +1,39 @@
 class Pin extends Path {
 
 	static inversionBulbRatio = 0.25
+	static sideDict = ["right", "top", "left", "bottom"];
 
 	constructor(circuit, pinData /*name, mode, side, offset, bulb, initial*/, device) {
 
 		super();
 		
-		this.setStrokeColor(window.sim.appearance.color.undefined);
-		this.setStrokeWidth(window.sim.appearance.size.wire);
-		
 		//console.log("creating pin for device",device.name,"in circuit",circuit.name," pindata=",pinData);
 
 		this.circuit = circuit;
 		this.net = null;
-		this.getInitialNet();
 		this.side = pinData.side;
 		this.data.type = "pin";
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
 		this.label = (pinData.label === true)? pinData.name : pinData.label; // bool true -> make label same as name
+		
 		this.state = undefined;
 		this.initial = pinData.initial; // undefined OK
 		if (this.initial !== undefined)
 			this.set(this.initial);
 
-		var pOrigin = device.corner[Devices.cornerNames[(device.orientation+1)%4]];;
-		this.add(pOrigin);
-		this.add(pOrigin.add(new Point(window.sim.grid, 0)));
-		this.rotate(-90*((this.side + device.orientation)%4), pOrigin);
-		var shift_x = (this.side % 2 == 1) * 1 + (this.side == 0) * device.packageData.body.dimensions.width;
-		var shift_y = (this.side % 2 == 0) * 1 + (this.side == 3) * device.packageData.body.dimensions.height;
-		this.side % 2 == 0? shift_y += pinData.offset : shift_x += pinData.offset;
-		var shift = new Point(shift_x*window.sim.grid, shift_y*window.sim.grid);
-		this.setPosition(this.position.add(shift.rotate(device.orientation*-90, new Point(0,0))));
+		this._getInitialNet();
+		this._addPathPoints(pinData, device);
+		this.setStrokeColor(window.sim.appearance.color.undefined);
+		this.setStrokeWidth(window.sim.appearance.size.wire);
 
 		//this.place();
 	}
 
+
 	get device() {
 		return this.parent.parent; // pin>pins>device
 	}
-
-	static sideDict = ["right", "top", "left", "bottom"];
 
 	get sideName() {
 		return Pin.sideDict[this.side];
@@ -104,6 +96,38 @@ class Pin extends Path {
 		return false;
 	}
 
+	_addPathPoints(pinData, device) {
+		var pOrigin = device.corner[Devices.cornerNames[(device.orientation+1)%4]];;
+		this.add(pOrigin);
+		this.add(pOrigin.add(new Point(window.sim.grid, 0)));
+		this.rotate(-90*((this.side + device.orientation)%4), pOrigin);
+		var shift_x = (this.side % 2 == 1) * 1 + (this.side == 0) * device.packageData.body.dimensions.width;
+		var shift_y = (this.side % 2 == 0) * 1 + (this.side == 3) * device.packageData.body.dimensions.height;
+		this.side % 2 == 0? shift_y += pinData.offset : shift_x += pinData.offset;
+		var shift = new Point(shift_x*window.sim.grid, shift_y*window.sim.grid);
+		this.setPosition(this.position.add(shift.rotate(device.orientation*-90, new Point(0,0))));
+	}
+
+	_getInitialNet() {
+		if (!this.circuit)
+			return; // fuck off if this is IC editor
+		var net = new Net(this.circuit);
+		this.connect(net);
+		return;
+	}
+
+	_checkExtentJunction() {
+		var junc = this.extent.findEditable({type:"junction"});
+		console.log("found junc:", junc);
+		if (junc) {
+			this.renet(junc.net);
+			junc.radiusUpdate();
+			return true;
+		}
+		junc = new Junction(this.extent, this.net);
+		return false;
+	}
+	
 	set(state, color=null) {
 		this.state = state;
 		return state;
@@ -128,27 +152,26 @@ class Pin extends Path {
 	}
 
 	disconnect() {
-		if (!this.net)
-			return false;
-		this.net.connectionRemove(this);
-		this.net = null;
+		this.renet(new Net(this.circuit));
 	}
 
 	renet(net) {
-		this.disconnect();
+		if (this.net)
+			this.net.connectionRemove(this);
 		this.connect(net);
 	}
 
 	pick() {
 		
-		
+		/*
 		var wires = this.extent.findEditable({type:"wire", all:true, net:this.net});
+		var junc = this.extent.findEditable({type:"junction", net:this.net});
+		
 		if (!wires)
 			return;
 
 		this.disconnect();
 
-		var junc = this.extent.findEditable({type:"junction", net:this.net});
 		junc.radiusUpdate();
 		
 		
@@ -157,15 +180,14 @@ class Pin extends Path {
 			if (w.mergeAt(this.extent))
 				return;
 		}
+		*/
+		this.disconnect();
+		var junc = this.extent.findEditable({type:"junction"});
+		if (junc)
+			junc.radiusUpdate();
 	}
 
-	getInitialNet() {
-		if (!this.circuit)
-			return; // fuck off if this is IC editor
-		var net = new Net(this.circuit);
-		this.connect(net);
-		return;
-	}
+	
 
 	place() {
 
@@ -192,21 +214,19 @@ class Pin extends Path {
 
 		console.log("pins found:", pin);
 
-		if (junc)
-		{
-			this.renet(junc.net);
-			junc.radiusUpdate();
-		}
-		else if (wire)
+		if (this._checkExtentJunction())
+			return;
+
+		if (wire)
 		{
 			this.renet(wire.net);
-			wire.splitAt(end);
+			//wire.splitAt(end);
 		}
 
-		else if (pin) {
+		/*else if (pin) {
 
 			this.renet(pin.net);
-		}
+		}*/
 
 		this.autoColor();
 	}
