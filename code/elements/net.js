@@ -3,7 +3,6 @@ class Net extends Group {
 	constructor(circuit) {
 		
 		super();
-	
 
 		this.name = "net"+circuit.children.nets.getIndex();
 		console.log(`created net ${this.name}`);
@@ -164,11 +163,14 @@ class Net extends Group {
 	
 	mergeWith(otherNet) {
 		
-		this._steal(otherNet, "junctions");
-		this._steal(otherNet, "wires");
+		//this._steal(otherNet, "junctions");
+		//this._steal(otherNet, "wires");
+		this.children.junctions.addChildren(otherNet.children.junctions.removeChildren());
+		this.children.wires.addChildren(otherNet.children.wires.removeChildren());
 
-		for (var pin of otherNet.connections)
+		for (var pin of otherNet.connections) {
 			pin.renet(this);
+		}
 
 		otherNet.remove();
 	}
@@ -192,12 +194,15 @@ class Net extends Group {
 		this.autoColor(state);
 	}
 
-	wireRemovalScan(wire) {
-		var pointA = wire.firstSegment.point;
-		var pointB = wire.lastSegment.point;
-		wire.segments = [];
+	wireRemovalScan(junctions) {
 
-		var splitNet = new Net(this.parent.parent); //net>nets>circuit
+		if (junctions.length!=2 || !junctions[0] || !junctions[1])
+			return;
+
+		var pointA = junctions[0].position;
+		var pointB = junctions[1].position;
+
+		var splitNet = new Net(this.circuit); //net>nets>circuit
 		if (this.hasRouteTo(pointA, pointB, splitNet))
 			this.mergeWith(splitNet)
 	}
@@ -219,7 +224,6 @@ class Net extends Group {
 			wire.renet(newNet);
 		 	if (this.hasRouteTo(goal, wire.getOtherSide(location), newNet))
 			  return true;
-			
 		}
 		return false;
 	}

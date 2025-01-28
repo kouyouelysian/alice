@@ -31,6 +31,13 @@ class Junction extends Path {
 
 	renet(newNet) {
 		newNet.children["junctions"].addChild(this);
+		var pins = this.position.findEditable({type:"pin", all:true})
+		console.log(`found pins upon junction renetting:`, pins);
+		if (!pins)	return;
+		for (var p of pins) {
+			console.log("renetting", p);
+			p.renet(newNet);
+		}
 	}
 
 	remove(bare=false) {
@@ -38,8 +45,10 @@ class Junction extends Path {
 			return super.remove();
 		for (var w of this.connectedWires)
 			w.remove();
-		this.net.removeIfEmpty();
+		var n = this.net;
 		super.remove();
+		n.removeIfEmpty();
+		
 	}
 
 	pick() {
@@ -61,7 +70,9 @@ class Junction extends Path {
 	place(point=this.position) {
 
 		var oj = point.findEditable({type:"junction", exclude:this});
-		if (oj)
+		var w = point.findEditable({type:"wire", exclude:this.net});
+
+		if (oj && (oj.net != this.net))
 		{
 			console.log("found other junction");
 			var n = this.net;
@@ -69,7 +80,9 @@ class Junction extends Path {
 			oj.radiusUpdate();
 			return this.remove();
 		}
-
+		else if (w) {
+			w.splitAtJunction(this);
+		}
 
 		this.add(point); // dummy segment at center until it gets circle'd
 		this.radiusUpdate(point);

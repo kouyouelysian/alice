@@ -10,26 +10,25 @@ class Pin extends Path {
 		//console.log("creating pin for device",device.name,"in circuit",circuit.name," pindata=",pinData);
 
 		this.circuit = circuit;
-		this.net = null;
 		this.side = pinData.side;
 		this.data.type = "pin";
 		this.name = pinData.name;
 		this.mode = pinData.mode; // "in", "out" or "hi-z"
 		this.label = (pinData.label === true)? pinData.name : pinData.label; // bool true -> make label same as name
 		
+		this.net = undefined;
 		this.state = undefined;
 		this.initial = pinData.initial; // undefined OK
 		if (this.initial !== undefined)
 			this.set(this.initial);
 
-		this._getInitialNet();
+		
 		this._addPathPoints(pinData, device);
 		this.setStrokeColor(window.sim.appearance.color.undefined);
 		this.setStrokeWidth(window.sim.appearance.size.wire);
 
 		//this.place();
 	}
-
 
 	get device() {
 		return this.parent.parent; // pin>pins>device
@@ -108,13 +107,6 @@ class Pin extends Path {
 		this.setPosition(this.position.add(shift.rotate(device.orientation*-90, new Point(0,0))));
 	}
 
-	_getInitialNet() {
-		if (!this.circuit)
-			return; // fuck off if this is IC editor
-		this.connect(new Net(this.circuit));
-		return;
-	}
-
 	_checkExtentJunction() {
 		var junc = this.extent.findEditable({type:"junction"});
 		console.log("found junc:", junc);
@@ -142,6 +134,7 @@ class Pin extends Path {
 		this.strokeColor = sim.appearance.color[this.state];
 	}
 
+	/*
 	remove() {
 		this.disconnect();
 		super.remove();
@@ -152,67 +145,38 @@ class Pin extends Path {
 		this.net = net;
 	}
 
-	disconnect() {
-		this.net.connections.splice(this.net.connections.indexOf(this), 1);
-		this.net.removeIfEmpty();
-		this.net = new Net(this.circuit);
-	}
-
 	renet(net) {
 		console.log(`renetting pin: ${this.net.name} -> ${net.name}`);
-		this.disconnect();
+		this.net.connections.splice(this.net.connections.indexOf(this), 1);
+		this.net.removeIfEmpty();
 		this.connect(net);
 	}
 
-	pick() {
-		this.disconnect();
-		var junc = this.extent.findEditable({type:"junction"});
-		if (junc)
-			junc.radiusUpdate();
+
+	disconnect() {
+		return this.renet(new Net(this.circuit));
+	}
+	*/
+
+	renet(net) {
+		console.log(`renetting junction from ${this.net? this.net.name: undefined} to ${net? net.name: undefined}`);
+		if (this.net)
+			this.net.connections.splice(this.net.connections.indexOf(this), 1);
+		this.net = net;
+		if (net)
+			net.connections.push(this);
 	}
 
-	
+	pick() {
+		this.renet(undefined);
+		var j = this.extent.findEditable({type:"junction"})
+		if (j)
+			j.radiusUpdate();
+	}
 
 	place() {
-
+		this.renet(new Net(this.circuit));
 		new Junction(this.extent, this.net);
-
-		// if neither found - no net to connect to; create new net and become part of it
-		/*
-		var junc = this.extent.findEditable({type:"junction"});
-		var wire = this.extent.findEditable({type:"wire"});
-		var pin = this.extent.findEditable({type:"pin", exclude:this});
-		if (!(wire || junc || pin) && !this.isConnected)
-		{
-			var net = new Net(this.circuit);
-			this.connect(net);
-			return;
-		}
-		*/
-
-		// else connect to the existing net
-		/*if (this.net) // if we're placing a pin its net only contains the pin
-		{
-			this.disconnect();
-			this.net.remove();
-		}*/
-		/*
-		console.log("pins found:", pin);
-
-		if (this._checkExtentJunction())
-			return;
-
-		if (wire)
-		{
-			this.renet(wire.net);
-			//wire.splitAt(end);
-		}
-		*/
-		/*else if (pin) {
-
-			this.renet(pin.net);
-		}*/
-
 		this.autoColor();
 	}
 

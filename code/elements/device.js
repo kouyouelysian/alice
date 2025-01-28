@@ -275,13 +275,13 @@ Devices.Device = class Device extends Group {
 		}
 	}
 
-	disconnectPins() {
+	pickPins() {
 		for (var pin of this.pins)
-			pin.disconnect(); // because removechildren doesn't call each child's remove apparently
+			pin.pick(); // because removechildren doesn't call each child's remove apparently
 	}
 
 	deletePins() {
-		this.disconnectPins();
+		this.pickPins();
 		this.children.pins.removeChildren();
 		this.children.bulbs.removeChildren();	
 		this.children.labels.removeChildren();

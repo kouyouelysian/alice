@@ -184,7 +184,7 @@ class Sim {
 						target = editable;
 						break;
 					case "wire":
-						target  =editable.splitAt(editable.middle);
+						target  =editable.break();
 						target.reposition(point);
 						break;
 					default:
