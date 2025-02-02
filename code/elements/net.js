@@ -5,7 +5,6 @@ class Net extends Group {
 		super();
 
 		this.name = "net"+circuit.children.nets.getIndex();
-		console.log(`created net ${this.name}`);
 
 		circuit.children.nets.addChild(this);
 		this.data.type = "net";
@@ -98,7 +97,6 @@ class Net extends Group {
 	}
 
 	remove() {
-		console.log(`removing ${this.name}`);
 		this.parent.freeIndex(this.name);
 		super.remove();
 	}
@@ -151,7 +149,6 @@ class Net extends Group {
 			return;
 		if (this.junctions.length > 0)
 			return;
-		console.log("empty!");
 		this.remove();
 	}
 
@@ -209,6 +206,8 @@ class Net extends Group {
 
 	hasRouteTo(goal, location, newNet)
 	{
+
+
 		if (location.x == goal.x && location.y == goal.y)
 			return true; // if goal met - return with true
  
@@ -227,27 +226,6 @@ class Net extends Group {
 		}
 		return false;
 	}
-
-	/*
-	connectionAdd(pin) {
-		console.log(`adding pin ${pin.name} to net ${this.name}`);
-		if (this.connections.indexOf(pin) == -1)
-			this.connections.push(pin);
-		pin.net = this;
-	} 
-
-	connectionRemove(pin) {
-		console.log(`removing pin ${pin.name} from net ${this.name}`);
-		var index = this.connections.indexOf(pin);
-		pin.net = new Net(this.circuit);
-		if (index == -1)
-			return false;
-		this.connections.splice(index, 1);
-		console.log("asdf", this.connections, this.connections.length);
-		this._deleteIfEmpty();
-		return true;
-	}
-	*/
 
 	highlight() {
 		this.recolor(window.sim.appearance.color.highlighted);

@@ -4,8 +4,6 @@ class Junction extends Path {
 
 		super();
 	
-		console.log("created new junction at", point, "at net", net.name);
-
 		this.data.type = "junction";
 		this.netElement = true;
 		this.closed = true;
@@ -32,23 +30,22 @@ class Junction extends Path {
 	renet(newNet) {
 		newNet.children["junctions"].addChild(this);
 		var pins = this.position.findEditable({type:"pin", all:true})
-		console.log(`found pins upon junction renetting:`, pins);
 		if (!pins)	return;
-		for (var p of pins) {
-			console.log("renetting", p);
+		for (var p of pins)
 			p.renet(newNet);
-		}
 	}
 
-	remove(bare=false) {
-		if (bare)
-			return super.remove();
+	remove() {
 		for (var w of this.connectedWires)
 			w.remove();
 		var n = this.net;
 		super.remove();
 		n.removeIfEmpty();
 		
+	}
+
+	kill() {
+		return super.remove();
 	}
 
 	pick() {
@@ -74,34 +71,20 @@ class Junction extends Path {
 
 		if (oj && (oj.net != this.net))
 		{
-			console.log("found other junction");
-			var n = this.net;
-			oj.net.mergeWith(n);
+			oj.net.mergeWith(this.net);
 			oj.radiusUpdate();
 			return this.remove();
 		}
-		else if (w) {
-			w.splitAtJunction(this);
-		}
 
 		this.add(point); // dummy segment at center until it gets circle'd
+
+		if (w) {
+			w.splitAt(this.position);
+			w.net.mergeWith(this.net);
+		}
+
 		this.radiusUpdate(point);
 
-		/*
-		var otherWires = this.position.findEditable({type:"wire", exclude:this.connectedWires, all:true});
-		if (!otherWires || otherWires.length==0)
-		{
-			this.connectedWires[0].pinConnect(this.position);
-			this.radiusUpdate(); // if not contacting other wires - just leave things be
-			return;
-		}
-		// else basically emulate each wire being finished naturally
-		var wires = this.connectedWires;
-		var loc = new Point(this.position.x, this.position.y);
-		this.remove(true); // has to happen before wires get "finished"
-		for (var w of wires)
-			w.finish(loc, false); // false is to not update the wire end position
-		*/
 	}
 
 	radiusUpdate(notCount=null, point = this.position) {
@@ -116,14 +99,26 @@ class Junction extends Path {
 			count += wiresAtJunction.length;
 		if (pinsAtJunction)
 			count += pinsAtJunction.length;
-		//if (point.findEditable({type:"pin", all:true}))
-		//	count += 1;
-		console.log("count =", count);
-		if (count==0)
-			this.remove(true); // if ran out of wires at this junction - remove self
 
+		console.log(count);
+
+		if (count==0)
+		{
+			this.kill(); // if ran out of wires at this junction - remove self
+			return false;
+		}
 		if (count > 2)
 			var radius = window.sim.appearance.size.junction.big;
+
+
+
+		if (count == 2 && wiresAtJunction.length==2)
+		{
+			console.log("asdfasdf");
+			if (wiresAtJunction[0].mergeWith(wiresAtJunction[1]))
+				this.kill();
+				return false;
+		}
 
 		function __segmentsGenerate(p,r) {
 			var helperCircle = Path.Circle(p, r);
@@ -133,6 +128,8 @@ class Junction extends Path {
 		}
 		
 		this.segments = __segmentsGenerate(point, radius);
+
+		return true;
 	}
 
 }
