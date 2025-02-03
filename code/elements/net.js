@@ -88,7 +88,7 @@ class Net extends Group {
 
 	importGui(netRecord) {
 		for (var wireRecord of netRecord.wires) {
-			var w = new Wire(new Point(-100,-100), this.circuit, false);
+			var w = new Wire(this.circuit);
 			w.renet(this);
 			w.start(new Point(wireRecord.start.x, wireRecord.start.y));
 			w.finish(new Point(wireRecord.finish.x, wireRecord.finish.y));

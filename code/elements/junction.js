@@ -41,27 +41,23 @@ class Junction extends Path {
 		var n = this.net;
 		super.remove();
 		n.removeIfEmpty();
-		
 	}
 
 	kill() {
 		return super.remove();
 	}
 
-	pick() {
-		
+	pick() {	
 		return;
 	}
 
 	reposition(point) {
-
 		for (var w of this.connectedWires)
 		{
 			var s = w.getSide(this.position, true);
 			s.point = point;
 		}
 		this.position = point;
-		
 	}
 
 	place(point=this.position) {
@@ -72,7 +68,7 @@ class Junction extends Path {
 		if (oj && (oj.net != this.net))
 		{
 			oj.net.mergeWith(this.net);
-			oj.radiusUpdate();
+			oj.update();
 			return this.remove();
 		}
 
@@ -83,11 +79,10 @@ class Junction extends Path {
 			w.net.mergeWith(this.net);
 		}
 
-		this.radiusUpdate(point);
-
+		this.update(point);
 	}
 
-	radiusUpdate(notCount=null, point = this.position) {
+	update(notCount=null, point = this.position) {
 
 		var radius = window.sim.appearance.size.junction.normal;
 
@@ -100,21 +95,17 @@ class Junction extends Path {
 		if (pinsAtJunction)
 			count += pinsAtJunction.length;
 
-		console.log(count);
-
 		if (count==0)
 		{
 			this.kill(); // if ran out of wires at this junction - remove self
 			return false;
 		}
+
 		if (count > 2)
 			var radius = window.sim.appearance.size.junction.big;
 
-
-
-		if (count == 2 && wiresAtJunction.length==2)
+		if (count == 2 && wiresAtJunction && wiresAtJunction.length==2)
 		{
-			console.log("asdfasdf");
 			if (wiresAtJunction[0].mergeWith(wiresAtJunction[1]))
 				this.kill();
 				return false;

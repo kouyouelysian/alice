@@ -6,8 +6,6 @@ class Pin extends Path {
 	constructor(circuit, pinData /*name, mode, side, offset, bulb, initial*/, device) {
 
 		super();
-		
-		//console.log("creating pin for device",device.name,"in circuit",circuit.name," pindata=",pinData);
 
 		this.circuit = circuit;
 		this.side = pinData.side;
@@ -109,14 +107,12 @@ class Pin extends Path {
 
 	_checkExtentJunction() {
 		var junc = this.extent.findEditable({type:"junction"});
-		console.log("found junc:", junc);
 		if (junc) {
 			if (this.net != junc.net)
 				this.renet(junc.net);
-			junc.radiusUpdate();
+			junc.update();
 			return true;
 		}
-		console.log(this.net.name, this.net);
 		junc = new Junction(this.extent, this.net);
 		return false;
 	}
@@ -134,32 +130,7 @@ class Pin extends Path {
 		this.strokeColor = sim.appearance.color[this.state];
 	}
 
-	/*
-	remove() {
-		this.disconnect();
-		super.remove();
-	}
-
-	connect(net) {
-		net.connections.push(this);
-		this.net = net;
-	}
-
 	renet(net) {
-		console.log(`renetting pin: ${this.net.name} -> ${net.name}`);
-		this.net.connections.splice(this.net.connections.indexOf(this), 1);
-		this.net.removeIfEmpty();
-		this.connect(net);
-	}
-
-
-	disconnect() {
-		return this.renet(new Net(this.circuit));
-	}
-	*/
-
-	renet(net) {
-		console.log(`renetting junction from ${this.net? this.net.name: undefined} to ${net? net.name: undefined}`);
 		if (this.net)
 			this.net.connections.splice(this.net.connections.indexOf(this), 1);
 		this.net = net;
@@ -171,7 +142,7 @@ class Pin extends Path {
 		this.renet(undefined);
 		var j = this.extent.findEditable({type:"junction"})
 		if (j)
-			j.radiusUpdate();
+			j.update();
 	}
 
 	place() {

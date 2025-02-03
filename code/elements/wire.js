@@ -1,6 +1,6 @@
 class Wire extends Path {
 
-	constructor(point, circuit, fromGui=true) {
+	constructor(circuit, point=undefined) {
 
 		super();
 		this.data.type = "wire";	
@@ -11,7 +11,7 @@ class Wire extends Path {
 
 		this.renet(new Net(circuit));
 
-		if (fromGui)		
+		if (point)		
 			this.start(point, circuit);
 	}
 
@@ -46,10 +46,13 @@ class Wire extends Path {
 	}
 
 	get junctions() {
-		return [
-			this.side1.findEditable({type:"junction"}),
-			this.side2.findEditable({type:"junction"})
-		];
+		var out = [];
+		for (var side of this.sides) {
+			var j = side.findEditable({type:"junction"});
+			if (j)
+				out.push(j); 
+		}
+		return out;
 	}
 
 	get angle() {
@@ -86,7 +89,7 @@ class Wire extends Path {
 		this.lastSegment.remove();
 		this.net.wireRemovalScan(juncs)
 		for (var x = 0; x < juncs.length; x++) {
-			if (!juncs[x].radiusUpdate()) // if junc deleted self
+			if (!juncs[x].update()) // if junc deleted self
 				juncs[x] = undefined; // mark its ref as undefined
 		}
 		super.remove();	
@@ -115,7 +118,7 @@ class Wire extends Path {
 	splitAt(point) {
 		if (point.isClose(this.side1,0) || point.isClose(this.side2,0))
 			return;
-		var newWire = new Wire(point.clone(), this.circuit, false);
+		var newWire = new Wire(this.circuit, point.clone());
 		newWire.renet(this.net);
 		newWire.add(point.clone());
 		newWire.add(this.lastSegment.point.clone());
@@ -141,7 +144,7 @@ class Wire extends Path {
 
 	break() {
 		var j = new Junction(this.middle, this.net);
-		this.splitAtJunction(j);
+		this.splitAt(j.position);
 		return j;
 	}
 

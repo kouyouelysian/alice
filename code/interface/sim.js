@@ -149,7 +149,7 @@ class Sim {
 
 			case "wire":
 				this._setStatus("wiring");
-				return this.editedElement = new Wire(point, this.circuit);
+				return this.editedElement = new Wire(this.circuit, point);
 
 			case "highlight":
 				var editable = point.findEditable();
@@ -232,7 +232,7 @@ class Sim {
 			case "wiring":
 				this.editedElement.finish(point); // finalise wire to how it must be
 				if (Key.isDown('shift'))
-					return this.editedElement = new Wire(point, this.circuit);
+					return this.editedElement = new Wire(this.circuit, point);
 				break;
 			
 			case "adding device":
@@ -249,6 +249,10 @@ class Sim {
 			return;
 		if (this.selection.data.type == "body")
 			return this.selection.parent.remove();
+		if (this.selection.data.type == "pin")
+			return this.selection.device.remove();
+		if (!["wire", "junction", "device"].includes(this.selection.data.type))
+			return;
 		this.selection.remove();
 		this.selection = null;
 		
@@ -410,7 +414,8 @@ class Sim {
 	rclick(event) {
 		event.preventDefault();
 		event.stopPropagation();
-		if (this.status == "adding device")
+		if ((this.status == "adding device") ||
+			(this.status == "dragging" && this.editedElement.data.type == "device"))
 			return this.editedElement.reorient();
 		ContextMenu.show(event);
 	}
